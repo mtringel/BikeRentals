@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyName>Toptal.BikeRentals.Web.Api</AssemblyName>
+    <RootNamespace>Toptal.BikeRentals.Web.Api</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP2_0</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Service.Api\Service.Api.csproj" />
+    <ProjectReference Include="..\Service.Models\Service.Models.csproj" />
+  </ItemGroup>
+
+</Project>

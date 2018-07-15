@@ -1,0 +1,36 @@
+﻿@using Toptal.BikeRentals.Resources;
+
+<script type="text/javascript">
+
+@{
+    var controller = ViewBag.ActiveController;
+
+    @Html.Raw("var globals = {");
+    @Html.Raw(string.Format("productTitle: '{0}',", controller.AppConfig.ProductInfo.Title.Replace("'", "\'")));
+    @Html.Raw(string.Format("isDebugging: {0},", controller.Helper.IsDebugging.ToString().ToLower()));
+    @Html.Raw(string.Format("shortDateFormat: '{0}',", controller.CallContext.UICulture.DateTimeFormat.ShortDatePattern));
+    @Html.Raw(string.Format("shortDateTimeFormat: '{0}',", controller.CallContext.UICulture.DateTimeFormat.ShortDatePattern));
+    @Html.Raw(string.Format("showDetailedError: {0},", controller.AppConfig.WebApplication.ShowDetailedError.ToString().ToLower()));
+    @Html.Raw(string.Format("antiforgeryTokenHeaderName: '{0}',", controller.AppConfig.ServiceApi.AntiforgeryTokenHeaderName));
+    @Html.Raw(string.Format("antiforgeryTokenFieldName: '{0}',", controller.AppConfig.ServiceApi.AntiforgeryTokenFieldName));
+    @Html.Raw(string.Format("basePath: '{0}',", controller.AppConfig.WebApplication.BasePath))
+    @Html.Raw(string.Format("baseUrl: '{0}',", controller.AppConfig.WebApplication.BaseUrl))
+    @Html.Raw(string.Format("gridPageSize: {0},", controller.AppConfig.WebApplication.GridPageSize))
+    @Html.Raw(string.Format("gridMaxRows: {0},", controller.AppConfig.WebApplication.GridMaxRows))
+    @Html.Raw("}; document.globals = globals;")
+
+    // Auto login
+    if (controller.Helper.IsDebugging && controller.AppConfig.Security.AutoLoginIfDebugging)
+    {
+        @Html.Raw(string.Format("globals.autoLoginEmail = '{0}';", controller.AppConfig.Security.AutoLoginEmail));
+        @Html.Raw(string.Format("globals.autoLoginPassword = '{0}';", controller.AppConfig.Security.AutoLoginPassword));
+    }
+
+    // Resources
+    @Html.Raw("globals.resources = {");
+    @Html.Raw(string.Format("Security_Unauthenticated: '{0}',", Resources.Security_Unauthenticated.Replace("'", "\\'")));
+    @Html.Raw(string.Format("Security_Unauthorized: '{0}',", Resources.Security_Unauthorized.Replace("'", "\\'")));
+    @Html.Raw(string.Format("Validation_MandatoryFieldsAreMissing: '{0}',", Resources.Validation_MandatoryFieldsAreMissing.Replace("'", "\\'")));
+    @Html.Raw("};");
+}
+</script>

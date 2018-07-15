@@ -1,0 +1,32 @@
+﻿import * as Redux from 'redux';
+
+// custom types
+import { RootState } from '../state/rootState';
+import { BikeModelsReducers } from './bikes/bikeModelsReducers';
+import { ColorsReducers } from './master/colorsReducers';
+import { RolesReducers } from './security/rolesReducers';
+import { UsersReducers } from './users/usersReducers';
+import { ClientContextReducers } from './shared/clientContextReducers';
+import { FormValidatorReducers } from './shared/formValidatorReducers';
+import { AuthServiceReducers } from './security/authServiceReducers';
+import { WebApiServiceReducers } from './shared/webApiServiceReducers';
+import { LoginParamsReducers } from './account/loginParamsReducers';
+import { BikesReducers } from './bikes/bikesReducers';
+
+export class RootReducerProvider {
+
+    public static CombineReducers(): Redux.Reducer<RootState> {
+        return Redux.combineReducers({
+            clientContext: ClientContextReducers,
+            authService: AuthServiceReducers,
+            webApiService: WebApiServiceReducers,
+            bikeModels: BikeModelsReducers,
+            colors: ColorsReducers,
+            roles: RolesReducers,
+            users: UsersReducers,
+            formValidator: FormValidatorReducers,
+            loginParams: LoginParamsReducers,
+            bikes: BikesReducers
+        });
+    }
+}

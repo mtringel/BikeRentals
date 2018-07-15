@@ -1,0 +1,237 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1" MembersFormat="NameAndType">
+  <Class Name="Toptal.BikeRentals.Exceptions.Security.SecurityException" Collapsed="true">
+    <Position X="6" Y="4.5" Width="1.5" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.AppException" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="4.31" />
+        <Point X="7.75" Y="4.875" />
+        <Point X="7.5" Y="4.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Security\SecurityException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Security.UnauthenticatedException" Collapsed="true">
+    <Position X="3.75" Y="4.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Security\UnauthenticatedException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Security.UnauthorizedException" Collapsed="true">
+    <Position X="3.75" Y="5.5" Width="2" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Security.SecurityException" FixedToPoint="true">
+      <Path>
+        <Point X="6.75" Y="5.191" />
+        <Point X="6.75" Y="5.875" />
+        <Point X="5.75" Y="5.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAgAAAAAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Security\UnauthorizedException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Configuration.ApplicationSettingNotFoundException" Collapsed="true">
+    <Position X="10" Y="4.5" Width="2.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Configuration.ConfigurationException" FixedFromPoint="true">
+      <Path>
+        <Point X="9.75" Y="4.812" />
+        <Point X="10" Y="4.812" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\ApplicationSettingNotFoundException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Configuration.ConfigurationException" Collapsed="true">
+    <Position X="8" Y="4.5" Width="1.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.AppException" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="4.31" />
+        <Point X="7.75" Y="4.875" />
+        <Point X="8" Y="4.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Configuration\ConfigurationException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Azure.AzureException" Collapsed="true">
+    <Position X="8" Y="5.5" Width="1.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.AppException" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="4.31" />
+        <Point X="7.75" Y="5.812" />
+        <Point X="8" Y="5.812" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Azure\AzureException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Azure.GraphApiException" Collapsed="true">
+    <Position X="10" Y="5.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Azure\GraphApiException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Azure.SubscriptionApiException" Collapsed="true">
+    <Position X="10" Y="6.5" Width="2" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Azure.AzureException" FixedToPoint="true">
+      <Path>
+        <Point X="8.875" Y="6.191" />
+        <Point X="8.875" Y="6.812" />
+        <Point X="10" Y="6.812" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Azure\SubscriptionApiException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.DataAccess.DataAccessException" Collapsed="true">
+    <Position X="6.25" Y="9.5" Width="1.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.AppException" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="4.31" />
+        <Point X="7.75" Y="9.5" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataAccess\DataAccessException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Entities.EntityException" Collapsed="true">
+    <Position X="6" Y="6.5" Width="1.5" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.AppException" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="4.31" />
+        <Point X="7.75" Y="6.875" />
+        <Point X="7.5" Y="6.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\EntityException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Entities.EntityNotFoundException" Collapsed="true">
+    <Position X="3.75" Y="6.5" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\EntityNotFoundException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Entities.InvalidEntityKeyException" Collapsed="true">
+    <Position X="3.75" Y="7.5" Width="2" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Entities.EntityException" FixedToPoint="true">
+      <Path>
+        <Point X="6.75" Y="7.191" />
+        <Point X="6.75" Y="7.875" />
+        <Point X="5.75" Y="7.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\InvalidEntityKeyException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Entities.TooMuchDataFilterRequiredException" Collapsed="true">
+    <Position X="3.75" Y="8.5" Width="2.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Entities.EntityException" FixedToPoint="true">
+      <Path>
+        <Point X="6.75" Y="7.191" />
+        <Point X="6.75" Y="8.875" />
+        <Point X="6.5" Y="8.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Entities\TooMuchDataFilterRequiredException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Validation.AntiforgeryTokenValidationException" Collapsed="true">
+    <Position X="10" Y="8.5" Width="2.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Validation.ValidationException" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="8.191" />
+        <Point X="9" Y="8.812" />
+        <Point X="10" Y="8.812" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validation\AntiForgeryTokenValidationException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Validation.InputDataMissingException" Collapsed="true">
+    <Position X="10" Y="7.5" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validation\InputDataMissingException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Validation.InvalidOrMissingQueryParametersException" Collapsed="true">
+    <Position X="9.5" Y="9.5" Width="3.25" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.Validation.ValidationException" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9" Y="8.191" />
+        <Point X="9" Y="9.813" />
+        <Point X="9.5" Y="9.813" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validation\InvalidOrMissingQueryParametersException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.Validation.ValidationException" Collapsed="true">
+    <Position X="8" Y="7.5" Width="1.75" />
+    <InheritanceLine Type="Toptal.BikeRentals.Exceptions.AppException" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="4.31" />
+        <Point X="7.75" Y="7.875" />
+        <Point X="8" Y="7.875" />
+      </Path>
+    </InheritanceLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Validation\ValidationException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.AppException">
+    <Position X="6.5" Y="2.5" Width="2.5" />
+    <Members>
+      <Method Name="AppException" Hidden="true" />
+      <Method Name="ToString" Hidden="true" />
+    </Members>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAGAAAAAAAAAAAAAAIAAAAACAAAAAA=</HashCode>
+      <FileName>AppException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.InternalServerError" Collapsed="true">
+    <Position X="10" Y="2.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>InternalServerError.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Toptal.BikeRentals.Exceptions.DataAccess.TransactionRequiredException" Collapsed="true">
+    <Position X="3.75" Y="9.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>DataAccess\TransactionRequiredException.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

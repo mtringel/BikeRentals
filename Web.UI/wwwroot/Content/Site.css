@@ -1,0 +1,60 @@
+﻿body {
+    padding-top: 50px;
+    padding-bottom: 20px;
+}
+
+/* Wrapping element */
+/* Set some basic padding to keep content from hitting the edges */
+.body-content {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Hide/rearrange for smaller screens */
+@media screen and (max-width: 767px) {
+}
+
+/* Ajax loader*/
+.loader-div {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1100;
+    background-color: white;
+    opacity: .6;
+}
+
+.ajax-loader {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -32px; /* -1 * image width / 2 */
+    margin-top: -32px; /* -1 * image height / 2 */
+    display: block;
+}
+
+.border-error {
+    border: 1px solid red;
+}
+
+.ui-autocomplete {
+    z-index: 2147483647;
+}
+
+.ui-front {
+    z-index: 100;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.react-numeric-input b {
+    display: none !important;
+}
+
+.Select-menu-outer {
+    z-index: 100 !important;
+}
