@@ -19,8 +19,7 @@ export interface UserListProps extends PropsBase {
 
 export interface UserListActions {
     readonly onAuthorize: (onSuccess: (authContext: UserAuthContext) => void) => void;
-    readonly onAllowCachedData: () => boolean;
-    readonly onInvalidateCaches: () => void;
+    readonly onAllowCachedData: (invalidateCaches: boolean) => boolean;
     readonly onLoad: (allowCachedData: boolean, filter: string, onSuccess: (data: UserListData) => void) => void;
     readonly onEdit: (filter: string, user: User) => void;
     readonly onAddNew: (filter: string) => void;    
@@ -40,16 +39,12 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var allowCachedData = this.props.onAllowCachedData();
-
-        if (!allowCachedData)
-            this.props.onInvalidateCaches(); // clears store
-
+        var allowCachedData = this.props.onAllowCachedData(true);
         var storeState = this.props.store.getState().users;
 
         // set empty state for render()
         var empty: UserListState = {
-            filter: StringHelper.notNullOrEmpty(storeState.usersFilter, ""),
+            filter: StringHelper.notNullOrEmpty(storeState.listFilter, ""),
             data: new UserListData(),
             authContext: new UserAuthContext(),
             isInitialized: false,
@@ -88,7 +83,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
 
     private userIsEditable(user: User): boolean {
         // only admin can edit admin (plus only admin can edit the role of a user manager)
-        return this.state.authContext.canEditAdmin || user.Role !== RoleType.Admin;
+        return this.state.authContext.canManage && (this.state.authContext.canEditAdmin || (user.Role !== RoleType.Manager && user.Role !== RoleType.Admin));
     }
 
     public render(): JSX.Element | null | false {
@@ -106,9 +101,9 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                     {/* Header row */}
                     <div className="row">
                         <div className="col-md-4">
-                            <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
+                            {this.state.authContext.canManage && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
                                 <i className="glyphicon glyphicon-file"></i> New
-                        </Button>
+                            </Button>}
                         </div>
 
                         <div className="col-md-4">

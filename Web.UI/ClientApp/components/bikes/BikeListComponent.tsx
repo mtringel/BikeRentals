@@ -13,6 +13,7 @@ import { TypeHelper } from '../../helpers/typeHelper';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { RenderHelper } from '../../helpers/renderHelper';
 import { Store } from '../../store/store';
+import { BikeStateHelper } from '../../models/bikes/bikeState';
 
 export interface BikeListComponentProps  {
     readonly store: Store;
@@ -33,28 +34,32 @@ class BikeListComponentState {
 }
 
 export interface BikeListComponentActions {
-    readonly onOrderByChanged: (orderBy: string[], orderByDescending: boolean) => void;
+    readonly onOrderByChange: (orderBy: string[], orderByDescending: boolean) => void;
 }
 
-export class BikeListComponent extends ComponentBase<BikeListComponentProps & BikeListComponentActions, BikeListComponentState>
+type ThisProps = BikeListComponentProps & BikeListComponentActions;
+type ThisState = BikeListComponentState;
+
+export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
 {
-    public componentWillReceiveProps(nextProps: Readonly<BikeListComponentProps & BikeListComponentActions>, nextContent: any) {
+    public componentWillReceiveProps(nextProps: Readonly<ThisProps>, nextContent: any) {
         if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps, nextContent);
-        
-        this.initialize(nextProps);
+
+        if (!TypeHelper.shallowEquals(nextProps, this.props))
+            this.initialize(nextProps);
     }
 
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
-        
+
         this.initialize(this.props);
     }
 
-    private initialize(props: Readonly<BikeListComponentProps & BikeListComponentActions>) {
-        var rootState = this.props.store.getState();
+    private initialize(props: Readonly<ThisProps>) {
+        var rootState = props.store.getState();
 
         // set empty state for render()
-        var initial: BikeListComponentState = {
+        var initial: ThisState = {
             data: props.data,
             orderBy: props.orderBy,
             orderByDescending: props.orderByDescending,
@@ -75,10 +80,10 @@ export class BikeListComponent extends ComponentBase<BikeListComponentProps & Bi
     }
 
 
-    private orderByChange(fieldName: string) {
+    private orderByChanged(fieldName: string) {
         var contains = StringHelper.arrayContains(this.state.orderBy, fieldName, true);
 
-        this.props.onOrderByChanged(
+        this.props.onOrderByChange(
             !contains ? [fieldName] : !this.state.orderByDescending ? this.state.orderBy : this.props.defaultOrderBy,
             contains && (!this.state.orderByDescending || this.props.defaultOrderByDescending)
         );
@@ -91,6 +96,7 @@ export class BikeListComponent extends ComponentBase<BikeListComponentProps & Bi
                     <tr>
                         {RenderHelper.renderSortableHeaders([
                             { title: "Rating", fieldName: "RateAverage" },
+                            this.props.authContext.canManage ? { title: "Current status", fieldName: "BikeState" } : null,
                             { title: "Photo", fieldName: "" },
                             { title: "Model", fieldName: "BikeModel.BikeModelName" },
                             { title: "Color", fieldName: "Color.ColorName" },
@@ -98,12 +104,12 @@ export class BikeListComponent extends ComponentBase<BikeListComponentProps & Bi
                             { title: "Location", fieldName: "CurrentLocationName" },
                             { title: "Distance", fieldName: "DistanceMiles" },
                             { title: "Available from", fieldName: "AvailableFrom" },
-                            { title: "Id", fieldName: "BikeId" },
+                            { title: "Bike#", fieldName: "BikeId" },
                             { title: "", fieldName: "" }
                         ],
                             this.state.orderBy,
                             this.state.orderByDescending,
-                            fieldName => this.orderByChange(fieldName)
+                            fieldName => this.orderByChanged(fieldName)
                         )}
                     </tr>
                 </thead>
@@ -111,9 +117,12 @@ export class BikeListComponent extends ComponentBase<BikeListComponentProps & Bi
                     {this.state.data.List.map(item =>
                         <tr key={item.BikeId} >
                             <td><Badge>{StringHelper.formatNumber(item.RateAverage, 0, 1)}</Badge></td>
+                            {this.props.authContext.canManage &&
+                                <td><span style={{ background: "#" + BikeStateHelper.allColors[item.BikeState] }}>&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;{BikeStateHelper.allNames[item.BikeState]}</td>
+                            }
                             <td><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.BikeId.toString()} width="100" height="60" /></td>
                             <td>{item.BikeModel.BikeModelName}</td>
-                            <td>{item.Color.ColorName}</td>
+                            <td><span style={{ background: "#" + item.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Color.ColorName}</td>
                             <td className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, "lbs")}</td>
                             <td>{item.CurrentLocationName}</td>
                             <td>{item.DistanceMiles === null ? "" : item.DistanceMiles >= 0.2 ? StringHelper.formatNumber(item.DistanceMiles, 0, 1, "mi") : StringHelper.formatNumber(item.DistanceMiles * 5280, 0, 0, "ft")}</td>

@@ -78,14 +78,18 @@ namespace Toptal.BikeRentals.BusinessEntities.Users
         [StringLength(50, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
         public string Password { get; set; }
 
+        public bool IsActive { get { return Role != RoleType.Disabled; } }
+
         public User()
         {
         }
 
-        public User(string firstName, string lastName, string email, string password, RoleType role)
+        public User(string userId, string firstName, string lastName, string userName, string email, string password, RoleType role)
         {
+            this.UserId = userId;
             this.FirstName = firstName;
             this.LastName = lastName;
+            this.UserName = userName;
             this.Email = email;
             this.Password = password;
             this.Role = role;

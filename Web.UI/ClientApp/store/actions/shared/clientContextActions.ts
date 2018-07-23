@@ -1,4 +1,4 @@
-﻿import { StoreAction, IStoreAction } from '../storeAction';
+﻿import { StoreAction, IStoreAction, StoreActionThunk } from '../storeAction';
 import { StoreActionType } from '../storeActionType';
 import { GlobalParameters } from '../../../models/shared/globalParameters';
 import { NavMenu } from '../../../components/NavMenu';
@@ -21,7 +21,7 @@ export class ClientContextActionsPayload {
 
 export class ClientContextActions {
 
-    public static initialize() : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static initialize(): StoreActionThunk {
 
         return (dispatch, getState) => {
             // This is an anti-pattern. One should return global parameters via a service.
@@ -101,8 +101,7 @@ export class ClientContextActions {
     /// <summary>
     /// Shows in the most current indicator. 
     /// </summary>
-    public static showError(message: string)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static showError(message: string): StoreActionThunk {
         
         return (dispatch, getState)  => {
             var indicators = getState().clientContext.errorIndicators;
@@ -119,8 +118,7 @@ export class ClientContextActions {
     /// DOES NOT hides at the end of the process, must call loader.hide(). 
     /// (Show only after 500ms.)
     /// </summary>
-    public static showLoader(process: (onSuccess: () => void) => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static showLoader(process: (onSuccess: () => void) => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             var indicators = getState().clientContext.loaderIndicators;
@@ -151,7 +149,7 @@ export class ClientContextActions {
         };
     }
 
-    public static redirect(url: string): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static redirect(url: string): StoreActionThunk {
         return (dispatch, getState) => {
             getState().clientContext.activeScreen.redirect(url);
         };

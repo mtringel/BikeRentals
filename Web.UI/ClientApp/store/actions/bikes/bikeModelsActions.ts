@@ -1,4 +1,4 @@
-﻿import { StoreAction, IStoreAction } from '../storeAction';
+﻿import { StoreAction, IStoreAction, StoreActionThunk } from '../storeAction';
 import { StoreActionType } from '../storeActionType';
 import { KeyValuePair } from '../../../models/shared/keyValuePair';
 import { RoleType } from '../../../models/security/roleType';
@@ -11,14 +11,13 @@ import { WebApiServiceActions } from '../../actions/shared/webApiServiceActions'
 
 const ServiceUrl = "api/bikeModels";
 
-export class BikeModelActionsPayload {
+export class BikeModelsActionsPayload {
     public readonly bikeModels: BikeModel[];
 }
 
-export class BikeModelActions {
+export class BikeModelsActions {
 
-    public static getList(allowCachedData: boolean, onSuccess: (data: BikeModelListData) => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static getList(allowCachedData: boolean, onSuccess: (data: BikeModelListData) => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             if (allowCachedData) {
@@ -29,21 +28,21 @@ export class BikeModelActions {
                     onSuccess({ List: data });
                 } else {
                     // return from server (updates store)
-                    dispatch(BikeModelActions.getList(false, onSuccess));
+                    dispatch(BikeModelsActions.getList(false, onSuccess));
                 }
             }
             else {
                 dispatch(WebApiServiceActions.get<BikeModelListData>(
                     ServiceUrl,
                     result => {
-                        dispatch(BikeModelActions.setListData(result));
+                        dispatch(BikeModelsActions.setListData(result));
                         onSuccess(result);
                     }));
             }
         }
     }
 
-    private static setListData(data: BikeModelListData): StoreAction<Partial<BikeModelActionsPayload>> {
+    private static setListData(data: BikeModelListData): StoreAction<Partial<BikeModelsActionsPayload>> {
         return {
             type: StoreActionType.BikeModels_SetListData,
             payload: {
@@ -52,10 +51,17 @@ export class BikeModelActions {
         };
     }
 
-    public static clearState(): StoreAction<BikeModelActionsPayload> {
+    private static clearState(): StoreAction<BikeModelsActionsPayload> {
         return {
             type: StoreActionType.BikeModels_ClearState,
             payload: null
+        };
+    }
+
+    public static invalidateRelevantCaches(): StoreActionThunk {
+
+        return (dispatch, getState) => {
+            dispatch(BikeModelsActions.clearState());
         };
     }
 }

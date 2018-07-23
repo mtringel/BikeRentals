@@ -28,7 +28,10 @@ class LoginState {
     public readonly data: LoginData;
 }
 
-export class Login extends ScreenBase<LoginProps & LoginActions, LoginState> {
+type ThisProps = LoginProps & LoginActions;
+type ThisState = LoginState;
+
+export class Login extends ScreenBase<ThisProps, ThisState> {
     private form: HTMLFormElement;
     private email: HTMLInputElement;
     private password: HTMLInputElement;
@@ -36,7 +39,7 @@ export class Login extends ScreenBase<LoginProps & LoginActions, LoginState> {
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var empty: LoginState = {
+        var empty: ThisState = {
             data: new LoginData()
         };
 

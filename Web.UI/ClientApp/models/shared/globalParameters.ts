@@ -8,7 +8,9 @@ export class GlobalParameters {
 
     public readonly GridPageSize: number = 0;
 
-    public readonly GridMaxRows : number = 0;
+    public readonly GridMaxRows: number = 0;
+
+    public readonly AutoCompleteMaxRows : number = 0;
 
     public readonly ShortDateFormat: string;
 
@@ -68,6 +70,7 @@ export class GlobalParameters {
             this.ProductTitle = globalsElement.productTitle;
             this.GridPageSize = globalsElement.gridPageSize;
             this.GridMaxRows = globalsElement.gridMaxRows;
+            this.AutoCompleteMaxRows = globalsElement.autoCompleteMaxRows;
             this.ShortDateFormat = globalsElement.shortDateFormat;
             this.ShortDateTimeFormat = globalsElement.shortDateTimeFormat;
             this.ShowDetailedError = globalsElement.showDetailedError;

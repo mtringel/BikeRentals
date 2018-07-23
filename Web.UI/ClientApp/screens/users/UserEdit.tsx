@@ -17,7 +17,7 @@ import { ScreenBase, PropsBase } from '../../helpers/screenBase';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { RouteComponentProps } from 'react-router';
 import { FormValidatorActions } from '../../store/actions/shared/formValidatorActions';
-import { UserEditData } from '../../models/users/userEditData';
+import { UserFormData } from '../../models/users/userFormData';
 
 export interface UserEditProps extends PropsBase { 
     readonly store: Store;
@@ -25,16 +25,15 @@ export interface UserEditProps extends PropsBase {
 
 export interface UserEditActions {
     readonly onAuthorize: (userId: string, isNewUser: boolean, onSuccess: (authContext: UserAuthContext) => void) => void;
-    readonly onAllowCachedData: () => boolean;
-    readonly onLoad: (allowCachedData: boolean, userId: string, onSuccess: (data: UserEditData, roles: KeyValuePair<RoleType, string>[]) => void) => void;
+    readonly onAllowCachedData: (invalidateCaches: boolean) => boolean;
+    readonly onLoad: (allowCachedData: boolean, userId: string, isNewUser: boolean, isProfile: boolean, onSuccess: (data: UserFormData) => void) => void; 
     readonly onCancel: (user: User, isNewUser: boolean, isProfile: boolean) => void;
     readonly onSave: (user: User, isNewUser: boolean, isProfile: boolean) => void;
     readonly onDelete: (user: User, isNewUser: boolean, isProfile: boolean) => void;
 }
 
 class UserEditState {
-    public readonly data: UserEditData; 
-    public readonly roles: KeyValuePair<RoleType, string>[];
+    public readonly data: UserFormData; 
     public readonly userId: string; // id == userId or "new" or "profile" (own)
     public readonly isNewUser: boolean;
     public readonly isDirty: boolean;
@@ -42,7 +41,10 @@ class UserEditState {
     public readonly isInitialized: boolean;
 }
 
-export class UserEdit extends ScreenBase<UserEditProps & UserEditActions, UserEditState> 
+type ThisProps = UserEditProps & UserEditActions;
+type ThisState = UserEditState;
+
+export class UserEdit extends ScreenBase<ThisProps, ThisState> 
 {
     private form: HTMLFormElement;
     private userDeleteModal: UserDeleteModalComponent;
@@ -50,19 +52,18 @@ export class UserEdit extends ScreenBase<UserEditProps & UserEditActions, UserEd
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var allowCachedData = this.props.onAllowCachedData();
-        
+        var allowCachedData = this.props.onAllowCachedData(true);
+
         // set empty state for render()
         var userId = TypeHelper.notNullOrEmpty((this.props as any).match.params.userId, "profile");
 
-        var empty: UserEditState = {
-            data: new UserEditData(),
-            roles: [],
+        var empty: ThisState= {
+            data: new UserFormData(),
             userId: userId,
-            isNewUser: StringHelper.compare(userId, "new", true),
+            isNewUser: StringHelper.equals(userId, "new", true),
             isDirty: false,
             authContext: new UserAuthContext(),
-            isInitialized: false            
+            isInitialized: false
         };
 
         // set empty state for render()
@@ -73,7 +74,8 @@ export class UserEdit extends ScreenBase<UserEditProps & UserEditActions, UserEd
                     authContext => {
                         this.setState({ authContext: authContext },
                             () => {
-                                this.loadData(allowCachedData)
+                                if (authContext.canManage)
+                                    this.loadData(allowCachedData)
                             });
                     });
             });
@@ -83,7 +85,9 @@ export class UserEdit extends ScreenBase<UserEditProps & UserEditActions, UserEd
         this.props.onLoad(
             allowCachedData,
             this.state.userId,
-            (data, roles) => this.setState({ data: data, roles: roles, isInitialized: true })
+            this.state.userId === "new",
+            this.state.userId === "profile",
+            data => this.setState({ data: data, isInitialized: true })
         );
     }
 
@@ -138,7 +142,6 @@ export class UserEdit extends ScreenBase<UserEditProps & UserEditActions, UserEd
                             authContext={this.state.authContext}
                             requirePassword={this.state.isNewUser}
                             showPassword={true}
-                            roles={this.state.roles}
                             isReadOnly={!this.state.isInitialized}
                             onChange={(changed, data) => this.change(changed)}
                         />

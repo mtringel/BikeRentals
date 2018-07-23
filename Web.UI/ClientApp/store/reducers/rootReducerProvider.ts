@@ -4,7 +4,6 @@
 import { RootState } from '../state/rootState';
 import { BikeModelsReducers } from './bikes/bikeModelsReducers';
 import { ColorsReducers } from './master/colorsReducers';
-import { RolesReducers } from './security/rolesReducers';
 import { UsersReducers } from './users/usersReducers';
 import { ClientContextReducers } from './shared/clientContextReducers';
 import { FormValidatorReducers } from './shared/formValidatorReducers';
@@ -12,6 +11,8 @@ import { AuthServiceReducers } from './security/authServiceReducers';
 import { WebApiServiceReducers } from './shared/webApiServiceReducers';
 import { LoginParamsReducers } from './account/loginParamsReducers';
 import { BikesReducers } from './bikes/bikesReducers';
+import { BikeRentsReducers } from './rents/bikeRentsReducers';
+import { AutoCompleteReducers } from './shared/autoCompleteReducers';
 
 export class RootReducerProvider {
 
@@ -22,11 +23,12 @@ export class RootReducerProvider {
             webApiService: WebApiServiceReducers,
             bikeModels: BikeModelsReducers,
             colors: ColorsReducers,
-            roles: RolesReducers,
             users: UsersReducers,
             formValidator: FormValidatorReducers,
             loginParams: LoginParamsReducers,
-            bikes: BikesReducers
+            bikes: BikesReducers,
+            bikeRents: BikeRentsReducers,
+            autoComplete: AutoCompleteReducers
         });
     }
 }

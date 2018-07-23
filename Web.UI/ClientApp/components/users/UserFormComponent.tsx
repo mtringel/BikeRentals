@@ -2,19 +2,19 @@
 import { connect } from 'react-redux';
 import { FormEvent } from 'react';
 import { User } from '../../models/users/user';
-import { RoleType } from '../../models/security/roleType';
+import { RoleType, RoleTypeHelper } from '../../models/security/roleType';
 import { KeyValuePair } from '../../models/shared/keyValuePair';
 import { RootState } from '../../store/state/rootState';
 import { UserAuthContext } from '../../models/users/userAuthContext';
 import { ComponentBase } from '../../helpers/componentBase';
 import { MathHelper } from '../../helpers/mathHelper';
+import { TypeHelper } from '../../helpers/typeHelper';
 
 export interface UserFormComponentProps  {
     readonly user: User;
     readonly authContext: UserAuthContext;
     readonly requirePassword: boolean;
     readonly showPassword: boolean;
-    readonly roles: KeyValuePair<RoleType, string>[];
     readonly isReadOnly: boolean;
 }
 
@@ -35,7 +35,8 @@ export class UserFormComponent extends ComponentBase<UserFormComponentProps & Us
     public componentWillReceiveProps(nextProps: Readonly<UserFormComponentProps & UserFormComponentActions>, nextContent: any) {
         if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps, nextContent);
 
-        this.initialize(nextProps);
+        if (!TypeHelper.shallowEquals(nextProps, this.props))
+            this.initialize(nextProps);
     }
 
     public componentWillMount() {
@@ -143,7 +144,7 @@ export class UserFormComponent extends ComponentBase<UserFormComponentProps & Us
                         }}
                     >
                         {this.props.isReadOnly && <option value={this.state.user.Role}>{this.state.user.RoleTitle}</option>}
-                        {!this.props.isReadOnly && this.props.roles.map(item => <option key={item.Key} value={item.Key}>{item.Value}</option>)}
+                        {!this.props.isReadOnly && RoleTypeHelper.allRoles.filter(t => t != RoleType.Disabled).map(item => RoleTypeHelper.getOption(item))}
                     </select>
                 </div>
             </div>

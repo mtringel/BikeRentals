@@ -42,5 +42,7 @@ export enum Permission {
     /// <summary>
     /// Manage all entries
     /// </summary>
-    BikeRents_ManageAll
+    BikeRents_ManageAll,
+
+    AutoComplete_GetUsers
 }

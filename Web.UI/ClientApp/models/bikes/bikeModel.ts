@@ -1,10 +1,6 @@
-﻿import { Model } from "../shared/model";
+﻿import { BikeModelRef } from "./bikeModelRef";
 
-export class BikeModel extends Model {
-
-    public readonly BikeModelId: number;
-
-    public readonly BikeModelName: string;
+export class BikeModel extends BikeModelRef {
 
     public readonly WeightLbs: number;
 }

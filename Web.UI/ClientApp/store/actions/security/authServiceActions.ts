@@ -1,4 +1,4 @@
-﻿import { StoreAction, IStoreAction } from '../storeAction';
+﻿import { StoreAction, IStoreAction, StoreActionThunk } from '../storeAction';
 import { StoreActionType } from '../storeActionType';
 import { AppUser } from '../../../models/security/appUser';
 import { Permission } from '../../../models/security/permission';
@@ -49,7 +49,7 @@ export class AuthServiceActions {
         forceReauthentication?: boolean | undefined | null,
         onSuccess?: ((user: AppUser | null) => void) | undefined | null,
         onError?: (error: WebApiResult<ErrorDetails>) => void
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return (dispatch, getState) => {
 
@@ -130,7 +130,7 @@ export class AuthServiceActions {
     public static autoLogin(
         onSuccess?: ((user: AppUser | null) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void  {
+    ): StoreActionThunk  {
 
         return (dispatch, getState) => {
             var rootState = getState();
@@ -170,8 +170,7 @@ export class AuthServiceActions {
         };
     }
 
-    private static setCurrentUser(user: AppUser | null)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    private static setCurrentUser(user: AppUser | null): StoreActionThunk {
         var self = this;
 
         return (dispatch, getState) => {
@@ -196,8 +195,7 @@ export class AuthServiceActions {
     /// <summary>
     /// Returns promise
     /// </summary>
-    public static logoff(onSuccess: () => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static logoff(onSuccess: () => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             dispatch(WebApiServiceActions.delete(
@@ -211,8 +209,7 @@ export class AuthServiceActions {
         }
     }
 
-    public static login(data: LoginData, onSuccess: (user: AppUser) => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static login(data: LoginData, onSuccess: (user: AppUser) => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             dispatch(WebApiServiceActions.post<AppUser>(
@@ -227,8 +224,7 @@ export class AuthServiceActions {
         };
     }
 
-    public static redirectToLoginPageIfNeeded()
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static redirectToLoginPageIfNeeded(): StoreActionThunk {
 
         return (dispatch, getState) => {
 

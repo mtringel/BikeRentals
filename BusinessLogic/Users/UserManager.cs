@@ -3,6 +3,7 @@ using Toptal.BikeRentals.Security.Managers;
 using Toptal.BikeRentals.Configuration;
 using Toptal.BikeRentals.DataAccess.Users;
 using Toptal.BikeRentals.BusinessEntities.Users;
+using Toptal.BikeRentals.Security.Principals;
 
 namespace Toptal.BikeRentals.BusinessLogic.Users
 {
@@ -45,12 +46,24 @@ namespace Toptal.BikeRentals.BusinessLogic.Users
             AuthProvider.UpdateUser(user.UserId, user.FirstName, user.LastName, user.UserName, user.Email, user.Password, user.Role);
         }
 
-        public void Delete(string userId)
-        {
-            AuthProvider.DeleteUser(userId);
+        //public void Delete(string userId)
+        //{
+        //    AuthProvider.DeleteUser(userId);
 
-            // TODO
-            // delete related entities
+        //    // TODO
+        //    // delete related entities
+        //}
+
+        public void Disable(string userId)
+        {
+            var user = GetById(userId);
+
+            // e-mail is key, make it unique for deleted users; if user re-registers, that will be another user
+            user.UserName = $"{user.UserId}_{user.UserName}";
+            user.Email = $"{user.UserId}_{user.Email}";
+            user.Role = RoleType.Disabled;
+
+            Update(user);
         }
 
         public void Login(string userName, string password, bool rememberMe)

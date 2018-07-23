@@ -1,4 +1,6 @@
-﻿/// <summary>
+﻿import { ArrayHelper } from "./arrayHelper";
+
+/// <summary>
 /// Helper methods for objects
 /// </summary>
 export class TypeHelper {
@@ -20,10 +22,10 @@ export class TypeHelper {
         if (TypeHelper.isNullOrEmpty(value))
             return TypeHelper.isNullOrEmpty(valueIfNull) ? "" : valueIfNull;
         else
-            return value;
+            return value.toString();
     }
 
-    public static compare<T>(objA: T, objB: T, caseInsensitiveStringComparison?: boolean | undefined | null): number {
+    public static compare<T>(objA: T, objB: T, resultIfNonComparable: number, caseInsensitiveStringComparison?: boolean | undefined | null): number {
         if (TypeHelper.isNullOrEmpty(objA)) {
             if (TypeHelper.isNullOrEmpty(objB))
                 return 0;
@@ -51,9 +53,26 @@ export class TypeHelper {
                     return -1;
                 else if (objA > objB)
                     return 1;
-                else
+                else if (objA === objB)
                     return 0;
+                else
+                    return resultIfNonComparable;
             }
         }
+    }
+
+    public static shallowEquals<T>(obj1: T, obj2: T): boolean {
+        var keys = [];
+
+        for (var key in obj1)
+            keys.push(key);
+
+        var i = 0;
+
+        for (var key in obj2)
+            if (key !== keys[i++] || TypeHelper.compare(obj1[key], obj2[key], -1) !== 0)
+                return false;
+
+        return true;
     }
 }

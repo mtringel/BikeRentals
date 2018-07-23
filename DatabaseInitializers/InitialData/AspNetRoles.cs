@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Toptal.BikeRentals.CallContext;
+﻿using Toptal.BikeRentals.CallContext;
 using Toptal.BikeRentals.Configuration;
 using Toptal.BikeRentals.DataAccess;
 using Toptal.BikeRentals.Security.Managers;

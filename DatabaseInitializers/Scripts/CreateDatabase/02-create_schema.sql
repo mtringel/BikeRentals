@@ -1,4 +1,46 @@
-/****** Object:  Table [dbo].[AspNetRoleClaims]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  UserDefinedFunction [dbo].[ufn_GeoDistanceMiles]    Script Date: 2018.07.23. 23:31:23 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- <summary>
+-- Implemented also in Location.DistanceMiles
+-- Precision is secondary (uses FLOAT instead of DECIMAL)
+-- </summary>
+CREATE FUNCTION [dbo].[ufn_GeoDistanceMiles]
+(
+	@Lat1Deg	FLOAT,
+	@Lng1Deg	FLOAT,
+
+	@Lat2Deg	FLOAT,
+	@Lng2Deg	FLOAT
+)
+RETURNS FLOAT
+AS
+BEGIN
+    DECLARE @LngDiff FLOAT 
+	SET @LngDiff = ABS(@Lng1Deg - @Lng2Deg)
+
+    IF @LngDiff > 180 SET @LngDiff = 360 - @LngDiff -- the other way around
+
+    DECLARE 
+        @LngDist FLOAT,
+        @LatDist FLOAT
+
+    -- arithmetic average is cheating, we should calculate fix integral below cosine from lat1 to lat2 for an airplane crossing many latitudes
+	-- 68.555 is the distance of 1 deg Lat in miles (average)
+	-- 69.172 is the distance of 1 deg Lng in miles on the equator
+    SELECT
+        @LngDist = (COS(@Lat1Deg * PI() / 180) + COS(@Lat2Deg * PI() / 180)) * 0.5 * 69.172 * @LngDiff,
+        @LatDist = 68.555 * ABS(@Lat1Deg - @Lat2Deg)
+
+    RETURN SQRT(@LngDist * @LngDist + @LatDist * @LatDist)
+
+END
+                
+GO
+/****** Object:  Table [dbo].[AspNetRoleClaims]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -15,7 +57,7 @@ CREATE TABLE [dbo].[AspNetRoleClaims](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[AspNetRoles]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[AspNetRoles]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -33,7 +75,7 @@ CREATE TABLE [dbo].[AspNetRoles](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[AspNetUserClaims]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[AspNetUserClaims]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -50,7 +92,7 @@ CREATE TABLE [dbo].[AspNetUserClaims](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[AspNetUserLogins]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[AspNetUserLogins]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -68,7 +110,7 @@ CREATE TABLE [dbo].[AspNetUserLogins](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[AspNetUserRoles]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[AspNetUserRoles]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -84,7 +126,7 @@ CREATE TABLE [dbo].[AspNetUserRoles](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[AspNetUsers]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[AspNetUsers]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -114,7 +156,7 @@ CREATE TABLE [dbo].[AspNetUsers](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[AspNetUserTokens]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[AspNetUserTokens]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -133,7 +175,7 @@ CREATE TABLE [dbo].[AspNetUserTokens](
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[BikeModels]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[BikeModels]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -141,6 +183,8 @@ GO
 CREATE TABLE [dbo].[BikeModels](
 	[BikeModelId] [int] IDENTITY(1,1) NOT NULL,
 	[BikeModelName] [nvarchar](50) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[WeightLbs] [real] NOT NULL,
  CONSTRAINT [PK_BikeModels] PRIMARY KEY CLUSTERED 
 (
 	[BikeModelId] ASC
@@ -148,7 +192,7 @@ CREATE TABLE [dbo].[BikeModels](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[BikeRates]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[BikeRates]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -166,43 +210,52 @@ CREATE TABLE [dbo].[BikeRates](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[BikeReservations]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[BikeRents]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
-CREATE TABLE [dbo].[BikeReservations](
-	[ReservationId] [uniqueidentifier] NOT NULL,
-	[ActualEndDate] [datetime2](7) NULL,
-	[BikeId] [int] NULL,
-	[PlannedEndDate] [datetime2](7) NOT NULL,
-	[ReservationState] [int] NOT NULL,
-	[Reserved] [datetime2](7) NOT NULL,
-	[ReservedAt] [nvarchar](50) NOT NULL,
-	[ReturnedAt] [nvarchar](50) NOT NULL,
-	[UserId] [nvarchar](450) NULL,
- CONSTRAINT [PK_BikeReservations] PRIMARY KEY CLUSTERED 
+CREATE TABLE [dbo].[BikeRents](
+	[BikeRentId] [nvarchar](10) NOT NULL,
+	[BikeId] [int] NOT NULL,
+	[BikeRentState] [int] NOT NULL,
+	[Created] [datetime2](7) NOT NULL,
+	[CreatedByUserId] [nvarchar](450) NOT NULL,
+	[EndDate] [datetime2](7) NOT NULL,
+	[PickUpLocationLat] [float] NOT NULL,
+	[PickUpLocationLng] [float] NOT NULL,
+	[PickUpLocationName] [nvarchar](100) NOT NULL,
+	[ReturnLocationLat] [float] NULL,
+	[ReturnLocationLng] [float] NULL,
+	[ReturnLocationName] [nvarchar](100) NULL,
+	[StartDate] [datetime2](7) NOT NULL,
+	[UserId] [nvarchar](450) NOT NULL,
+ CONSTRAINT [PK_BikeRents] PRIMARY KEY CLUSTERED 
 (
-	[ReservationId] ASC
+	[BikeRentId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Bikes]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[Bikes]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Bikes](
 	[BikeId] [int] IDENTITY(1,1) NOT NULL,
+	[AvailableFrom] [datetime2](7) NOT NULL,
 	[BikeModelId] [int] NOT NULL,
 	[BikeState] [int] NOT NULL,
-	[ColorId] [nvarchar](7) NOT NULL,
+	[ColorId] [nvarchar](6) NOT NULL,
 	[Created] [datetime2](7) NOT NULL,
 	[CreatedByUserId] [nvarchar](450) NOT NULL,
-	[CurrentLocation] [nvarchar](50) NOT NULL,
+	[CurrentLocationLat] [float] NOT NULL,
+	[CurrentLocationLng] [float] NOT NULL,
+	[CurrentLocationName] [nvarchar](100) NOT NULL,
 	[CurrentlyAvailable] [bit] NOT NULL,
-	[WeightKg] [real] NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[RateAverage] [real] NOT NULL,
  CONSTRAINT [PK_Bikes] PRIMARY KEY CLUSTERED 
 (
 	[BikeId] ASC
@@ -210,14 +263,15 @@ CREATE TABLE [dbo].[Bikes](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  Table [dbo].[Colors]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Table [dbo].[Colors]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
 GO
 CREATE TABLE [dbo].[Colors](
-	[ColorId] [nvarchar](7) NOT NULL,
+	[ColorId] [nvarchar](6) NOT NULL,
 	[ColorName] [nvarchar](50) NOT NULL,
+	[IsActive] [bit] NOT NULL,
  CONSTRAINT [PK_Colors] PRIMARY KEY CLUSTERED 
 (
 	[ColorId] ASC
@@ -225,7 +279,7 @@ CREATE TABLE [dbo].[Colors](
 ) ON [PRIMARY]
 
 GO
-/****** Object:  View [dbo].[V_User]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  View [dbo].[V_User]    Script Date: 2018.07.23. 23:31:23 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -257,7 +311,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_AspNetRoleClaims_RoleId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_AspNetRoleClaims_RoleId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_AspNetRoleClaims_RoleId] ON [dbo].[AspNetRoleClaims]
 (
 	[RoleId] ASC
@@ -266,7 +320,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [RoleNameIndex]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [RoleNameIndex]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE UNIQUE NONCLUSTERED INDEX [RoleNameIndex] ON [dbo].[AspNetRoles]
 (
 	[NormalizedName] ASC
@@ -277,7 +331,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_AspNetUserClaims_UserId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_AspNetUserClaims_UserId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_AspNetUserClaims_UserId] ON [dbo].[AspNetUserClaims]
 (
 	[UserId] ASC
@@ -286,7 +340,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_AspNetUserLogins_UserId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_AspNetUserLogins_UserId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_AspNetUserLogins_UserId] ON [dbo].[AspNetUserLogins]
 (
 	[UserId] ASC
@@ -295,7 +349,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_AspNetUserRoles_RoleId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_AspNetUserRoles_RoleId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_AspNetUserRoles_RoleId] ON [dbo].[AspNetUserRoles]
 (
 	[RoleId] ASC
@@ -304,7 +358,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [EmailIndex]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [EmailIndex]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [EmailIndex] ON [dbo].[AspNetUsers]
 (
 	[NormalizedEmail] ASC
@@ -313,7 +367,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [UserNameIndex]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [UserNameIndex]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex] ON [dbo].[AspNetUsers]
 (
 	[NormalizedUserName] ASC
@@ -321,7 +375,7 @@ CREATE UNIQUE NONCLUSTERED INDEX [UserNameIndex] ON [dbo].[AspNetUsers]
 WHERE ([NormalizedUserName] IS NOT NULL)
 WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, IGNORE_DUP_KEY = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_BikeRates_BikeId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_BikeRates_BikeId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_BikeRates_BikeId] ON [dbo].[BikeRates]
 (
 	[BikeId] ASC
@@ -330,14 +384,14 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_BikeRates_UserId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_BikeRates_UserId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_BikeRates_UserId] ON [dbo].[BikeRates]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_BikeReservations_BikeId]    Script Date: 2018.06.30. 16:13:15 ******/
-CREATE NONCLUSTERED INDEX [IX_BikeReservations_BikeId] ON [dbo].[BikeReservations]
+/****** Object:  Index [IX_BikeRents_BikeId]    Script Date: 2018.07.23. 23:31:23 ******/
+CREATE NONCLUSTERED INDEX [IX_BikeRents_BikeId] ON [dbo].[BikeRents]
 (
 	[BikeId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
@@ -345,13 +399,22 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_BikeReservations_UserId]    Script Date: 2018.06.30. 16:13:15 ******/
-CREATE NONCLUSTERED INDEX [IX_BikeReservations_UserId] ON [dbo].[BikeReservations]
+/****** Object:  Index [IX_BikeRents_CreatedByUserId]    Script Date: 2018.07.23. 23:31:23 ******/
+CREATE NONCLUSTERED INDEX [IX_BikeRents_CreatedByUserId] ON [dbo].[BikeRents]
+(
+	[CreatedByUserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+GO
+SET ANSI_PADDING ON
+
+GO
+/****** Object:  Index [IX_BikeRents_UserId]    Script Date: 2018.07.23. 23:31:23 ******/
+CREATE NONCLUSTERED INDEX [IX_BikeRents_UserId] ON [dbo].[BikeRents]
 (
 	[UserId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [IX_Bikes_BikeModelId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_Bikes_BikeModelId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_Bikes_BikeModelId] ON [dbo].[Bikes]
 (
 	[BikeModelId] ASC
@@ -360,7 +423,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_Bikes_ColorId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_Bikes_ColorId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_Bikes_ColorId] ON [dbo].[Bikes]
 (
 	[ColorId] ASC
@@ -369,7 +432,7 @@ GO
 SET ANSI_PADDING ON
 
 GO
-/****** Object:  Index [IX_Bikes_CreatedByUserId]    Script Date: 2018.06.30. 16:13:15 ******/
+/****** Object:  Index [IX_Bikes_CreatedByUserId]    Script Date: 2018.07.23. 23:31:23 ******/
 CREATE NONCLUSTERED INDEX [IX_Bikes_CreatedByUserId] ON [dbo].[Bikes]
 (
 	[CreatedByUserId] ASC
@@ -405,30 +468,35 @@ REFERENCES [dbo].[AspNetUsers] ([Id])
 GO
 ALTER TABLE [dbo].[AspNetUserTokens] CHECK CONSTRAINT [FK_AspNetUserTokens_AspNetUsers_UserId]
 GO
-ALTER TABLE [dbo].[BikeRates]  WITH CHECK ADD  CONSTRAINT [FK_BikeRates_AspNetUsers] FOREIGN KEY([UserId])
+ALTER TABLE [dbo].[BikeRates]  WITH CHECK ADD  CONSTRAINT [FK_BikeRates_AspNetUsers_UserId] FOREIGN KEY([UserId])
 REFERENCES [dbo].[AspNetUsers] ([Id])
 GO
-ALTER TABLE [dbo].[BikeRates] CHECK CONSTRAINT [FK_BikeRates_AspNetUsers]
+ALTER TABLE [dbo].[BikeRates] CHECK CONSTRAINT [FK_BikeRates_AspNetUsers_UserId]
 GO
 ALTER TABLE [dbo].[BikeRates]  WITH CHECK ADD  CONSTRAINT [FK_BikeRates_Bikes_BikeId] FOREIGN KEY([BikeId])
 REFERENCES [dbo].[Bikes] ([BikeId])
 GO
 ALTER TABLE [dbo].[BikeRates] CHECK CONSTRAINT [FK_BikeRates_Bikes_BikeId]
 GO
-ALTER TABLE [dbo].[BikeReservations]  WITH CHECK ADD  CONSTRAINT [FK_BikeReservations_AspNetUsers] FOREIGN KEY([UserId])
+ALTER TABLE [dbo].[BikeRents]  WITH CHECK ADD  CONSTRAINT [FK_BikeRents_AspNetUsers_CreatedByUserId] FOREIGN KEY([CreatedByUserId])
 REFERENCES [dbo].[AspNetUsers] ([Id])
 GO
-ALTER TABLE [dbo].[BikeReservations] CHECK CONSTRAINT [FK_BikeReservations_AspNetUsers]
+ALTER TABLE [dbo].[BikeRents] CHECK CONSTRAINT [FK_BikeRents_AspNetUsers_CreatedByUserId]
 GO
-ALTER TABLE [dbo].[BikeReservations]  WITH CHECK ADD  CONSTRAINT [FK_BikeReservations_Bikes_BikeId] FOREIGN KEY([BikeId])
+ALTER TABLE [dbo].[BikeRents]  WITH CHECK ADD  CONSTRAINT [FK_BikeRents_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES [dbo].[AspNetUsers] ([Id])
+GO
+ALTER TABLE [dbo].[BikeRents] CHECK CONSTRAINT [FK_BikeRents_AspNetUsers_UserId]
+GO
+ALTER TABLE [dbo].[BikeRents]  WITH CHECK ADD  CONSTRAINT [FK_BikeRents_Bikes_BikeId] FOREIGN KEY([BikeId])
 REFERENCES [dbo].[Bikes] ([BikeId])
 GO
-ALTER TABLE [dbo].[BikeReservations] CHECK CONSTRAINT [FK_BikeReservations_Bikes_BikeId]
+ALTER TABLE [dbo].[BikeRents] CHECK CONSTRAINT [FK_BikeRents_Bikes_BikeId]
 GO
-ALTER TABLE [dbo].[Bikes]  WITH CHECK ADD  CONSTRAINT [FK_Bikes_AspNetUsers] FOREIGN KEY([CreatedByUserId])
+ALTER TABLE [dbo].[Bikes]  WITH CHECK ADD  CONSTRAINT [FK_Bikes_AspNetUsers_CreatedByUserId] FOREIGN KEY([CreatedByUserId])
 REFERENCES [dbo].[AspNetUsers] ([Id])
 GO
-ALTER TABLE [dbo].[Bikes] CHECK CONSTRAINT [FK_Bikes_AspNetUsers]
+ALTER TABLE [dbo].[Bikes] CHECK CONSTRAINT [FK_Bikes_AspNetUsers_CreatedByUserId]
 GO
 ALTER TABLE [dbo].[Bikes]  WITH CHECK ADD  CONSTRAINT [FK_Bikes_BikeModels_BikeModelId] FOREIGN KEY([BikeModelId])
 REFERENCES [dbo].[BikeModels] ([BikeModelId])
@@ -439,4 +507,8 @@ ALTER TABLE [dbo].[Bikes]  WITH CHECK ADD  CONSTRAINT [FK_Bikes_Colors_ColorId] 
 REFERENCES [dbo].[Colors] ([ColorId])
 GO
 ALTER TABLE [dbo].[Bikes] CHECK CONSTRAINT [FK_Bikes_Colors_ColorId]
+GO
+USE [master]
+GO
+ALTER DATABASE [BikeRents] SET  READ_WRITE 
 GO

@@ -51,7 +51,7 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 Helper.ValidateResult(result);
 
                 return scope.Complete(
-                    () => new BikeModelListData() { List = result },
+                    () => new BikeModelListData() { List = result.Select( t => new Models.Bikes.BikeModel(t)).ToArray() },
                     t => $"BikeModel list loaded {t.List.Length} items."
                     );
             }

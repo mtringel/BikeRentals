@@ -15,11 +15,11 @@ namespace Toptal.BikeRentals.Web.Api.Rents
     [RequireHttps]
     [ResponseCache(NoStore = true, Duration = 0)]
     [Route("Api/[controller]")]
-    public sealed class BikesRentController : ApiControllerBase
+    public sealed class BikeRentsController : ApiControllerBase
     {
         private BikeRentService BikeRentService;
 
-        public BikesRentController(
+        public BikeRentsController(
             ICallContext callContext,
             AppConfig appConfig,
             ITelemetryLogger logger,

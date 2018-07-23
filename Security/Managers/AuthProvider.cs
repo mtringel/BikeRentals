@@ -247,22 +247,22 @@ namespace Toptal.BikeRentals.Security.Managers
             AspNetIdentityDbContext.SaveChanges();
         }
 
-        public void DeleteUser(string userId)
-        {
-            var user = UserManager.FindByIdAsync(userId).Result;
+        //public void DeleteUser(string userId)
+        //{
+        //    var user = UserManager.FindByIdAsync(userId).Result;
 
-            if (user == null)
-                throw new Exceptions.Entities.EntityNotFoundException(CallContext.ResourceUri, typeof(AspNetIdentityUser), new[] { userId }, LogLevel.Error);
+        //    if (user == null)
+        //        throw new Exceptions.Entities.EntityNotFoundException(CallContext.ResourceUri, typeof(AspNetIdentityUser), new[] { userId }, LogLevel.Error);
 
-            // delete roles
-            var roles = UserManager.GetRolesAsync(user).Result;
-            Call(UserManager.RemoveFromRolesAsync(user, roles.ToArray()));
+        //    // delete roles
+        //    var roles = UserManager.GetRolesAsync(user).Result;
+        //    Call(UserManager.RemoveFromRolesAsync(user, roles.ToArray()));
 
-            // delete user
-            Call(UserManager.DeleteAsync(user));
+        //    // delete user
+        //    Call(UserManager.DeleteAsync(user));
 
-            AspNetIdentityDbContext.SaveChanges();
-        }
+        //    AspNetIdentityDbContext.SaveChanges();
+        //}
 
         public void Login(string userName, string password, bool rememberMe)
         {

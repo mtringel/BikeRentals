@@ -11,15 +11,18 @@ export interface PagerComponentProps {
 }
 
 export interface PagerComponentActions {
-    readonly onPageChanged: (page: number) => void;
+    readonly onPageChange: (page: number) => void;
 }
 
 class PagerComponentState {
-    public readonly pageCount: number;
-    public readonly currentPage: number;
+    readonly pageCount: number;
+    readonly currentPage: number;
 }
 
-export class PagerComponent extends ComponentBase<PagerComponentProps & PagerComponentActions, PagerComponentState> {
+type ThisProps = PagerComponentProps & PagerComponentActions;
+type ThisState = PagerComponentState;
+
+export class PagerComponent extends ComponentBase<ThisProps, ThisState> {
 
     /// <summary>
     /// Mandatory and must call super.
@@ -33,19 +36,21 @@ export class PagerComponent extends ComponentBase<PagerComponentProps & PagerCom
     /// <summary>
     /// Mandatory and must call super.
     /// </summary>
-    public componentWillReceiveProps(nextProps: Readonly<PagerComponentProps & PagerComponentActions>, nextContent: any) {
+    public componentWillReceiveProps(nextProps: Readonly<ThisProps>, nextContent: any) {
         if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps, nextContent);
 
-        this.initialize(nextProps);
+        if (!TypeHelper.shallowEquals(nextProps, this.props))
+            this.initialize(nextProps);
     }
 
     /// <summary>
     /// Mandatory and must call super.
+    /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: PagerComponentProps) {
+    public initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
-        var initial: PagerComponentState = {
+        var initial: ThisState = {
             currentPage: props.currentPage,
             pageCount: Math.ceil(props.totalRowCount / props.pageSize)
         };
@@ -53,9 +58,9 @@ export class PagerComponent extends ComponentBase<PagerComponentProps & PagerCom
         this.setState(initial);
     }
 
-    private pageChange(page: number) {
+    private onPageChanged(page: number) {
         if (!this.props.isReadOnly)
-            this.props.onPageChanged(page);
+            this.props.onPageChange(page);
     }
 
     private createButtons(): JSX.Element[] {
@@ -73,7 +78,7 @@ export class PagerComponent extends ComponentBase<PagerComponentProps & PagerCom
                     {/* Separator */}
                     {i !== last + 1 && <span>...</span>}
                     {/* Button */}
-                    <Button bsSize="small" bsStyle={i === this.state.currentPage ? "danger" : "info"} disabled={this.props.isReadOnly} onClick={this.pageChange.bind(this, i)}>{i}</Button>
+                    <Button bsSize="small" bsStyle={i === this.state.currentPage ? "danger" : "info"} disabled={this.props.isReadOnly} onClick={this.onPageChanged.bind(this, i)}>{i}</Button>
                     &nbsp;
                 </span>
                 );

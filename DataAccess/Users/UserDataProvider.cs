@@ -10,7 +10,7 @@ namespace Toptal.BikeRentals.DataAccess.Users
     /// <summary>
     /// Lifetime: Transient
     /// </summary>
-    public sealed  class UserDataProvider : DataProviderBase
+    public sealed class UserDataProvider : DataProviderBase
     {
         public UserDataProvider(ICallContext callContext, AppDbContext appDbContext)
             : base(callContext, appDbContext)
@@ -20,31 +20,48 @@ namespace Toptal.BikeRentals.DataAccess.Users
         /// <summary>
         /// Returns entities for listing purposes.
         /// </summary>
-        public IEnumerable<User> GetList(string filterText, int? maxRows)
+        public IEnumerable<User> GetList(string userLisFilter, string autoCompleteFilter, int? maxRows)
         {
-            if (string.IsNullOrEmpty(filterText))
-                return AppDbContext.Users.Take(maxRows.GetValueOrDefault(int.MaxValue));
-            else
-                return AppDbContext.Users
-                    .Where(t =>
-                        t.FirstName.ToLower().Contains(filterText.ToLower()) ||
-                        t.LastName.ToLower().Contains(filterText.ToLower()) ||
-                        t.Email.ToLower().Contains(filterText.ToLower()) ||
-                        t.UserName.ToLower().Contains(filterText.ToLower()) ||
-                        t.RoleTitle.ToLower().Contains(filterText.ToLower())
-                    )
-                    .Take(maxRows.GetValueOrDefault(int.MaxValue));
+            // non-active entities are only loaded through reference or by Id
+            // Detach entities, if you don't want them to be tracked (for saving with the DataProvider, like Users, which are saved calling ASP.Net Identity)
+            var query = Detach(AppDbContext.Users.Where(t => t.IsActive));
+
+            if (!string.IsNullOrEmpty(userLisFilter))
+            {
+                var filter = userLisFilter.ToLower();
+
+                query = query.Where(t =>
+                    t.FirstName.ToLower().Contains(filter) ||
+                    t.LastName.ToLower().Contains(filter) ||
+                    t.Email.ToLower().Contains(filter) ||
+                    t.UserName.ToLower().Contains(filter) ||
+                    t.RoleTitle.ToLower().Contains(filter)
+                    );
+            }
+
+            if (!string.IsNullOrEmpty(autoCompleteFilter))
+            {
+                var filter = autoCompleteFilter.ToLower();
+
+                query = query.Where(t =>
+                    t.FirstName.ToLower().Contains(filter) ||
+                    t.LastName.ToLower().Contains(filter)
+                    );
+            }
+
+            return query.Take(maxRows.GetValueOrDefault(int.MaxValue));
         }
 
-
-        public User Get(string userId)
+        public User Get(string userId, bool? isActive)
         {
-            return AppDbContext.Users.Find(userId);
+            var result = AppDbContext.Users.Find(userId);
+            return result != null && (!isActive.HasValue || isActive.Value == result.IsActive) ? Detach(result) : null;
         }
 
-        public User GetByUserName(string userName)
+        public User GetByUserName(string userName, bool? isActive)
         {
-            return AppDbContext.Users.Where(t => t.UserName == userName).FirstOrDefault();
+            var result = AppDbContext.Users.SingleOrDefault(t => t.UserName == userName);
+            return result != null && (!isActive.HasValue || isActive.Value == result.IsActive) ? Detach(result) : null;
         }
 
     }

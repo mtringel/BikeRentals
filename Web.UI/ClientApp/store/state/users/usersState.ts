@@ -9,7 +9,7 @@ export class UsersState {
     /// The filter we got the data for.
     /// List of users is completed for this filter. 
     /// </summary>
-    public readonly usersFilter: string | undefined = undefined;
+    public readonly listFilter: string | undefined = undefined;
     public readonly users: User[] = [];
 
     public readonly tooMuchData: boolean = false;

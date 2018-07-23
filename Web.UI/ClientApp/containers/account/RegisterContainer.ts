@@ -5,7 +5,7 @@ import { Register, RegisterActions, RegisterProps } from '../../screens/account/
 import { RegisterData } from '../../models/account/registerData';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
-import { IStoreAction } from '../../store/actions/storeAction';
+import { StoreActionDispatch } from '../../store/actions/storeAction';
 import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
 import { RegistrationActions } from '../../store/actions/account/registrationActions';
 import { Login } from '../../screens/account/Login';
@@ -19,7 +19,7 @@ const mapStateToProps: (state: RootState) => RegisterProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void) => RegisterActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreActionDispatch) => RegisterActions = dispatch => {
     var store = storeProvider();
 
     return {

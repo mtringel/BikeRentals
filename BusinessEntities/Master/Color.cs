@@ -18,6 +18,14 @@ namespace Toptal.BikeRentals.BusinessEntities.Master
         [StringLength(50)]
         public string ColorName { get; set; }
 
+        [Required]
+        public bool IsActive { get; set; }
+
+        public Color()
+        {
+            IsActive = true;
+        }
+
         public override object[] Keys()
         {
             return new object[] { ColorId };

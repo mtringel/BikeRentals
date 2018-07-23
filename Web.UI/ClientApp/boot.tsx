@@ -8,8 +8,9 @@ import * as RoutesModule from './routes';
 import { Store } from './store/store';
 import Select from 'react-select';
 import 'react-select/dist/react-select.css';
-import 'react-input-range/lib/css/index.css';
 import { ClientContextActions } from './store/actions/shared/clientContextActions';
+import 'babel-polyfill';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 
 let routes = RoutesModule.routes;
 

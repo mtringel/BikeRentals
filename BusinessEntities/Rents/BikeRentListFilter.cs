@@ -6,6 +6,8 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
 {
     public sealed class BikeRentListFilter : Filter
     {
+        public BikeRentState? State { get; set; }
+
         public string[] Colors { get; set; }
 
         public int[] BikeModels { get; set; }
@@ -22,19 +24,14 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         /// </summary>
         public Interval<DateTime?> EndDate { get; set; }
 
-        /// <summary>
-        /// UserId-s
-        /// </summary>
         public string[] Users { get; set; }
 
-        public string UserNameFreeTextFilter { get; set; }
-
-        public BikeRentState[] Statuses { get; set; }
 
         /// <summary>
         /// Not returned until planned End Date. (Maybe lost?)
+        /// Only used if State is Reserved.
         /// </summary>
-        public bool Late { get; set; }
+        public bool? Late { get; set; }
 
         public int? BikeId { get; set; }
 
@@ -44,14 +41,13 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         /// CurrentLocation is not included, that is used for MaxDistanceMiles
         /// </summary>
         public override bool IsEmpty =>
+            !State.HasValue &&
             StartDate.IsEmpty &&
             EndDate.IsEmpty &&
-            string.IsNullOrEmpty(UserNameFreeTextFilter) &&
             string.IsNullOrEmpty(BikeRentId) &&
             !BikeId.HasValue &&
-            !Late &&
+            !Late.HasValue &&
             (Users == null || Users.Length == 0) &&
-            (Statuses == null || Statuses.Length == 0) &&
             (Colors == null || Colors.Length == 0) &&
             (BikeModels == null || BikeModels.Length == 0);
     }

@@ -5,7 +5,7 @@ import { Model } from "../../../models/shared/model";
 import { HttpStatusCode } from "../../../models/shared/httpStatusCode";
 import { StringHelper } from '../../../helpers/stringHelper';
 import { WebApiResult } from '../../../models/shared/webApiResult';
-import { StoreAction, IStoreAction } from '../../actions/storeAction';
+import { StoreAction, IStoreAction, StoreActionThunk } from '../../actions/storeAction';
 import { StoreActionType } from '../../actions/storeActionType';
 import { HttpMethod } from '../../../models/shared/httpMethod';
 import { AuthServiceActions } from '../../actions/security/authServiceActions';
@@ -31,7 +31,7 @@ export class WebApiServiceActionsPayload {
     /// Clear only works if the subscibers number is matching this number.
     /// Used to avoid concurrency issues, instead of locking.
     /// </summary>
-    public readonly expectedSubscriberLengthForClear: number;
+    public readonly expectedSubscriberLength: number;
 }
 
 export class WebApiServiceActions {
@@ -43,7 +43,7 @@ export class WebApiServiceActions {
     public static showResult<T extends Model>(
         result: WebApiResult<T> | AxiosResponse<T> | Error,
         onSuccess?: ((data: T) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void{
+    ): StoreActionThunk{
 
         return (dispatch, getState) => {
             if (TypeHelper.isNullOrEmpty(result)) {
@@ -164,7 +164,7 @@ export class WebApiServiceActions {
         addLastAntiforgeryToken: boolean,
         onSuccess?: ((result: TResult) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return WebApiServiceActions.deferredAction(url, HttpMethod.Post, data, addLastAntiforgeryToken, onSuccess, onError);
     }
@@ -178,7 +178,7 @@ export class WebApiServiceActions {
         addLastAntiforgeryToken: boolean,
         onSuccess?: ((result: TResult) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return WebApiServiceActions.deferredAction(url, HttpMethod.Put, data, addLastAntiforgeryToken, onSuccess, onError);
     }
@@ -190,7 +190,7 @@ export class WebApiServiceActions {
         url: string,
         onSuccess?: ((result: TResult) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return WebApiServiceActions.deferredAction(url, HttpMethod.Get, null, false, onSuccess, onError);
     }
@@ -203,7 +203,7 @@ export class WebApiServiceActions {
         addLastAntiforgeryToken: boolean,
         onSuccess?: ((result: TResult) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return WebApiServiceActions.deferredAction(url, HttpMethod.Delete, null, addLastAntiforgeryToken, onSuccess, onError);
     }
@@ -221,7 +221,7 @@ export class WebApiServiceActions {
         addLastAntiforgeryToken: boolean,
         onSuccess?: ((result: TResult) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return (dispatch, getState) => {
             var rootState = getState();
@@ -362,7 +362,7 @@ export class WebApiServiceActions {
             type: StoreActionType.WebApiService_ClearAllRequests,
             payload: {
                 requestKey: requestKey,
-                expectedSubscriberLengthForClear: expectedSubscriberLength
+                expectedSubscriberLength: expectedSubscriberLength
             }
         };
     }

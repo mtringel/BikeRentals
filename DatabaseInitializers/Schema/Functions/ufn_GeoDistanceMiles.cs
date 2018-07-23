@@ -49,10 +49,18 @@ BEGIN
 
     IF @LngDiff > 180 SET @LngDiff = 360 - @LngDiff -- the other way around
 
+    DECLARE 
+        @LngDist FLOAT,
+        @LatDist FLOAT
+
     -- arithmetic average is cheating, we should calculate fix integral below cosine from lat1 to lat2 for an airplane crossing many latitudes
 	-- 68.555 is the distance of 1 deg Lat in miles (average)
 	-- 69.172 is the distance of 1 deg Lng in miles on the equator
-    RETURN 68.555 * ABS(@Lat1Deg - @Lat2Deg) + (COS(@Lat1Deg * PI() / 180) + COS(@Lat2Deg * PI() / 180)) * 0.5 * 69.172 * @LngDiff;
+    SELECT
+        @LngDist = (COS(@Lat1Deg * PI() / 180) + COS(@Lat2Deg * PI() / 180)) * 0.5 * 69.172 * @LngDiff,
+        @LatDist = 68.555 * ABS(@Lat1Deg - @Lat2Deg)
+
+    RETURN SQRT(@LngDist * @LngDist + @LatDist * @LatDist)
 
 END
                 ");

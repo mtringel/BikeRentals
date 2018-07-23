@@ -65,7 +65,6 @@ export class UserDeleteModalComponent extends ComponentBase<UserDeleteModalCompo
                                 authContext={this.props.authContext}
                                 requirePassword={false}
                                 showPassword={false}
-                                roles={[]}
                                 isReadOnly={true}
                                 onChange={(changed, data) => { }}
                             />

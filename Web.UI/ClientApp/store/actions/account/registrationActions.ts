@@ -1,4 +1,4 @@
-﻿import { StoreAction, IStoreAction } from "../storeAction";
+﻿import { StoreAction, IStoreAction, StoreActionThunk } from "../storeAction";
 import { StoreActionType } from "../storeActionType";
 import { RegisterData } from "../../../models/account/registerData";
 import { RootState } from "../../state/rootState";
@@ -13,8 +13,7 @@ export class LoginParamsActionsPayload{
 
 export class RegistrationActions {
 
-    public static register(data: RegisterData, onSuccess: () => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static register(data: RegisterData, onSuccess: () => void): StoreActionThunk {
 
         return (dispatch, getState) => {
             dispatch(WebApiServiceActions.post<any>(serviceUrl, data, false, onSuccess));

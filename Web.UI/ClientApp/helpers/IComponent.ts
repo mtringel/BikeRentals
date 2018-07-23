@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Base class for components
+/// Marker interface for components
 /// </summary>
 export interface IComponent {
 }

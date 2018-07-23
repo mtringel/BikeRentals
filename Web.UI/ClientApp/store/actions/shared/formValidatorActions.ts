@@ -1,5 +1,5 @@
 ﻿import { FormValidatorError } from "../../../helpers/formValidationError";
-import { StoreAction, IStoreAction } from "../../actions/storeAction";
+import { StoreAction, IStoreAction, StoreActionThunk } from "../../actions/storeAction";
 import { StoreActionType } from "../../actions/storeActionType";
 import { StringHelper } from "../../../helpers/stringHelper";
 import { FormValidationType } from "../../../helpers/formValidationType";
@@ -24,7 +24,7 @@ export class FormValidatorActions {
     public static validateForm(
         parentElement: HTMLElement,
         onSuccess: (isValid: boolean, errors: FormValidatorError[]) => void
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
         
         return (dispatch, getState)  => {
             var context = getState().clientContext;
@@ -67,8 +67,7 @@ export class FormValidatorActions {
     public static validateInputs(
         inputs: HTMLInputElement[],
         onSuccess: (isValid: boolean, errors: FormValidatorError[]) => void
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
-
+    ): StoreActionThunk {
         
         return (dispatch, getState) => {
             var context = getState().clientContext;
@@ -102,7 +101,7 @@ export class FormValidatorActions {
     /// </summary>
     public static showValidationErrors(
         errors?: FormValidatorError[] | undefined | null
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
         
         return (dispatch, getState) => {
 

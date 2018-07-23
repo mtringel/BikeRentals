@@ -37,9 +37,9 @@ namespace Toptal.BikeRentals.BusinessLogic.Rents
             return this.BikeRentDataProvider.GetList(filter, paging, out totalRowCount);
         }
 
-        public BikeRent Get(string bikeRentId)
+        public BikeRent GetById(string bikeRentId)
         {
-            return this.BikeRentDataProvider.Get(bikeRentId);
+            return this.BikeRentDataProvider.GetById(bikeRentId);
         }
 
         public void Add(BikeRent bike)

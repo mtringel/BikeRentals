@@ -38,17 +38,19 @@ namespace Toptal.BikeRentals.Security.Principals
 
         Bike_Management,
 
-        BikeRentals_ViewAll,
+        BikeRents_ViewAll,
 
         /// <summary>
         /// Manage own entries
         /// </summary>
-        BikeRentals_ManageOwn,
+        BikeRents_ManageOwn,
 
         /// <summary>
         /// Manage all entries
         /// </summary>
-        BikeRentals_ManageAll
+        BikeRents_ManageAll,
+
+        AutoComplete_GetUsers
     }
 
     public static class PermissionHelper
@@ -66,6 +68,13 @@ namespace Toptal.BikeRentals.Security.Principals
         /// </summary>
         internal static readonly Dictionary<RoleType, HashSet<Permission>> SecurityMatrix = new Dictionary<RoleType, HashSet<Permission>>()
         {
+            #region Disabled permissions
+
+            // Disabled has all permissions by default, no need to list it
+            { RoleType.Disabled, null },
+
+            #endregion
+
             #region User permissions
 
             { RoleType.User, new HashSet<Permission> (new[]{
@@ -75,7 +84,9 @@ namespace Toptal.BikeRentals.Security.Principals
                 // Bike
                 Permission.Bike_ViewAll,
                 // BikeRentals
-                Permission.BikeRentals_ManageOwn
+                Permission.BikeRents_ManageOwn,
+                // AutoComplete
+                Permission.AutoComplete_GetUsers
             }) },
 
             #endregion
@@ -89,7 +100,7 @@ namespace Toptal.BikeRentals.Security.Principals
                 // Bike
                 Permission.Bike_Management,
                 // BikeRentals
-                Permission.BikeRentals_ViewAll
+                Permission.BikeRents_ViewAll
             }) },
 
             #endregion

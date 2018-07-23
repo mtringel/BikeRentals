@@ -33,14 +33,16 @@ namespace Toptal.BikeRentals.DatabaseInitializers.Schema.Views
                 ALTER TABLE dbo.Bikes               DROP CONSTRAINT [FK_Bikes_V_User_CreatedByUserId]
                 ALTER TABLE dbo.BikeRates           DROP CONSTRAINT [FK_BikeRates_V_User_UserId]
                 ALTER TABLE dbo.BikeRents           DROP CONSTRAINT [FK_BikeRents_V_User_UserId]
+                ALTER TABLE dbo.BikeRents           DROP CONSTRAINT [FK_BikeRents_V_User_CreatedByUserId]
 
                 -- drop EF generated table
                 DROP TABLE [dbo].[V_User]
 
                 -- re-create foreign keys to AspNetUsers table
-                ALTER TABLE dbo.Bikes               ADD CONSTRAINT FK_Bikes_AspNetUsers         FOREIGN KEY (CreatedByUserId)   REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
-                ALTER TABLE dbo.BikeRates           ADD CONSTRAINT FK_BikeRates_AspNetUsers     FOREIGN KEY (UserId)            REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
-                ALTER TABLE dbo.BikeRents           ADD CONSTRAINT FK_BikeRents_AspNetUsers     FOREIGN KEY (UserId)            REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
+                ALTER TABLE dbo.Bikes               ADD CONSTRAINT FK_Bikes_AspNetUsers_CreatedByUserId     FOREIGN KEY (CreatedByUserId)   REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
+                ALTER TABLE dbo.BikeRates           ADD CONSTRAINT FK_BikeRates_AspNetUsers_UserId          FOREIGN KEY (UserId)            REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
+                ALTER TABLE dbo.BikeRents           ADD CONSTRAINT FK_BikeRents_AspNetUsers_UserId          FOREIGN KEY (UserId)            REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
+                ALTER TABLE dbo.BikeRents           ADD CONSTRAINT FK_BikeRents_AspNetUsers_CreatedByUserId FOREIGN KEY (CreatedByUserId)   REFERENCES dbo.AspNetUsers (Id) ON UPDATE NO ACTION ON DELETE NO ACTION
                 ");
 
             // 2) Create V_User view

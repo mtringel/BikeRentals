@@ -6,6 +6,8 @@ export class UserAuthContext {
 
     public readonly currentUserId: string;
 
+    public readonly canManage: boolean;
+
     public readonly canEditAdmin: boolean;
 
     public readonly canSetRole: boolean;   

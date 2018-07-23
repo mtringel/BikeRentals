@@ -1,5 +1,4 @@
-﻿using Toptal.BikeRentals.BusinessEntities.Bikes;
-using Toptal.BikeRentals.Service.Models.Helpers;
+﻿using Toptal.BikeRentals.Service.Models.Helpers;
 
 namespace Toptal.BikeRentals.Service.Models.Bikes
 {

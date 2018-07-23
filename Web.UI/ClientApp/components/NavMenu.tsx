@@ -30,7 +30,8 @@ export class NavMenuAuthContext {
     public readonly allowBikes: boolean;
     public readonly allowUsers: boolean;
     public readonly allowMaps: boolean;
-    public readonly allowRents: boolean;
+    public readonly allowMyRents: boolean;
+    public readonly allowAllRents: boolean;
 }
 
 /// <summary>
@@ -97,10 +98,17 @@ export class NavMenu extends ComponentBase<NavMenuProps & NavMenuActions, NavMen
                             </NavLink>
                             </li>
                         }
-                        {this.state.authContext.allowRents &&
+                        {this.state.authContext.allowMyRents &&
+                            <li>
+                                <NavLink to='/myrents' activeClassName='active'>
+                                    <span className='glyphicon glyphicon-tag'></span> My rents
+                            </NavLink>
+                            </li>
+                        }
+                        {this.state.authContext.allowAllRents &&
                             <li>
                                 <NavLink to='/rents' activeClassName='active'>
-                                    <span className='glyphicon glyphicon-road'></span> Rents
+                                    <span className='glyphicon glyphicon-tags'></span> All rents
                             </NavLink>
                             </li>
                         }

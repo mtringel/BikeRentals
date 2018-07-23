@@ -119,7 +119,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Master
         }
 
         /// <summary>
-        /// Implemented also in ufn_GeoDistance.
+        /// Implemented also in ufn_GeoDistanceMiles.
         /// </summary>
         public static double DistanceMiles(Location loc1, Location loc2)
         {
@@ -127,7 +127,11 @@ namespace Toptal.BikeRentals.BusinessEntities.Master
             if (lngDiff > 180d) lngDiff = 360d - lngDiff; // the other way around
 
             // arithmetic average is cheating, we should calculate fix integral below cosine from lat1 to lat2 for an airplane crossing many latitudes
-            return LatDistanceOfDeg * Math.Abs(loc1.Lat - loc2.Lat) + (LngDistanceOfDegAtLat(loc1.Lat) + LngDistanceOfDegAtLat(loc2.Lat)) * 0.5d * lngDiff;
+            var lngDist = (LngDistanceOfDegAtLat(loc1.Lat) + LngDistanceOfDegAtLat(loc2.Lat)) * 0.5d * lngDiff;
+            var latDist = LatDistanceOfDeg * Math.Abs(loc1.Lat - loc2.Lat);
+
+            // calculate the diagonal
+            return Math.Sqrt(lngDist * lngDist + latDist * latDist);
         }
     }
 }

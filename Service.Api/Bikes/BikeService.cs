@@ -48,7 +48,10 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
             using (var scope = Scope("Get"))
             {
                 // authorize
-                AuthProvider.Authorize(Permission.Bike_ViewAll);
+                AuthProvider.Authorize(Permission.Bike_ViewAll, Permission.Bike_Management);
+
+                if (!AuthProvider.HasPermission(Permission.Bike_Management))
+                    filter.State = BikeState.Available;
 
                 // process
                 var list = BikeManager.GetList(filter, paging, currentLocation, out int totalRowCount).ToArray();

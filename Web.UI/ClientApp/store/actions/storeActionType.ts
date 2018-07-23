@@ -33,13 +33,17 @@
     Bikes_DeleteSuccess,
     Bikes_ClearState,
 
+    // BikeRents
+    BikeRents_SetListData,
+    BikeRents_SetFormData,
+    BikeRents_PostSuccess,
+    BikeRents_PutSuccess,
+    BikeRents_DeleteSuccess,
+    BikeRents_ClearState,
+
     // Colors
     Colors_SetListData,
     Colors_ClearState,
-
-    // RoleTypes
-    Roles_SetListData,
-    Roles_ClearState,
 
     // UserListScreen
     Users_SetFormData,
@@ -50,5 +54,9 @@
     Users_ClearState,
 
     // FormValidator
-    FormValidator_SetErrors
+    FormValidator_SetErrors,
+
+    // AutoComplete
+    AutoComplete_SetListData,
+    AutoComplete_ClearState
 }

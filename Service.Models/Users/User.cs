@@ -11,21 +11,8 @@ namespace Toptal.BikeRentals.Service.Models.Users
     /// Contains all information for user management forms.
     /// MVC validation attributes are used here with JsonIgnore for not serialized members.
     /// </summary>
-    public sealed class User : Model
+    public sealed class User : UserRef
     {
-        [Required]
-        [StringLength(50)]
-        [Display(Name = "First Name")]
-        public string FirstName { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        [Display(Name = "Last Name")]
-        public string LastName { get; set; }
-
-        [NotMapped]
-        public string FullName { get { return $"{FirstName} {LastName}"; } }
-
         [Required]
         [StringLength(50)]
         [EmailAddress]
@@ -44,13 +31,6 @@ namespace Toptal.BikeRentals.Service.Models.Users
 
         [NotMapped]
         public RoleType Role { get; set; }
-
-        /// <summary>
-        /// Don't make it required, we don't get it from the UI (Email only, put into UserName)
-        /// </summary>
-        [Key]
-        [StringLength(128)]
-        public string UserId { get; set; }
 
         /// <summary>
         /// Not read from Db.
@@ -75,35 +55,24 @@ namespace Toptal.BikeRentals.Service.Models.Users
         [StringLength(50)]
         public string ConfirmPassword { get; set; }
 
+        #region Entity conversion
+
         public User()
         {
         }
 
-        #region Entity conversion
-
-        public User(BusinessEntities.Users.User entity)
+        public User(BusinessEntities.Users.User user)
+            : base(user)
         {
-            this.UserId = entity.UserId;
-            this.FirstName = entity.FirstName;
-            this.LastName = entity.LastName;
-            this.UserName = entity.UserName;
+            this.UserName = user.UserName;
             // this.Password = entity.Password; - not loaded, only saved
-            this.Email = entity.Email;
-            this.Role = entity.Role;
+            this.Email = user.Email;
+            this.Role = user.Role;
         }
 
         public BusinessEntities.Users.User ToEntity()
         {
-            return new BusinessEntities.Users.User()
-            {
-                UserId = this.UserId,
-                FirstName = this.FirstName,
-                LastName = this.LastName,
-                UserName = this.UserName,
-                Email = this.Email,
-                Role = this.Role,
-                Password = this.Password
-            };
+            return new BusinessEntities.Users.User(UserId, FirstName, LastName, UserName, Email, Password, Role);
         }
 
         #endregion

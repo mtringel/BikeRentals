@@ -2,6 +2,7 @@
 import { StringHelper } from "../../helpers/stringHelper";
 
 export class Interval<T> {
+
     public readonly From: T;
 
     public readonly To: T;

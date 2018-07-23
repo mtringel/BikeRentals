@@ -46,7 +46,10 @@ namespace Toptal.BikeRentals.Service.Api.Rents
             using (var scope = Scope("Get"))
             {
                 // authorize
-                AuthProvider.Authorize(Permission.Bike_ViewAll);
+                AuthProvider.Authorize(Permission.BikeRents_ViewAll, Permission.BikeRents_ManageAll, Permission.BikeRents_ManageOwn);
+
+                if (!AuthProvider.HasPermission(Permission.BikeRents_ViewAll, Permission.BikeRents_ManageAll))
+                    filter.Users = new[] { AuthProvider.CurrentUser.UserId };
 
                 // process
                 var list = BikeRentManager.GetList(filter, paging, out int totalRowCount).ToArray();
@@ -55,10 +58,10 @@ namespace Toptal.BikeRentals.Service.Api.Rents
                 return scope.Complete(
                     () => new BikeRentListData()
                     {
-                        List = list,
+                        List = list.Select(t => new Models.Rents.BikeRentListItem(t)).ToArray(),
                         TotalRowCount = totalRowCount
                     },
-                    t => $"Bike list loaded {t.List.Length} items."
+                    t => $"BikeRent list loaded {t.List.Length} items."
                     );
             }
         }

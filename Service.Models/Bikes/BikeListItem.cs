@@ -2,28 +2,22 @@
 using System.ComponentModel.DataAnnotations;
 using Toptal.BikeRentals.BusinessEntities.Bikes;
 using Toptal.BikeRentals.BusinessEntities.Master;
-using Toptal.BikeRentals.Service.Models.Helpers;
 
 namespace Toptal.BikeRentals.Service.Models.Bikes
 {
-    public sealed class BikeListItem : Model
+    public class BikeListItem : BikeRef
     {
-        [Required]
-        public int BikeId { get; set; }
-
         [Required]
         public BikeState BikeState { get; set; }
 
         [Required]
-        public BikeModel BikeModel { get; set; }
-
-        [Required]
-        public Color Color { get; set; }
+        public new BikeModel BikeModel { get { return (BikeModel)base.BikeModel; } set { base.BikeModel = value; } }
 
         [Required]
         public Location CurrentLocation { get; set; }
 
         [Required]
+        [StringLength(100)]
         public string CurrentLocationName { get; set; }
 
         [Required]
@@ -38,16 +32,14 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
 
         public double? DistanceMiles { get; private set; }
 
-
         [Required]
         public float RateAverage { get; set; }
 
-        public BikeListItem(BusinessEntities.Bikes.BikeListItem bike, Location? currentLocation)
+        public BikeListItem(BusinessEntities.Bikes.Bike bike, Location? currentLocation)
+            : base(bike)
         {
-            this.BikeId = bike.BikeId;
+            this.BikeModel = new BikeModel(bike.BikeModel);
             this.BikeState = bike.BikeState;
-            this.BikeModel = bike.BikeModel;
-            this.Color = bike.Color;
             this.CurrentLocation = bike.CurrentLocation;
             this.AvailableFrom = bike.AvailableFrom;
             this.RateAverage = bike.RateAverage;

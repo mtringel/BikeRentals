@@ -58,3 +58,8 @@
 .Select-menu-outer {
     z-index: 100 !important;
 }
+
+.form-horizontal > .form-group {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

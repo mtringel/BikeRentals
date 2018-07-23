@@ -11,17 +11,19 @@ import { ArrayHelper } from '../../helpers/arrayHelper';
 import { Color } from '../../models/master/color';
 import { BikeModel } from '../../models/bikes/bikeModel';
 import Select from 'react-select';
-import InputRange, { Range } from 'react-input-range';
 import Button from 'react-bootstrap/lib/Button';
 import { MathHelper } from '../../helpers/mathHelper';
 import { Location } from '../../models/master/location';
 import NumericInput from 'react-numeric-input';
-import { DateRange } from 'react-date-range';
 import { Interval } from '../../models/shared/interval';
 import { DateHelper } from '../../helpers/dateHelper';
-import * as moment from 'moment';
+import { BikeStateHelper, BikeState } from '../../models/bikes/bikeState';
+import { DateRangeComponent } from '../shared/DateRangeComponent';
+import { NumericRangeComponent } from '../shared/NumericRangeComponent';
+
 
 export interface BikeListFilterComponentProps  {
+    readonly authContext: BikeAuthContext;
     readonly store: Store;
     readonly isReadOnly: boolean;
     readonly filter: BikeListFilter;
@@ -35,15 +37,19 @@ class BikeListFilterComponentState {
 }
 
 export interface BikeListFilterComponentActions {
-    readonly onSought: (filter: BikeListFilter, clearFilter: boolean) => void;
+    readonly onSearch: (filter: BikeListFilter, resetFilter: boolean) => void;
 }
 
-export class BikeListFilterComponent extends ComponentBase<BikeListFilterComponentProps & BikeListFilterComponentActions, BikeListFilterComponentState>
+type ThisProps = BikeListFilterComponentProps & BikeListFilterComponentActions;
+type ThisState = BikeListFilterComponentState;
+
+export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
 {
-    public componentWillReceiveProps(nextProps: Readonly<BikeListFilterComponentProps & BikeListFilterComponentActions>, nextContent: any) {
+    public componentWillReceiveProps(nextProps: Readonly<ThisProps>, nextContent: any) {
         if (super.componentWillReceiveProps) super.componentWillReceiveProps(nextProps, nextContent);
 
-        this.initialize(nextProps);
+        if (!TypeHelper.shallowEquals(nextProps, this.props))
+            this.initialize(nextProps);
     }
 
     public componentWillMount() {
@@ -52,12 +58,12 @@ export class BikeListFilterComponent extends ComponentBase<BikeListFilterCompone
         this.initialize(this.props);
     }
 
-    private initialize(props: Readonly<BikeListFilterComponentProps & BikeListFilterComponentActions>) {
+    private initialize(props: Readonly<ThisProps>) {
         var state = props.store.getState();
 
         // set empty state for render()
-        var initial: BikeListFilterComponentState = {
-            filter: TypeHelper.notNullOrEmpty(state.bikes.bikesFilter, this.props.filter),
+        var initial: ThisState = {
+            filter: props.filter,
             dateFormat: state.clientContext.globals.ShortDateFormat
         };
 
@@ -73,7 +79,7 @@ export class BikeListFilterComponent extends ComponentBase<BikeListFilterCompone
     }
 
     private search(clearFilter: boolean) {
-        this.props.onSought(this.state.filter, clearFilter);
+        this.props.onSearch(this.state.filter, clearFilter)
     }
 
     public render(): JSX.Element | null | false {
@@ -84,162 +90,158 @@ export class BikeListFilterComponent extends ComponentBase<BikeListFilterCompone
 
 
                 {/* Filters */}
-                <div className="col-sm-9">
+
+                <div className="row" >
+                    {/* Status */}
+                    {this.props.authContext.canManage &&
+                        <div className="form-group col-sm-6" >
+                            <label className="col-sm-3 control-label text-nowrap">Status</label>
+                            <div className="col-sm-4 input-group">
+                                <span className="input-group-addon"><i className="glyphicon glyphicon-calendar"></i></span>
+                                <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
+                                    value={this.state.filter.State}
+                                    onChange={e => this.changeFilter({ State: parseInt(e.target.value) })}
+                                >
+                                    {BikeStateHelper.allStates.map(t => BikeStateHelper.getOption(t))}
+                                </select>
+                            </div>
+                        </div>
+                    }
 
                     {/* Available */}
-                    <div className="row">
-                        <div className="form-group col-sm-12" >
-                            <label className="col-sm-2 control-label text-nowrap">Available</label>
-                            <div className="col-sm-10 input-group">
-                                <span className="input-group-addon"><i className="glyphicon glyphicon-calendar"></i></span>
-                                <input type="text" className="form-control" readOnly={true} disabled={this.props.isReadOnly}
-                                    value={Interval.format(
-                                        this.state.filter.Availability,
-                                        t => StringHelper.formatDate(t, this.state.dateFormat),
-                                        (t1, t2) => DateHelper.compateDate(t1, t2))}
+                    {this.state.filter.State == BikeState.Available &&
+                        <div className="form-group col-sm-6" >
+                            <label className="col-sm-3 control-label text-nowrap">When</label>
+                            <div className="col-sm-9 input-group">
+                                <DateRangeComponent
+                                    store={this.props.store}
+                                    defaultStartDate={DateHelper.today()}
+                                    defaultEndDate={DateHelper.today()}
+                                    minDate={DateHelper.today()}
+                                    maxDate={null}
+                                    startDate={this.state.filter.AvailableWhen.From}
+                                    endDate={this.state.filter.AvailableWhen.To}
+                                    glyphIcon={"calendar"}
+                                    suffix={""}
+                                    onChange={(start, end) => this.changeFilter({ AvailableWhen: { From: start, To: end } })}
+                                    isReadOnly={this.props.isReadOnly}
                                 />
                             </div>
+                        </div>
+                    }
+                </div>
+
+                <div className="row" >
+                    {/* BikeModels */}
+                    <div className="form-group col-sm-6" >
+                        <label className="col-sm-3 control-label text-nowrap ">Models</label>
+                        <div className="col-sm-9 input-group">
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
+                            <Select
+                                name={"models"}
+                                multi={true}
+                                valueKey={"BikeModelId"}
+                                labelKey={"BikeModelName"}
+                                options={this.props.allBikeModels}
+                                value={this.state.filter.BikeModels}
+                                onChange={(selectedOptions: BikeModel[]) => this.changeFilter({ BikeModels: ArrayHelper.select(selectedOptions, t => t.BikeModelId) })}
+                            />
                         </div>
                     </div>
 
                     {/* Colors */}
-                    <div className="row">
-                        <div className="form-group col-sm-12" >
-                            <label className="col-sm-2 control-label text-nowrap">Color</label>
-                            <div className="col-sm-10 input-group">
-                                <span className="input-group-addon"><i className="glyphicon glyphicon-tint"></i></span>
-                                <Select
-                                    name={"colors"}
-                                    multi={true}
-                                    valueKey={"ColorId"}
-                                    labelKey={"ColorName"}
-                                    options={this.props.allColors}
-                                    value={this.state.filter.Colors}
-                                    onChange={(selectedOptions: Color[]) => this.changeFilter({ Colors: ArrayHelper.select(selectedOptions, t => t.ColorId) })}
-                                />
-                            </div>
+                    <div className="form-group col-sm-6" >
+                        <label className="col-sm-3 control-label text-nowrap">Colors</label>
+                        <div className="col-sm-9 input-group">
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-tint"></i></span>
+                            <Select
+                                name={"colors"}
+                                multi={true}
+                                valueKey={"ColorId"}
+                                labelKey={"ColorName"}
+                                options={this.props.allColors}
+                                value={this.state.filter.Colors}
+                                onChange={(selectedOptions: Color[]) => this.changeFilter({ Colors: ArrayHelper.select(selectedOptions, t => t.ColorId) })}
+                            />
                         </div>
                     </div>
 
-                    {/* BikeModels */}
-                    <div className="row">
-                        <div className="form-group col-sm-12" >
-                            <label className="col-sm-2 control-label text-nowrap ">Model</label>
-                            <div className="col-sm-10 input-group">
-                                <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
-                                <Select
-                                    name={"models"}
-                                    multi={true}
-                                    valueKey={"BikeModelId"}
-                                    labelKey={"BikeModelName"}
-                                    options={this.props.allBikeModels}
-                                    value={this.state.filter.BikeModels}
-                                    onChange={(selectedOptions: BikeModel[]) => this.changeFilter({ BikeModels: ArrayHelper.select(selectedOptions, t => t.BikeModelId) })}
-                                />
-                            </div>
-                        </div>
-                    </div>
+                </div>
 
+                <div className="row" >
                     {/* WeightLbs */}
-                    <div className="row">
-                        <div className="col-sm-12" >
-                            <div className="form-group col-sm-4" >
-                                <label className="col-sm-6 control-label text-nowrap ">Weight</label>
-                                <div className="col-sm-6 input-group">
-                                    <Button bsSize="medium" bsStyle="basic" onClick={() => this.changeFilter({ WeightLbs: { From: 0, To: 99 } })}>x</Button>
-                                    &nbsp;
-                                &nbsp;
-                                {TypeHelper.notNullOrEmpty(this.state.filter.WeightLbs.From, 0)} to {TypeHelper.notNullOrEmpty(this.state.filter.WeightLbs.To, 99)} lbs
-                            </div>
-                            </div>
-                            <div className="form-group col-sm-8" >
-                                <InputRange
-                                    minValue={0}
-                                    maxValue={99}
-                                    value={{
-                                        min: TypeHelper.notNullOrEmpty(this.state.filter.WeightLbs.From, 0),
-                                        max: TypeHelper.notNullOrEmpty(this.state.filter.WeightLbs.To, 99)
-                                    }}
-                                    disabled={this.props.isReadOnly}
-                                    onChange={(range: Range) => this.changeFilter({ WeightLbs: { From: range.min, To: range.max } })}
-                                />
-                            </div>
+                    <div className="form-group col-sm-6" >
+                        <label className="col-sm-3 control-label text-nowrap ">Weight</label>
+                        <div className="col-sm-9 input-group">
+                            <NumericRangeComponent
+                                defaultStart={null}
+                                defaultEnd={null}
+                                start={this.state.filter.WeightLbs.From}
+                                end={this.state.filter.WeightLbs.To}
+                                min={0}
+                                max={99}
+                                step={0.1}
+                                precision={1}
+                                isReadOnly={this.props.isReadOnly}
+                                glyphIcon={"dashboard"}
+                                suffix={"lbs"}
+                                onChange={(start, end) => this.changeFilter({ WeightLbs: { From: start, To: end } })}
+                            />
                         </div>
                     </div>
 
                     {/* RateAverage */}
-                    <div className="row">
-                        <div className="col-sm-12" >
-                            <div className="form-group col-sm-4" >
-                                <label className="col-sm-6 control-label text-nowrap ">Rate</label>
-                                <div className="col-sm-6 input-group">
-                                    <Button bsSize="medium" bsStyle="basic" onClick={() => this.changeFilter({ RateAverage: { From: 0, To: 5 } })}>x</Button>
-                                    &nbsp;
-                            &nbsp;
-                            {TypeHelper.notNullOrEmpty(this.state.filter.RateAverage.From, 0)} to {TypeHelper.notNullOrEmpty(this.state.filter.RateAverage.To, 5)}
-                                </div>
-                            </div>
-                            <div className="form-group col-sm-8" >
-                                <InputRange
-                                    minValue={0}
-                                    maxValue={5}
-                                    step={0.1}
-                                    value={{
-                                        min: TypeHelper.notNullOrEmpty(this.state.filter.RateAverage.From, 0),
-                                        max: TypeHelper.notNullOrEmpty(this.state.filter.RateAverage.To, 5)
-                                    }}
-                                    disabled={this.props.isReadOnly}
-                                    onChange={(range: Range) => this.changeFilter({ RateAverage: { From: MathHelper.roundNumber(range.min, 1), To: MathHelper.roundNumber(range.max, 1) } })}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* MaxDistance */}
-                    <div className="row" >
-                        <div className="form-group col-sm-6" >
-                            <label className="col-sm-4 control-label text-nowrap ">Max distance</label>
-                            <div className="col-sm-8 input-group">
-                                <span className="input-group-addon"><i className="glyphicon glyphicon-record"></i></span>
-                                <NumericInput className="form-control text-right" step={0.1} precision={1} value={this.state.filter.MaxDistanceMiles} min={0} max={9999} disabled={this.props.isReadOnly} snap
-                                    onChange={(valueAsNumber: number, valueAsString: string, input: NumericInput) => this.changeFilter({ MaxDistanceMiles: valueAsNumber })} />
-                            </div>
-                        </div>
-                        <div className="form-group col-sm-6" >
-                            <label className="col-sm-2 control-label text-nowrap "> miles</label>
-                            <div className="col-sm-10 input-group">
-                            </div>
+                    <div className="form-group col-sm-6" >
+                        <label className="col-sm-3 control-label text-nowrap ">Rate</label>
+                        <div className="col-sm-9 input-group">
+                            <NumericRangeComponent
+                                defaultStart={null}
+                                defaultEnd={null}
+                                start={this.state.filter.RateAverage.From}
+                                end={this.state.filter.RateAverage.To}
+                                min={0}
+                                max={5}
+                                step={1}
+                                precision={0}
+                                isReadOnly={this.props.isReadOnly}
+                                glyphIcon={"star"}
+                                suffix={""}
+                                onChange={(start, end) => this.changeFilter({ RateAverage: { From: start, To: end } })}
+                            />
                         </div>
                     </div>
 
                 </div>
 
-                {/* Calendar */}
-                <div className="form-group col-sm-3">
-                    <div className="row input-group">
-                        <DateRange
-                            calendars={1}
-                            minDate={moment(DateHelper.today())}
-                            startDate={moment(this.state.filter.Availability.From)}
-                            endDate={moment(this.state.filter.Availability.To)}
-                            onChange={(range: { startDate: moment.Moment, endDate: moment.Moment }) => {
-                                this.changeFilter({
-                                    Availability: {
-                                        From: DateHelper.datePart(range.startDate.toDate()),
-                                        To: DateHelper.datePart(range.endDate.toDate())
-                                    }
-                                });
-                            }}
-                        />
+                <div className="row" >
+                    <div className="form-group col-sm-6" >
+                        {/* MaxDistance */}
+                        <label className="col-sm-3 control-label text-nowrap ">Distance (mi)</label>
+                        <div className="col-sm-4 input-group">
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-record"></i></span>
+                            <NumericInput className="form-control text-right" step={0.1} precision={1} value={this.state.filter.MaxDistanceMiles} min={0} max={9999} disabled={this.props.isReadOnly} snap
+                                onChange={(value: number) => this.changeFilter({ MaxDistanceMiles: value })} />
+                        </div>
+                    </div>
+
+                    <div className="form-group col-sm-6" >
+                        {/* BikeId */}
+                        <label className="col-sm-3 control-label text-nowrap ">Bike#</label>
+                        <div className="col-sm-4 input-group">
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-barcode"></i></span>
+                            <NumericInput className="form-control" value={this.state.filter.BikeId} min={0} max={999999999} disabled={this.props.isReadOnly} snap
+                                onChange={(value: number) => this.changeFilter({ BikeId: value })} />
+                        </div>
                     </div>
                 </div>
 
-                {/* Buttons */}
-                <div className="col-sm-12 text-left">
-                    <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Go</Button>
-                    &nbsp;
-                    &nbsp;
-                    <Button bsStyle="danger" onClick={e => this.search(true)} ><i className="glyphicon glyphicon-asterisk"></i> Show all</Button>
+                <div className="row" >
+                    {/* Buttons */}
+                    <div className="col-sm-6 text-left">
+                        <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Go</Button>
+                        &nbsp;&nbsp;
+                        <Button bsStyle="danger" onClick={e => this.search(true)} ><i className="glyphicon glyphicon-asterisk"></i> Show all</Button>
+                    </div>
                 </div>
             </div>
         </div>;

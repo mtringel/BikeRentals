@@ -44,6 +44,23 @@ namespace Toptal.BikeRentals.DataAccess.Rents
             {
                 #region Filtering
 
+                // State
+                if (filter.State.HasValue)
+                {
+                    query = query.Where(t => t.BikeRentState == filter.State.Value);
+
+                    // Late
+                    if (filter.State.Value == BikeRentState.Reserved && filter.Late.HasValue)
+                    {
+                        var now = DateTime.Now;
+
+                        if (filter.Late.Value)
+                            query = query.Where(t => t.BikeRentState == BikeRentState.Reserved && t.EndDate <= now);
+                        else
+                            query = query.Where(t => t.BikeRentState == BikeRentState.Reserved && t.EndDate > now);
+                    }
+                }
+
                 // Colors
                 if (filter.Colors != null && filter.Colors.Any())
                 {
@@ -63,37 +80,18 @@ namespace Toptal.BikeRentals.DataAccess.Rents
                 if (filter.BikeId.HasValue) query = query.Where(t => t.Bike.BikeId == filter.BikeId.Value);
 
                 // StartDate
-                if (filter.StartDate.From.HasValue) query = query.Where(t => t.StartDate >= filter.StartDate.From);
-                if (filter.StartDate.To.HasValue) query = query.Where(t => t.StartDate <= filter.StartDate.To);
+                if (filter.StartDate.From.HasValue) query = query.Where(t => t.StartDate >= filter.StartDate.From.Value);
+                if (filter.StartDate.To.HasValue) query = query.Where(t => t.StartDate <= filter.StartDate.To.Value);
 
                 // EndDate
-                if (filter.EndDate.From.HasValue) query = query.Where(t => t.EndDate >= filter.EndDate.From);
-                if (filter.EndDate.To.HasValue) query = query.Where(t => t.EndDate <= filter.EndDate.To);
-
-                // Late
-                var now = DateTime.Now;
-                if (filter.Late) query = query.Where(t => t.BikeRentState == BikeRentState.Reserved && t.EndDate < now);
-
-                // Statuses
-                if (filter.Statuses != null && filter.Statuses.Any())
-                {
-                    // LINQ will generate proper SQL like this 
-                    var statuses = filter.Statuses.ToArray();
-                    query = query.Where(t => statuses.Contains(t.BikeRentState));
-                }
+                if (filter.EndDate.From.HasValue) query = query.Where(t => t.EndDate >= filter.EndDate.From.Value);
+                if (filter.EndDate.To.HasValue) query = query.Where(t => t.EndDate <= filter.EndDate.To.Value);
 
                 // Users
                 if (filter.Users != null && filter.Users.Any())
                 {
                     var ids = filter.Users.ToArray();
                     query = query.Where(t => ids.Contains(t.User.UserId));
-                }
-
-                // UserNameFreeTextFilter
-                if (!string.IsNullOrEmpty(filter.UserNameFreeTextFilter))
-                {
-                    var userNameFilter = filter.UserNameFreeTextFilter;
-                    query = query.Where(t => (t.User.FirstName + " " + t.User.LastName).Contains(userNameFilter));
                 }
 
                 // BikeRentId
@@ -130,7 +128,7 @@ namespace Toptal.BikeRentals.DataAccess.Rents
             return query;
         }
 
-        public BikeRent Get(string bikeRentId)
+        public BikeRent GetById(string bikeRentId)
         {
             return Include(AppDbContext.BikeRents).SingleOrDefault(t => t.BikeRentId == bikeRentId);
         }

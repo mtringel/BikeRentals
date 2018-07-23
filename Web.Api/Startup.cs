@@ -19,15 +19,17 @@ namespace Toptal.BikeRentals.Web.Api
             // Master
             services.AddTransient(typeof(Master.ColorsController));
 
+            // Shared
+            services.AddTransient(typeof(Shared.AutoCompleteController));
+
             // Rents
-            services.AddTransient(typeof(Rents.BikesRentController));
+            services.AddTransient(typeof(Rents.BikeRentsController));
 
             // Content
             services.AddTransient(typeof(Contents.ContentController));
 
             // Security
             services.AddTransient(typeof(Security.AuthServiceController));
-            services.AddTransient(typeof(Security.RolesController));
 
             // Users
             services.AddTransient(typeof(Users.UsersController));

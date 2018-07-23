@@ -31,7 +31,7 @@ export const WebApiServiceReducers: (state: WebApiServiceState, action: StoreAct
                     activeRequests:
                         // Clear only works if the subscibers number is matching this number.
                         // Used to avoid concurrency issues, instead of locking.
-                        state.activeRequests[action.payload.requestKey].length === action.payload.expectedSubscriberLengthForClear ?
+                        state.activeRequests[action.payload.requestKey].length === action.payload.expectedSubscriberLength ?
                             ArrayHelper.removeFromDict(state.activeRequests, action.payload.requestKey) :
                             state.activeRequests
                 };

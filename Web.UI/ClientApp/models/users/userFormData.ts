@@ -1,6 +1,6 @@
 ﻿import { User } from "./user";
 
-export class UserEditData {
+export class UserFormData {
 
     public readonly User = new User();
 }

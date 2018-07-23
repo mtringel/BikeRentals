@@ -25,7 +25,7 @@ export class PagingInfo extends Filter {
         return !TypeHelper.isNullOrEmpty(pi1) &&
             !TypeHelper.isNullOrEmpty(pi2) &&
             pi1.OrderByDescending === pi2.OrderByDescending &&
-            ArrayHelper.compare(pi1.OrderBy, pi2.OrderBy, (t1, t2) => StringHelper.compare(t1, t2, true));
+            ArrayHelper.equals(pi1.OrderBy, pi2.OrderBy, (t1, t2) => StringHelper.equals(t1, t2, true));
     }
 
     public static ComparePaging(pi1: PagingInfo, pi2: PagingInfo): boolean {

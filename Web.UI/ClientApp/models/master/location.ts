@@ -6,7 +6,7 @@ export class Location extends Model {
 
     public static readonly DegMultiplier = 60 * 60 * 1000;
     public static readonly SecMultiplier = 60 * 1000;
-    public static readonly ParSeccMultiplier = 1000;
+    public static readonly ParSecMultiplier = 1000;
 
     /// <summary>
     /// Latitude, degree.
@@ -29,8 +29,8 @@ export class Location extends Model {
         // format: {0}°{1:00}'{2:00}.{3:000}"{4}
         return StringHelper.formatNumber(x / Location.DegMultiplier, 0, 0) + "°" +
             StringHelper.formatNumber((x / Location.SecMultiplier) % 60, 2, 0) + "'" +
-            StringHelper.formatNumber((x / Location.ParSeccMultiplier) % 60, 2, 0) + "." +
-            StringHelper.formatNumber(x % Location.ParSeccMultiplier, 3, 0) + "\"" +
+            StringHelper.formatNumber((x / Location.ParSecMultiplier) % 60, 2, 0) + "." +
+            StringHelper.formatNumber(x % Location.ParSecMultiplier, 3, 0) + "\"" +
             (value >= 0 ? posSuffix : negSuffix);
     }
 

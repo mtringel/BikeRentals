@@ -21,7 +21,10 @@ class RegisterState {
     public readonly data: RegisterData;
 }
 
-export class Register extends ScreenBase<RegisterProps & RegisterActions, RegisterState> 
+type ThisProps = RegisterProps & RegisterActions;
+type ThisState = RegisterState;
+
+export class Register extends ScreenBase<ThisProps, ThisState> 
 {
     private form: HTMLFormElement;
     private firstName: HTMLInputElement;
@@ -29,7 +32,7 @@ export class Register extends ScreenBase<RegisterProps & RegisterActions, Regist
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var empty: RegisterState = {
+        var empty: ThisState = {
             data: new RegisterData()
         };
         this.setState(empty);

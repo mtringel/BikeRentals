@@ -9,12 +9,14 @@ namespace Toptal.BikeRentals.Security.Principals
     /// </summary>
     public enum RoleType
     {
+        Disabled,
+
         /// <summary>
         /// When logged in, a user can see, edit and delete his times he entered.
         /// A regular user would only be able to CRUD on their owned records.
         /// User must be the first (default).
         /// </summary>
-        User ,
+        User,
 
         /// <summary>
         /// A user manager would be able to CRUD users.
@@ -77,9 +79,9 @@ namespace Toptal.BikeRentals.Security.Principals
         public static bool Authorized(this RoleType role, Permission[] permissions, bool all)
         {
             if (all)
-                return role == RoleType.Admin || permissions.All(t => role.Permissions().Contains(t));
+                return role != RoleType.Disabled && (role == RoleType.Admin || permissions.All(t => role.Permissions().Contains(t)));
             else
-                return role == RoleType.Admin || permissions.Any(t => role.Permissions().Contains(t));
+                return role != RoleType.Disabled && (role == RoleType.Admin || permissions.Any(t => role.Permissions().Contains(t)));
         }
 
         /// <summary>

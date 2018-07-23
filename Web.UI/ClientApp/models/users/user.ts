@@ -1,13 +1,7 @@
-﻿import { Model } from "../shared/model";
-import { RoleType } from "../security/roleType";
+﻿import { RoleType } from "../security/roleType";
+import { UserRef } from "./userRef";
 
-export class User extends Model {
-
-    public readonly FirstName: string;
-
-    public readonly LastName: string;
-
-    public readonly FullName: string;
+export class User extends UserRef {
 
     public readonly Email: string;
 
@@ -16,8 +10,6 @@ export class User extends Model {
     public readonly RoleTitle: string;
 
     public readonly Role: RoleType = RoleType.User;
-
-    public readonly UserId: string;
 
     /// <summary>
     /// Not read from Db.

@@ -79,6 +79,28 @@ namespace Toptal.BikeRentals.DataAccess.Helpers
             return connection;
         }
 
+        /// <summary>
+        /// Detach entities, if you don't want them to be tracked (for saving with the DataProvider, like Users, which are saved calling ASP.Net Identity)
+        /// </summary>
+        protected T Detach<T>(T entity) where T : Entity
+        {
+            if (entity != null)
+                AppDbContext.Entry(entity).State = EntityState.Detached;
+
+            return entity;
+        }
+
+        /// <summary>
+        /// Detach entities, if you don't want them to be tracked (for saving with the DataProvider, like Users, which are saved calling ASP.Net Identity)
+        /// </summary>
+        protected IQueryable<T> Detach<T>(IQueryable<T> entities) where T: Entity
+        {
+            foreach (var entity in entities)
+                Detach(entity);
+
+            return entities;
+        }
+
         #region Delete
 
         /// <summary>

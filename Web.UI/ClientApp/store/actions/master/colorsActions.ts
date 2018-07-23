@@ -1,5 +1,5 @@
 ﻿
-import { StoreAction, IStoreAction } from '../storeAction';
+import { StoreAction, IStoreAction, StoreActionThunk } from '../storeAction';
 import { StoreActionType } from '../storeActionType';
 import { KeyValuePair } from '../../../models/shared/keyValuePair';
 import { RoleType } from '../../../models/security/roleType';
@@ -19,8 +19,7 @@ export class ColorsActionsPayload {
 
 export class ColorsActions {
 
-    public static getList(allowCachedData: boolean, onSuccess: (data: ColorListData) => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static getList(allowCachedData: boolean, onSuccess: (data: ColorListData) => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             if (allowCachedData) {
@@ -54,10 +53,17 @@ export class ColorsActions {
         };
     }
 
-    public static clearState(): StoreAction<ColorsActionsPayload> {
+    private static clearState(): StoreAction<ColorsActionsPayload> {
         return {
             type: StoreActionType.Colors_ClearState,
             payload: null
+        };
+    }
+
+    public static invalidateRelevantCaches(): StoreActionThunk {
+
+        return (dispatch, getState) => {
+            dispatch(ColorsActions.clearState());
         };
     }
 }

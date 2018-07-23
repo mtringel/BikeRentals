@@ -1,5 +1,5 @@
 ﻿/// <summary>
-/// Base class for screens
+/// Marker interface for screens
 /// </summary>
 export interface IScreen {
     currentPath(): string;

@@ -3,7 +3,7 @@ import { StoreAction } from '../../actions/storeAction';
 import { RootState } from '../../state/rootState';
 import { ArrayHelper } from '../../../helpers/arrayHelper';
 import { BikesState } from '../../state/bikes/bikesState';
-import { BikesActionsPayload } from '../../actions/bikes/bikesActions';
+import { BikesActionsPayload, BikesActionsPayload_SetListData, BikesActionsPayload_SetFormData, BikesActionsPayload_PostPutDelete } from '../../actions/bikes/bikesActions';
 import { TypeHelper } from '../../../helpers/typeHelper';
 import { BikeListFilter } from '../../../models/bikes/bikeListFilter';
 import { PagingInfo } from '../../../models/shared/pagingInfo';
@@ -14,75 +14,91 @@ export const BikesReducers: (state: BikesState, action: StoreAction<BikesActions
     (state = new BikesState(), action) => {
 
         switch (action.type) {
-            case StoreActionType.Bikes_SetListData:
+            case StoreActionType.Bikes_SetListData: {
+                let payload = action.payload as BikesActionsPayload_SetListData;
+
                 // same ordering and filter?
                 // pages can be cached
-                if (PagingInfo.CompareOrdering(action.payload.bikesPaging, state.bikesPaging) &&
-                    JSON.stringify(action.payload.bikesFilter) === JSON.stringify(state.bikesFilter) &&
-                    Location.compare(action.payload.currentLocation, state.currentLocation)
+                if (PagingInfo.CompareOrdering(payload.listPaging, state.listPaging) &&
+                    JSON.stringify(payload.listFilter) === JSON.stringify(state.listFilter) &&
+                    Location.compare(payload.currentLocation, state.currentLocation)
                 )
                     return {
                         ...state,
-                        bikesPaging: action.payload.bikesPaging, // store paging, we need the page for navigating back and forth
-                        bikes: ArrayHelper.copyTo(
-                            state.bikes, // keep cached bikes, copy new page
-                            TypeHelper.notNullOrEmpty(action.payload.bikesPaging.FirstRow, 0),
-                            action.payload.bikes,
+                        listPaging: payload.listPaging, // store paging, we need the page for navigating back and forth
+                        listItems: ArrayHelper.copyTo(
+                            state.listItems, // keep cached bikes, copy new page
+                            TypeHelper.notNullOrEmpty(payload.listPaging.FirstRow, 0),
+                            payload.listData.List,
                             0,
-                            action.payload.bikes.length
+                            payload.listData.List.length
                         )
                     };
                 else
                     // reload everything, invalidate whole cache
                     return {
                         ...state,
-                        bikesFilter: action.payload.bikesFilter,
-                        bikesPaging: action.payload.bikesPaging,
-                        currentLocation: action.payload.currentLocation,
-                        totalRowCount: action.payload.totalRowCount,
+                        listFilter: payload.listFilter,
+                        listPaging: payload.listPaging,
+                        currentLocation: payload.currentLocation,
+                        totalRowCount: payload.listData.TotalRowCount,
                         // start from empty array, copy new page
-                        bikes: ArrayHelper.copyTo(
+                        listItems: ArrayHelper.copyTo(
                             [],
-                            TypeHelper.notNullOrEmpty(action.payload.bikesPaging.FirstRow, 0),
-                            action.payload.bikes,
+                            TypeHelper.notNullOrEmpty(payload.listPaging.FirstRow, 0),
+                            payload.listData.List,
                             0,
-                            action.payload.bikes.length
+                            payload.listData.List.length
                         )
                     };
+            }
 
-            case StoreActionType.Bikes_SetFormData:
+            case StoreActionType.Bikes_SetFormData: {
+                let payload = action.payload as BikesActionsPayload_SetFormData;
+
                 return {
                     ...state,
-                    bikes: ArrayHelper.update(state.bikes, action.payload.bikes[0], t => t.BikeId === action.payload.bikeId)
+                    formData: ArrayHelper.addToDict(state.formData, payload.bikeId.toString(), t => payload.formData),
+                    listItems: ArrayHelper.update(state.listItems, payload.formData.Bike, t => t.BikeId === payload.bikeId)
                 };
+            }
 
             case StoreActionType.BikeModels_ClearState:
                 return {
-                    bikesFilter: undefined,
-                    bikesPaging: undefined,
+                    listFilter: undefined,
+                    listPaging: undefined,
                     currentLocation: undefined,
                     totalRowCount: undefined,
-                    bikes: []
+                    listItems: [],
+                    formData: {}
                 };
 
-            case StoreActionType.Bikes_PostSuccess:
-                return {
-                    ...state,
-                    bikes: ArrayHelper.add(state.bikes, action.payload.bikes[0])
-                };
+            case StoreActionType.Bikes_PostSuccess: {
+                var payload = action.payload as BikesActionsPayload_PostPutDelete;
 
-            case StoreActionType.Bikes_DeleteSuccess:
                 return {
                     ...state,
-                    bikes: ArrayHelper.remove(state.bikes, t => t.BikeId === action.payload.bikeId)
+                    listItems: ArrayHelper.add(state.listItems, payload.bike)
                 };
+            }
 
-            case StoreActionType.Bikes_PutSuccess:
-                
+            case StoreActionType.Bikes_DeleteSuccess: {
+                var payload = action.payload as BikesActionsPayload_PostPutDelete;
+
                 return {
                     ...state,
-                    bikes: ArrayHelper.update(state.bikes, action.payload.bikes[0], t => t.BikeId === action.payload.bikeId)
+                    listItems: ArrayHelper.remove(state.listItems, t => t.BikeId === payload.bikeId)
                 };
+            }
+
+            case StoreActionType.Bikes_PutSuccess: {
+                var payload = action.payload as BikesActionsPayload_PostPutDelete;
+
+                return {
+                    ...state,
+                    listItems: ArrayHelper.update(state.listItems, payload.bike, t => t.BikeId === payload.bikeId)
+                };
+            }
 
             default:
                 return state;

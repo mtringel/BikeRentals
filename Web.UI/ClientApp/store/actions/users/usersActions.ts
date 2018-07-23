@@ -1,4 +1,4 @@
-﻿import { StoreAction, IStoreAction } from '../storeAction';
+﻿import { StoreAction, IStoreAction, StoreActionThunk } from '../storeAction';
 import { StoreActionType } from '../storeActionType';
 import { KeyValuePair } from '../../../models/shared/keyValuePair';
 import { RoleType } from '../../../models/security/roleType';
@@ -17,7 +17,7 @@ import { ErrorDetails } from '../../../models/shared/errorDetails';
 import { WebApiServiceActions } from '../../actions/shared/webApiServiceActions';
 import { RootState } from '../../state/rootState';
 import { AuthServiceActions } from '../../actions/security/authServiceActions';
-import { UserEditData } from '../../../models/users/userEditData';
+import { UserFormData } from '../../../models/users/userFormData';
 
 const serviceUrl = {
     getList: (filter: string) => "api/users?filter=" + encodeURI(StringHelper.notNullOrEmpty(filter, "")),
@@ -27,17 +27,26 @@ const serviceUrl = {
     delete: (userId: string) => "api/users/" + encodeURI(userId)
 };
 
-export class UsersActionsPayload {
-    public readonly usersFilter;
-    public readonly userId: string | null;
-    public readonly users: User[];
-    public readonly tooMuchData: boolean;
+export type UsersActionsPayload = UsersActionsPayload_PostPutDelete | UsersActionsPayload_SetListData | UsersActionsPayload_SetFormData;
+
+export class UsersActionsPayload_PostPutDelete {
+    public readonly userId: string;
+    public readonly user: User | null;
+}
+
+export class UsersActionsPayload_SetListData {
+    public readonly listFilter: string;
+    public readonly listData: UserListData;
+}
+
+export class UsersActionsPayload_SetFormData {
+    public readonly userId: string;
+    public readonly formData: UserFormData;
 }
 
 export class UsersActions {
 
-    public static getList(allowCachedData: boolean, filter: string, onSuccess: (data: UserListData) => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static getList(allowCachedData: boolean, filter: string, onSuccess: (data: UserListData) => void): StoreActionThunk {
 
         return (dispatch, getState) => {
             var rootState = getState();
@@ -46,20 +55,20 @@ export class UsersActions {
             if (allowCachedData) {
                 var data = rootState.users;
 
-                if (data.usersFilter === filter && !TypeHelper.isNullOrEmpty(data.users)) {
+                if (data.listFilter === filter && !TypeHelper.isNullOrEmpty(data.users)) {
 
                     // return from store (full match)
                     onSuccess({ List: data.users, TooMuchData: data.tooMuchData });
 
-                } else if (StringHelper.contains(data.usersFilter, filter, true) && !TypeHelper.isNullOrEmpty(data.users)) {
+                } else if (StringHelper.contains(data.listFilter, filter, true) && !TypeHelper.isNullOrEmpty(data.users)) {
 
                     // return from store (partial match)
-                    var match = data.users.filter((value, index, array) =>
-                        StringHelper.contains(value.Email, filter, true) ||
-                        StringHelper.contains(value.FirstName, filter, true) ||
-                        StringHelper.contains(value.LastName, filter, true) ||
-                        StringHelper.contains(value.RoleTitle, filter, true) ||
-                        StringHelper.contains(value.UserName, filter, true)
+                    var match = data.users.filter(t =>
+                        StringHelper.contains(t.Email, filter, true) ||
+                        StringHelper.contains(t.FirstName, filter, true) ||
+                        StringHelper.contains(t.LastName, filter, true) ||
+                        StringHelper.contains(t.RoleTitle, filter, true) ||
+                        StringHelper.contains(t.UserName, filter, true)
                     );
 
                     onSuccess({
@@ -84,19 +93,17 @@ export class UsersActions {
         }
     }
 
-    private static setListData(filter: string, data: UserListData): StoreAction<Partial<UsersActionsPayload>> {
+    private static setListData(filter: string, data: UserListData): StoreAction<UsersActionsPayload_SetListData> {
         return {
             type: StoreActionType.Users_SetListData,
             payload: {
-                usersFilter: filter,
-                tooMuchData: data.TooMuchData,
-                users: data.List
+                listFilter: filter,
+                listData: data
             }
         };
     }
 
-    public static getById(allowCachedData: boolean, userId: string, onSuccess: (data: UserEditData) => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static getById(allowCachedData: boolean, userId: string, onSuccess: (data: UserFormData) => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             if (allowCachedData) {
@@ -111,7 +118,7 @@ export class UsersActions {
                 }
             }
             else {
-                dispatch(WebApiServiceActions.get<UserEditData>(
+                dispatch(WebApiServiceActions.get<UserFormData>(
                     serviceUrl.getById(userId),
                     result => {
                         dispatch(UsersActions.setFormData(result));
@@ -122,25 +129,32 @@ export class UsersActions {
         }
     }
 
-    private static setFormData(data: UserEditData): StoreAction<Partial<UsersActionsPayload>> {
+    private static setFormData(data: UserFormData): StoreAction<UsersActionsPayload_SetFormData> {
         return {
             type: StoreActionType.Users_SetFormData,
             payload: {
                 userId: data.User.UserId,
-                users: [data.User]
+                formData: data
             }
         };
     }
 
-    public static clearState(): StoreAction<UsersActionsPayload> {
+    private static clearState(): StoreAction<UsersActionsPayload> {
         return {
             type: StoreActionType.Users_ClearState,
             payload: null
         };
     }
 
-    public static post(user: User, addLastAntiforgeryToken: boolean, onSuccess: () => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static invalidateRelevantCaches(): StoreActionThunk {
+        {
+            return (dispatch, getState) => {
+                dispatch(UsersActions.clearState());
+            };
+        }
+    }
+
+    public static post(user: User, addLastAntiforgeryToken: boolean, onSuccess: () => void): StoreActionThunk {
 
         return (dispatch, getState) => {
             dispatch(WebApiServiceActions.post<User>(
@@ -155,18 +169,17 @@ export class UsersActions {
         };
     }
 
-    private static postSuccess(user: User): StoreAction<Partial<UsersActionsPayload>> {
+    private static postSuccess(user: User): StoreAction<UsersActionsPayload_PostPutDelete> {
         return {
             type: StoreActionType.Users_PostSuccess,
             payload: {
                 userId: user.UserId,
-                users: [user]
+                user: user
             }
         };
     }
 
-    public static put(user: User, addLastAntiforgeryToken: boolean, onSuccess: () => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static put(user: User, addLastAntiforgeryToken: boolean, onSuccess: () => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             dispatch(WebApiServiceActions.put<User>(
@@ -181,18 +194,17 @@ export class UsersActions {
         };
     }
 
-    private static putSuccess(user: User): StoreAction<Partial<UsersActionsPayload>> {
+    private static putSuccess(user: User): StoreAction<UsersActionsPayload_PostPutDelete> {
         return {
             type: StoreActionType.Users_PutSuccess,
             payload: {
                 userId: user.UserId,
-                users: [user]
+                user: user
             }
         };
     }
 
-    public static delete(userId: string, addLastAntiforgeryToken: boolean, onSuccess: () => void)
-        : (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    public static delete(userId: string, addLastAntiforgeryToken: boolean, onSuccess: () => void): StoreActionThunk {
         
         return (dispatch, getState) => {
             dispatch(WebApiServiceActions.delete(
@@ -206,11 +218,12 @@ export class UsersActions {
         };
     }
 
-    private static deleteSuccess(userId: string): StoreAction<Partial<UsersActionsPayload>> {
+    private static deleteSuccess(userId: string): StoreAction<UsersActionsPayload_PostPutDelete> {
         return {
             type: StoreActionType.Users_DeleteSuccess,
             payload: {
-                userId: userId
+                userId: userId,
+                user: null
             }
         };
     }
@@ -221,7 +234,7 @@ export class UsersActions {
         allPermissions?: boolean | undefined | null,
         onSuccess?: ((authContext: UserAuthContext) => void) | undefined | null,
         onError?: (error: WebApiResult<ErrorDetails>) => void
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
         
         return (dispatch, getState) => {
             dispatch(AuthServiceActions.authorize(demandAuthenticated, demandPermission, allPermissions, false,
@@ -230,6 +243,7 @@ export class UsersActions {
                         onSuccess({
                             currentUser: user,
                             currentUserId: user.UserId,
+                            canManage: AppUser.hasPermission(user, Permission.User_Management),
                             canEditAdmin: AppUser.hasPermission(user, Permission.User_Management_EditAdmins),
                             canSetRole: AppUser.hasPermission(user, Permission.User_Management_SetRole)
                         });
@@ -244,7 +258,7 @@ export class UsersActions {
     public static authorizeList(
         onSuccess?: ((authContext: UserAuthContext) => void) | undefined | null,
         onError?: (error: WebApiResult<ErrorDetails>) => void
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return UsersActions.authorizeAny(true, Permission.User_Management, false, onSuccess, onError);
     }
@@ -254,7 +268,7 @@ export class UsersActions {
         isNewUser: boolean,
         onSuccess?: ((authContext: UserAuthContext) => void) | undefined | null,
         onError?: (error: WebApiResult<ErrorDetails>) => void
-    ): (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void, getState: () => RootState) => void {
+    ): StoreActionThunk {
 
         return (dispatch, getState) => {
             if (isNewUser) {

@@ -8,12 +8,13 @@ import { ArrayHelper } from '../../helpers/arrayHelper';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
 import { ClientContextState } from '../../store/state/shared/clientContextState';
-import { IStoreAction } from '../../store/actions/storeAction';
+import { StoreActionDispatch } from '../../store/actions/storeAction';
 import { UserList } from '../../screens/users/UserList';
 import { UsersActions } from '../../store/actions/users/usersActions';
-import { RolesActions } from '../../store/actions/security/rolesActions';
 import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
 import { AuthServiceActions } from '../../store/actions/security/authServiceActions';
+import { User } from '../../models/users/user';
+import { RoleType } from '../../models/security/roleType';
 
 const mapStateToProps: (state: RootState) => UserEditProps = state => {    
     var store = storeProvider();
@@ -23,7 +24,7 @@ const mapStateToProps: (state: RootState) => UserEditProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void) => UserEditActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserEditActions = dispatch => {
     var store = storeProvider();
     var redirectBack = (isProfile: boolean) => store.dispatch(ClientContextActions.redirect(isProfile ? routeUrls.home() : routeUrls.users.list()));
 
@@ -32,22 +33,26 @@ const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getS
             store.dispatch(UsersActions.authorizeEdit(userId, isNewUser, onSuccess))
         },
 
-        onAllowCachedData: () => store.getState().clientContext.lastScreen instanceof UserList,
+        onAllowCachedData: (invalidateCaches: boolean) => {
+            if (store.getState().clientContext.lastScreen instanceof UserList) return true;
+
+            if (invalidateCaches) store.dispatch(UsersActions.invalidateRelevantCaches());
+            return false;
+        },
 
         // we need to get the list of roles, so we need to call the server anyway
         // userId is "new" for new users
-        onLoad: (allowCachedData, userId, onSuccess) => {
-            store.dispatch(UsersActions.getById(
-                allowCachedData,
-                userId,
-                data => {
-                    // ref.data is always cached, the list screen invalidates the cache at the beginning
-                    store.dispatch(RolesActions.getList(
-                        true,
-                        roles => {
-                            onSuccess(data, roles.List);
-                        }));
-                }))
+        onLoad: (allowCachedData, userId, isNewUser, isProfile, onSuccess) => {
+            if (isNewUser)
+                onSuccess({ User: { ...new User(), Role: RoleType.User } });
+            else
+                store.dispatch(UsersActions.getById(
+                    allowCachedData,
+                    userId,
+                    data => {
+                        // ref.data is always cached, the list screen invalidates the cache at the beginning
+                        onSuccess(data);
+                    }));
         },
 
         onCancel: (user, isNewUser, isProfile) => redirectBack(isProfile),

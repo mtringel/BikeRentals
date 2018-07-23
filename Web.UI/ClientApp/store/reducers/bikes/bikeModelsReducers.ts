@@ -3,9 +3,9 @@ import { StoreAction } from '../../actions/storeAction';
 import { RootState } from '../../state/rootState';
 import { BikeModelsState } from '../../state/bikes/bikeModelsState';
 import { BikeModel } from '../../../models/bikes/bikeModel';
-import { BikeModelActionsPayload } from '../../actions/bikes/bikeModelActions';
+import { BikeModelsActionsPayload } from '../../actions/bikes/bikeModelsActions';
 
-export const BikeModelsReducers: (state: BikeModelsState, action: StoreAction<BikeModelActionsPayload>) => BikeModelsState =
+export const BikeModelsReducers: (state: BikeModelsState, action: StoreAction<BikeModelsActionsPayload>) => BikeModelsState =
     (state = new BikeModelsState(), action) => {
 
         switch (action.type) {

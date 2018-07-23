@@ -11,6 +11,7 @@ import { TypeHelper } from './helpers/typeHelper';
 import { QueryParamsHelper } from './helpers/queryParamsHelper';
 import { storeProvider } from './boot';
 import BikeListContainer from './containers/bikes/BikeListContainer';
+import BikeRentListContainer from './containers/rents/BikeRentListContainer';
 
 export const routeUrls = {
     home: () => "/",
@@ -36,7 +37,8 @@ export const routeUrls = {
     },
 
     rents: {
-        list: () => "/rents",
+        listAll: () => "/rents",
+        listMy: () => "/myrents",
         // /rents/:rentId
         edit: (rentId: string, ) => "/rents/" + (rentId=== ":rentId" ? rentId: encodeURI(rentId)),
         new: () => "/rents/new"
@@ -60,5 +62,6 @@ export const routes = <Layout>
     <Route path={routeUrls.bikes.list()} exact component={BikeListContainer} />
 
     {/* Rents */}
-    {/* <Route path={routeUrls.rents.list()} exact component={BikeRentContainer} /> */}
+    <Route path={routeUrls.rents.listMy()} exact component={BikeRentListContainer.MyRents} />
+    <Route path={routeUrls.rents.listAll()} exact component={BikeRentListContainer.AllRents} /> 
 </Layout>;

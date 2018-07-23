@@ -2,7 +2,7 @@
 
 namespace Toptal.BikeRentals.Service.Models.Users
 {
-    public sealed class UserEditdata : Model
+    public sealed class UserFormData : Model
     {
         public Service.Models.Users.User User { get; set; }
     }

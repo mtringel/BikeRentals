@@ -37,12 +37,33 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
         /// </summary>
         public IEnumerable<Bike> GetList(BikeListFilter filter, PagingInfo paging, Location? currentLocation, out int totalRowCount)
         {
-            IQueryable<Bike> query = Include(AppDbContext.Bikes);
+            // non-active entities are only loaded through reference or by Id
+            IQueryable<Bike> query = Include(AppDbContext.Bikes).Where(t => t.IsActive);
             totalRowCount = 0;
 
             if (filter != null && !filter.IsEmpty)
             {
                 #region Filtering
+
+                // State
+                // When filtering for Available, only bikes available on Availability (or current day) will be listed. This is the only accessible option by users.
+                // When filtering for any other states, all bikes are listed.
+                if (filter.State.HasValue && (filter.State.Value != BikeState.Available || filter.AvailableWhen.IsEmpty)) query = query.Where(t => t.BikeState == filter.State.Value);
+
+                // Availability
+                // Dates only.
+                // We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
+                // If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
+                if (filter.State.HasValue && filter.State.Value == BikeState.Available && (filter.AvailableWhen.From.HasValue || filter.AvailableWhen.To.HasValue))
+                {
+                    var from = (filter.AvailableWhen.From ?? filter.AvailableWhen.To.Value).Date.AddDays(1);
+                    var to = (filter.AvailableWhen.To ?? filter.AvailableWhen.From.Value).Date;
+
+                    query = query.Where(t =>
+                        t.AvailableFrom <= from &&
+                        !t.Rents.Any(t2 => t2.StartDate <= to && t2.EndDate > from)
+                        );
+                }
 
                 // Colors
                 if (filter.Colors != null && filter.Colors.Any())
@@ -61,12 +82,12 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
                 }
 
                 // RateAverage
-                if (filter.RateAverage.From.HasValue) query = query.Where(t => t.RateAverage >= filter.RateAverage.From);
-                if (filter.RateAverage.To.HasValue) query = query.Where(t => t.RateAverage <= filter.RateAverage.To);
+                if (filter.RateAverage.From.HasValue) query = query.Where(t => t.RateAverage >= filter.RateAverage.From.Value);
+                if (filter.RateAverage.To.HasValue) query = query.Where(t => t.RateAverage <= filter.RateAverage.To.Value);
 
                 // WeightLbs
-                if (filter.WeightLbs.From.HasValue) query = query.Where(t => t.BikeModel.WeightLbs >= filter.WeightLbs.From);
-                if (filter.WeightLbs.To.HasValue) query = query.Where(t => t.BikeModel.WeightLbs <= filter.WeightLbs.To);
+                if (filter.WeightLbs.From.HasValue) query = query.Where(t => t.BikeModel.WeightLbs >= filter.WeightLbs.From.Value);
+                if (filter.WeightLbs.To.HasValue) query = query.Where(t => t.BikeModel.WeightLbs <= filter.WeightLbs.To.Value);
 
                 // MaxDistanceFromCurrentLocationInMiles
                 if (filter.MaxDistanceMiles.HasValue && currentLocation.HasValue)
@@ -78,19 +99,8 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
                     query = query.Where(t => filter.MaxDistanceMiles >= AppDbContext.ServerFunctions.GeoDistanceMiles(t.CurrentLocationLat, t.CurrentLocationLng, lat, lng));
                 }
 
-                // Availability
-                // Dates only.
-                // We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
-                // If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
-                if (filter.Availability.From.HasValue || filter.Availability.To.HasValue) {
-                    var from = (filter.Availability.From ?? filter.Availability.To.Value).Date.AddDays(1);
-                    var to = (filter.Availability.To ?? filter.Availability.From.Value).Date;
-
-                    query = query.Where(t =>
-                        t.AvailableFrom <= from &&
-                        !t.Rents.Any(t2 => t2.StartDate <= to && t2.EndDate > from)
-                        );
-                }
+                // BikeId
+                if (filter.BikeId.HasValue) query = query.Where(t => t.BikeId == filter.BikeId);
 
                 #endregion
             }
@@ -136,9 +146,10 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
             return query;
         }
 
-        public Bike Get(int bikeId)
+        public Bike GetById(int bikeId, bool? isActive)
         {
-            return Include(AppDbContext.Bikes).SingleOrDefault(t => t.BikeId == bikeId);
+            var result = Include(AppDbContext.Bikes).SingleOrDefault(t => t.BikeId == bikeId);
+            return !isActive.HasValue || result.IsActive == isActive.Value ? result : null;
         }
 
         public void Add(Bike bike)

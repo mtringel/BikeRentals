@@ -23,7 +23,7 @@ namespace Toptal.BikeRentals.Security.Managers
         bool HasPermission(params Permission[] permissions);
         bool HasPermission(Permission[] permissions, bool all);
 
-        void DeleteUser(string userId);
+        //void DeleteUser(string userId);
 
         void Authorize(params Permission[] permissions);
         void Authorize(Permission[] permissions, bool all);

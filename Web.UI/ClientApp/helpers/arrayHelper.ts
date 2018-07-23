@@ -67,7 +67,7 @@ export class ArrayHelper {
         array.sort((item1, item2) => {
             for (var i = 0; i < length; i++) {
                 var name = propertyNames[i];
-                var res = TypeHelper.compare(item1[name], item2[name], true);
+                var res = TypeHelper.compare(item1[name], item2[name], 0, true);
 
                 if (res != 0)
                     return res * order;
@@ -92,9 +92,9 @@ export class ArrayHelper {
             var val2 = getValue(item2);
 
             if (val1 instanceof Array && val2 instanceof Array)
-                return ArrayHelper.compareArray(val1 as any, val2 as any, true) * order;
+                return ArrayHelper.compare(val1 as any, val2 as any, 0, true) * order;
             else
-                return TypeHelper.compare(val1, val2, true) * order;
+                return TypeHelper.compare(val1, val2, 0, true) * order;
         });
     }
 
@@ -113,7 +113,7 @@ export class ArrayHelper {
             var obj2 = getObject(item2);
 
             for (var member in obj1) {
-                var res = TypeHelper.compare(item1[member], item2[member], true);
+                var res = TypeHelper.compare(item1[member], item2[member], 0, true);
 
                 if (res != 0)
                     return res * order;
@@ -123,7 +123,7 @@ export class ArrayHelper {
         });
     }
 
-    public static compareArray<T>(array1: T[], array2: T[], caseInsensitiveStringComparison?: boolean | undefined | null): number {
+    public static compare<T>(array1: T[], array2: T[], resultIfNonComparable: number, caseInsensitiveStringComparison?: boolean | undefined | null): number {
         if (array1 === undefined || array2 === undefined) {
             if (array2 === undefined || array2 === null)
                 return 0;
@@ -142,7 +142,7 @@ export class ArrayHelper {
                 return 1;
             else {
                 for (var i = 0; i < len1; i++) {
-                    var res = TypeHelper.compare(array1[i], array2[i], caseInsensitiveStringComparison);
+                    var res = TypeHelper.compare(array1[i], array2[i], resultIfNonComparable, caseInsensitiveStringComparison);
 
                     if (res != 0)
                         return res;
@@ -225,7 +225,7 @@ export class ArrayHelper {
     }
 
     public static remove<T>(array: T[], predicate: (item: T) => boolean): T[] {
-        return ArrayHelper.isNullOrEmpty(array) ? array : array.filter((value, index, array) => !predicate(value));
+        return ArrayHelper.isNullOrEmpty(array) ? array : array.filter(t => !predicate(t));
     }
 
     public static update<T>(array: T[], item: T, predicate: (item: T) => boolean): T[] {
@@ -247,7 +247,7 @@ export class ArrayHelper {
     /// <summary>
     /// Items in the array should be sorted.
     /// </summary>
-    public static compare<T>(arr1: T[], arr2: T[], predicate: (item1: T, item2: T) => boolean): boolean {
+    public static equals<T>(arr1: T[], arr2: T[], predicate: (item1: T, item2: T) => boolean): boolean {
         if (ArrayHelper.isNullOrEmpty(arr1))
             return ArrayHelper.isNullOrEmpty(arr2);
         else if (ArrayHelper.isNullOrEmpty(arr2))

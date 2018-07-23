@@ -58,7 +58,7 @@ export class StringHelper {
         }
     }
 
-    public static compare(str1: string | null, str2: string | null, ignoreCase?: boolean | undefined | null): boolean {
+    public static equals(str1: string | null, str2: string | null, ignoreCase?: boolean | undefined | null): boolean {
 
         if (StringHelper.isNullOrEmpty(str1))
             return StringHelper.isNullOrEmpty(str2);
@@ -138,7 +138,7 @@ export class StringHelper {
     }
 
     public static arrayContains(array: string[], value: string, ignoreCase?: boolean | undefined | null): boolean {
-        return ArrayHelper.any(array, t => StringHelper.compare(t, value, ignoreCase));
+        return ArrayHelper.any(array, t => StringHelper.equals(t, value, ignoreCase));
     }
 
 
@@ -177,7 +177,7 @@ export class StringHelper {
             suffix !== undefined &&
             suffix !== null &&
             str.length >= suffix.length &&
-            StringHelper.compare(str.substr(0, suffix.length), suffix, ignoreCase);
+            StringHelper.equals(str.substr(0, suffix.length), suffix, ignoreCase);
     }
 
     public static endsWith(str: string, suffix: string, ignoreCase?: boolean | undefined | null): boolean {
@@ -186,6 +186,13 @@ export class StringHelper {
             suffix !== undefined &&
             suffix !== null &&
             str.length >= suffix.length &&
-            StringHelper.compare(str.substr(str.length - suffix.length, suffix.length), suffix, ignoreCase);
+            StringHelper.equals(str.substr(str.length - suffix.length, suffix.length), suffix, ignoreCase);
+    }
+
+    public static formatBool(value: boolean | undefined | null, ifTrue: string, ifFalse: string, ifNull?: string | undefined | null) {
+        if (TypeHelper.isNullOrEmpty(value))
+            return StringHelper.notNullOrEmpty(ifNull, "");
+        else
+            return value === true ? ifTrue : ifFalse;
     }
 }

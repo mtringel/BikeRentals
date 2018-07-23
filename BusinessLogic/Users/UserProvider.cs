@@ -41,24 +41,24 @@ namespace Toptal.BikeRentals.BusinessLogic.Users
         /// </summary>
         public IEnumerable<User> GetList()
         {
-            return GetList(null, null);
+            return GetList(null, null, null);
         }
 
         /// <summary>
         /// Read from the BikeRentals.V_User view (selecting from the ASP NET Identity database)
         /// </summary>
-        public IEnumerable<User> GetList(string filterText, int? maxRows)
+        public IEnumerable<User> GetList(string userListFilter, string autoCompleteFilter, int? maxRows)
         {
             // keep lazy loaded, don't fetch until needed
-            return UserDataProvider.GetList(filterText, maxRows);
+            return UserDataProvider.GetList(userListFilter, autoCompleteFilter, maxRows);
         }
 
         /// <summary>
         /// Read from the BikeRentals.V_User view (selecting from the ASP NET Identity database)
         /// </summary>
-        public User Get(string id)
+        public User GetById(string id)
         {
-            var res = UserDataProvider.Get(id);
+            var res = UserDataProvider.Get(id, true);
 
             if (res == null)
                 throw new EntityNotFoundException(CallContext.ResourceUri, typeof(User), new[] { id }, LogLevel.Error);
@@ -71,9 +71,16 @@ namespace Toptal.BikeRentals.BusinessLogic.Users
         /// Case sensitive, accent sensitive to use UserNameIndex
         /// </summary>
         public User GetByUserName(string userName) {
-            return UserDataProvider.GetByUserName(userName);
+            return GetByUserName(userName, true);
         }
 
+        /// <summary>
+        /// Case sensitive, accent sensitive to use UserNameIndex
+        /// </summary>
+        protected User GetByUserName(string userName, bool? isActive)
+        {
+            return UserDataProvider.GetByUserName(userName, isActive);
+        }
 
         /// <summary>
         /// We need this to find users very fast in the database by using UserNameIndex (which ASP Net Identity does not do, performs full table scan)

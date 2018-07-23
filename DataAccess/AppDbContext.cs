@@ -16,6 +16,25 @@ namespace Toptal.BikeRentals.DataAccess
     /// </summary>        
     public sealed class AppDbContext : AspNetIdentityDbContext, ITransactionManager
     {
+        #region Entities
+
+        // Add a DbSet for each entity type that you want to include in your model. For more information 
+        // on configuring and using a Code First model, see http://go.microsoft.com/fwlink/?LinkId=390109.
+
+        public new DbSet<User> Users { get; set; }
+
+        public DbSet<Bike> Bikes { get; set; }
+
+        public DbSet<Color> Colors { get; set; }
+
+        public DbSet<BikeModel> BikeModels { get; set; }
+
+        public DbSet<BikeRate> BikeRates { get; set; }
+
+        public DbSet<BikeRent> BikeRents { get; set; }
+
+        #endregion
+
         #region Services
 
         public Action<ModelBuilder> OnModelCreatingCallback { get; set; }
@@ -56,28 +75,7 @@ namespace Toptal.BikeRentals.DataAccess
             OnModelCreatingCallback?.Invoke(modelBuilder);
         }
 
-        #endregion
-
-        #region Entities
-
-        // Add a DbSet for each entity type that you want to include in your model. For more information 
-        // on configuring and using a Code First model, see http://go.microsoft.com/fwlink/?LinkId=390109.
-
-        public new DbSet<User> Users { get; set; }
-
-        public DbSet<Bike> Bikes { get; set; }
-
-        public DbSet<BikePhoto> BikePhotos { get; set; }
-
-        public DbSet<Color> Colors { get; set; }
-
-        public DbSet<BikeModel> BikeModels { get; set; }
-
-        public DbSet<BikeRate> BikeRates { get; set; }
-
-        public DbSet<BikeRent> BikeRents { get; set; }
-
-        #endregion
+        #endregion        
 
         #region ITransactionManager
 

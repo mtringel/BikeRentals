@@ -6,15 +6,14 @@ import { Permission } from '../../models/security/permission';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
-import { ClientContextState } from '../../store/state/shared/clientContextState';
-import { IStoreAction } from '../../store/actions/storeAction';
+import { StoreActionDispatch } from '../../store/actions/storeAction';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { BikeListProps, BikeListActions, BikeList } from '../../screens/bikes/BikeList';
 import { BikeListFilter } from '../../models/bikes/bikeListFilter';
 import { DateHelper } from '../../helpers/dateHelper';
 import { AuthServiceActions } from '../../store/actions/security/authServiceActions';
 import { BikesActions } from '../../store/actions/bikes/bikesActions';
-import { BikeModelActions } from '../../store/actions/bikes/bikeModelActions';
+import { BikeModelsActions } from '../../store/actions/bikes/bikeModelsActions';
 import { ColorsActions } from '../../store/actions/master/colorsActions';
 
 
@@ -28,14 +27,14 @@ const mapStateToProps: (state: RootState) => BikeListProps  = state => {
         defaultFilter: {
             ...new BikeListFilter(),
             CurrentLocation: rootState.clientContext.currentLocation,
-            Availability: { From: today, To: today  }
+            AvailableWhen: { From: today, To: today  }
         },
-        orderBy: ["DistanceMiles"],
-        orderByDescending: false
+        defaultOrderBy: ["DistanceMiles"],
+        defaultOrderByDescending: false
     };
 };
 
-const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void) => BikeListActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreActionDispatch) => BikeListActions = dispatch => {
     var store = storeProvider();
     var rootState = store.getState();
 
@@ -45,22 +44,19 @@ const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getS
             error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
         )),
 
-        onAllowCachedData: () => {
+        onAllowCachedData: (invalidateCaches: boolean) => {
             var lastScreen = store.getState().clientContext.lastScreen;
-            return lastScreen instanceof BikeList; // TODO || lastScreen instanceof UserList;
-        },
+            if (lastScreen instanceof BikeList) return true; // TODO || lastScreen instanceof UserList;
 
-        onInvalidateCaches: () => {
-            store.dispatch(BikeModelActions.clearState());
-            store.dispatch(ColorsActions.clearState());
-            store.dispatch(BikesActions.clearState());
+            if (invalidateCaches) store.dispatch(BikesActions.invalidateRelevantCaches())
+            return false;
         },
 
         onLoad: (allowCachedData, filter, paging, onSuccess) => store.dispatch(BikesActions.getList(allowCachedData, filter, paging, rootState.clientContext.currentLocation, onSuccess)),
 
         onLoadFilter: (allowCachedData, onSuccess) => {
             store.dispatch(ColorsActions.getList(allowCachedData, colors => {
-                store.dispatch(BikeModelActions.getList(allowCachedData, models => {
+                store.dispatch(BikeModelsActions.getList(allowCachedData, models => {
                     onSuccess(colors.List, models.List);
                 }));
             }));

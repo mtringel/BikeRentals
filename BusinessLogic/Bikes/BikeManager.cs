@@ -37,9 +37,9 @@ namespace Toptal.BikeRentals.BusinessLogic.Bikes
             return this.BikeDataProvider.GetList(filter, paging, currentLocation, out totalRowCount);
         }
 
-        public Bike Get(int bikeId)
+        public Bike GetById(int bikeId)
         {
-            return this.BikeDataProvider.Get(bikeId);
+            return this.BikeDataProvider.GetById(bikeId, true);
         }
 
         public void Add(Bike bike)

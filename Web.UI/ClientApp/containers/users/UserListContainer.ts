@@ -12,11 +12,9 @@ import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
 import { ClientContextState } from '../../store/state/shared/clientContextState';
 import { UserEdit } from '../../screens/users/UserEdit';
-import { IStoreAction } from '../../store/actions/storeAction';
+import { StoreActionDispatch } from '../../store/actions/storeAction';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { AuthServiceActions } from '../../store/actions/security/authServiceActions';
-import { RoleListData } from '../../models/security/roleListData';
-import { RolesActions } from '../../store/actions/security/rolesActions';
 import { UsersActions } from '../../store/actions/users/usersActions';
 import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
 
@@ -29,7 +27,7 @@ const mapStateToProps: (state: RootState) => UserListProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getState: () => RootState) => void)) => void) => UserListActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserListActions = dispatch => {
     var store = storeProvider();
 
     return {
@@ -38,15 +36,15 @@ const mapDispatchToProps: (dispatch: (action: IStoreAction | ((action: any, getS
             error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
         )),
 
-        onAllowCachedData: () => {
+        onAllowCachedData: (invalidateCaches: boolean) => {
             var lastScreen = store.getState().clientContext.lastScreen;
-            return lastScreen instanceof UserEdit || lastScreen instanceof UserList;
+            if (lastScreen instanceof UserEdit || lastScreen instanceof UserList) return true;
+
+            if (invalidateCaches) store.dispatch(UsersActions.invalidateRelevantCaches());
+            return false;
         },
 
-        onInvalidateCaches: () => {
-            store.dispatch(RolesActions.clearState());
-            store.dispatch(UsersActions.clearState());
-        },
+        onInvalidateCaches: () => store.dispatch(UsersActions.invalidateRelevantCaches()),
 
         onLoad: (allowCachedData, filter, onSuccess) => {
             store.dispatch(UsersActions.getList(

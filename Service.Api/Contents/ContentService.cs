@@ -48,7 +48,7 @@ namespace Toptal.BikeRentals.Service.Api.Contents
                             AuthProvider.Authorize(Permission.Bike_ViewAll, Permission.Bike_Management);
 
                             // TODO put down images using BikeId, so the Bike entity won't be needed here (hack: we use model name for the moment)
-                            var bike = BikeManager.Get(int.Parse(key));
+                            var bike = BikeManager.GetById(int.Parse(key));
                             var uri = $"{bike.BikeModel.BikeModelName}.jpg";
 
                             return await scope.Complete(

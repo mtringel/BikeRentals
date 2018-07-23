@@ -19,6 +19,9 @@ namespace Toptal.BikeRentals.Service.Api
             // Master
             services.AddTransient(typeof(Master.ColorService));
 
+            // Shared
+            services.AddTransient(typeof(Shared.AutoCompleteService));
+
             // Rents
             services.AddTransient(typeof(Rents.BikeRentService));
 
@@ -27,7 +30,6 @@ namespace Toptal.BikeRentals.Service.Api
 
             // Security
             services.AddTransient(typeof(Security.AuthService));
-            services.AddTransient(typeof(Security.RoleService));
 
             // Users
             services.AddTransient(typeof(Users.UserService));

@@ -50,7 +50,7 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
             var dbc = AppConfig.DatabaseCreation;
             var colors = ColorDataProvider.GetList().ToArray();
             var models = BikeModelDataProvider.GetList().ToArray();
-            var user = UserDataProvider.GetByUserName(dbc.AdminUserEmail);
+            var user = UserDataProvider.GetByUserName(dbc.AdminUserEmail, true);
 
             for (int i = 0; i < dbc.TestBikesCount; i++)
             {
@@ -58,7 +58,18 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
 
                 BikeDataProvider.Add(new Bike(
                     0,
-                    BikeState.Available,
+                    available ? BikeState.Available: ThreadSafeRandom.NextItem(new[]{
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Reserved,
+                        BikeState.Lost,
+                        BikeState.Maintenance
+                    }),
                     ThreadSafeRandom.NextItem(models),
                     ThreadSafeRandom.NextItem(colors),
                     // put around Érd?

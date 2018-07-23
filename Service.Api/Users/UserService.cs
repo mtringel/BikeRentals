@@ -52,8 +52,7 @@ namespace Toptal.BikeRentals.Service.Api.Users
 
                 // process
                 var gridMaxRows = AppConfig.WebApplication.GridMaxRows;
-                var list = UserManager.GetList(filter, gridMaxRows + 1);
-
+                var list = UserManager.GetList(filter, null, gridMaxRows + 1).ToArray();
                 Helper.ValidateResult(list);
 
                 return scope.Complete(
@@ -75,7 +74,7 @@ namespace Toptal.BikeRentals.Service.Api.Users
         /// Get single entity
         /// id == userId or "new" or "profile" (own)
         /// </summary>
-        public UserEditdata GetById(string userId)
+        public UserFormData GetById(string userId)
         {
             using (var scope = Scope("GetById"))
             {
@@ -93,7 +92,7 @@ namespace Toptal.BikeRentals.Service.Api.Users
 
                 // process
                 return scope.Complete(
-                    () => new UserEditdata() { User = isNew ? new Models.Users.User() : new Models.Users.User(UserManager.Get(ownProfile ? AuthProvider.CurrentUser.UserId : userId)) },
+                    () => new UserFormData() { User = isNew ? new Models.Users.User() : new Models.Users.User(UserManager.GetById(ownProfile ? AuthProvider.CurrentUser.UserId : userId)) },
                     t => $"User loaded with Id={t.User.UserId}."
                     );
             }
@@ -159,12 +158,12 @@ namespace Toptal.BikeRentals.Service.Api.Users
                     user.UserId = user.UserId.ToLower();
 
                 var ownProfile = string.Compare(user.UserId, AuthProvider.CurrentUser.UserId, true) == 0;
-                var oldUser = UserManager.Get(user.UserId); // throws EntityNotFoundException
+                var oldUser = UserManager.GetById(user.UserId); // throws EntityNotFoundException
 
                 // authorize
                 if (ownProfile)
                     AuthProvider.Authorize(Permission.User_EditProfile);
-                else if (oldUser.Role != RoleType.User)
+                else if (oldUser.Role == RoleType.Manager || oldUser.Role == RoleType.Admin)
                     AuthProvider.Authorize(Permission.User_Management_EditAdmins); // only Admin can edit Admin 
                 else
                     AuthProvider.Authorize(Permission.User_Management);
@@ -204,7 +203,7 @@ namespace Toptal.BikeRentals.Service.Api.Users
                 Helper.Expect(typeof(User), id);
 
                 var ownProfile = string.Compare(id, AuthProvider.CurrentUser.UserId, true) == 0;
-                var oldUser = UserManager.Get(id);
+                var oldUser = UserManager.GetById(id);
 
                 // authorize
                 if (ownProfile)
@@ -217,7 +216,8 @@ namespace Toptal.BikeRentals.Service.Api.Users
                 // validate
 
                 // process
-                UserManager.Delete(id);
+                // UserManager.Delete(id);
+                UserManager.Disable(id);
 
                 scope.Complete(() => $"User has been deleted with Id={id}.");
             }
