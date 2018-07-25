@@ -17,6 +17,7 @@ export interface NumericRangeComponentProps {
     readonly precision: number | null; // default: 0
     readonly glyphIcon: string | null;
     readonly suffix: string | null;
+    readonly inputSuffix: string | null;
 }
 
 export interface NumericRangeComponentActions {
@@ -108,6 +109,8 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
                         step={TypeHelper.notNullOrEmpty(this.props.step, 1)}
                         precision={TypeHelper.notNullOrEmpty(this.props.precision, 0)}
                         onChange={t => this.onSelectionChanged(t, this.state.end)}
+                        format={t => t + StringHelper.notNullOrEmpty(this.props.inputSuffix, "")}
+                        parse={t => StringHelper.removeSuffix(t, this.props.inputSuffix, true)}
                     />
                 </span>
             </span>
@@ -124,6 +127,8 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
                         step={TypeHelper.notNullOrEmpty(this.props.step, 1)}
                         precision={TypeHelper.notNullOrEmpty(this.props.precision, 0)}
                         onChange={t => this.onSelectionChanged(this.state.start, t)}
+                        format={t => t + StringHelper.notNullOrEmpty(this.props.inputSuffix, "")}
+                        parse={t => StringHelper.removeSuffix(t, this.props.inputSuffix, true)}
                     />
                 </span>
             </span>

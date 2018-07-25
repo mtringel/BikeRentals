@@ -40,6 +40,7 @@
     BikeRents_PutSuccess,
     BikeRents_DeleteSuccess,
     BikeRents_ClearState,
+    BikeRents_SetUseBikeId,
 
     // Colors
     Colors_SetListData,

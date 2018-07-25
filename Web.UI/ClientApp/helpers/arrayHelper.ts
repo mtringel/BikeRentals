@@ -354,4 +354,108 @@ export class ArrayHelper {
         }
     }
 
+    public static filterDict<T>(dict: { [key: string]: T }, predicate: (key: string, item: T) => boolean): { key: string, item: T }[] {
+        var res = [];
+
+        for (var key in dict) {
+            var item = dict[key];
+
+            if (predicate(key, item))
+                res.push({ key: key, item: item });
+        }
+
+        return res;
+    }
+
+    public static firstOrDefault<T>(array: T[]): T | null{
+        return ArrayHelper.isNullOrEmpty(array) ? null : array[0];
+    }
+
+    public static lastOrDefault<T>(array: T[]): T | null {
+        return ArrayHelper.isNullOrEmpty(array) ? null : array[array.length - 1];
+    }
+
+    public static min<T>(array: T[], caseInsensitiveStringComparison?: boolean | undefined | null): T | null {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return null;
+
+        var length = array.length;
+        var min = array[0];
+
+        for (var i = 1; i < length; i++) {
+            var value = array[i];
+
+            if (TypeHelper.compare(value, min, 0, caseInsensitiveStringComparison) < 0)
+                min = value;
+        }
+
+        return min;
+    }
+
+    public static minSelect<T, T2>(array: T[], select: (item: T) => T2, caseInsensitiveStringComparison?: boolean | undefined | null): T2 | null {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return null;
+
+        var length = array.length;
+        var min = select(array[0]);
+
+        for (var i = 1; i < length; i++) {
+            var value = select(array[i]);
+
+            if (TypeHelper.compare(value, min, 0, caseInsensitiveStringComparison) < 0)
+                min = value;
+        }
+
+        return min;
+    }
+
+    public static max<T>(array: T[], caseInsensitiveStringComparison?: boolean | undefined | null): T | null {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return null;
+
+        var length = array.length;
+        var max = array[0];
+
+        for (var i = 1; i < length; i++) {
+            var value = array[i];
+
+            if (TypeHelper.compare(value, max, 0, caseInsensitiveStringComparison) > 0)
+                max = value;
+        }
+
+        return max;
+    }
+
+    public static maxSelect<T, T2>(array: T[], select: (item: T) => T2, caseInsensitiveStringComparison?: boolean | undefined | null): T2 | null {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return null;
+
+        var length = array.length;
+        var max = select(array[0]);
+
+        for (var i = 1; i < length; i++) {
+            var value = select(array[i]);
+
+            if (TypeHelper.compare(value, max, 0, caseInsensitiveStringComparison) > 0)
+                max = value;
+        }
+
+        return max;
+    }
+
+    public static whereMin<T, T2>(array: T[], select: (item: T) => T2, caseInsensitiveStringComparison ?: boolean | undefined | null): T[] {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return [];
+
+        var min = ArrayHelper.minSelect(array, select);
+        return array.filter(t => TypeHelper.compare(select(t), min, -1, caseInsensitiveStringComparison) === 0);
+    }
+
+    public static whereMax<T, T2>(array: T[], select: (item: T) => T2, caseInsensitiveStringComparison?: boolean | undefined | null): T[] {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return [];
+
+        var max = ArrayHelper.maxSelect(array, select);
+        return array.filter(t => TypeHelper.compare(select(t), max, -1, caseInsensitiveStringComparison) === 0);
+    }
 }

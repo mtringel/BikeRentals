@@ -29,11 +29,11 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
 
         /// <summary>
         /// Filters only is State is set to Available.
-        /// Dates only.
+        /// Date + time.
         /// We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
         /// If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
         /// </summary>
-        public Interval<DateTime?> AvailableWhen { get; set; }
+        public Interval<DateTime?> AvailableUtc { get; set; }
 
         // Filtered by Availability = Today
         //public bool? CurrentlyAvailable { get; set; }
@@ -49,7 +49,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             !MaxDistanceMiles.HasValue &&
             RateAverage.IsEmpty &&
             WeightLbs.IsEmpty &&
-            AvailableWhen.IsEmpty &&
+            AvailableUtc.IsEmpty &&
             (Colors == null || Colors.Length == 0) &&
             (BikeModels == null || BikeModels.Length == 0);
     }

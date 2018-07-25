@@ -13,7 +13,7 @@ export const ColorsReducers: (state: ColorsState, action: StoreAction<ColorsActi
                 return { colors: action.payload.colors };
 
             case StoreActionType.Colors_ClearState:
-                return { colors: null };
+                return new ColorsState();
 
             default:
                 return state;

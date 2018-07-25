@@ -1,4 +1,5 @@
 ﻿import { ResourceType } from "./resourceType";
+import { TypeHelper } from "../../helpers/typeHelper";
 
 export class GlobalParameters { 
 
@@ -65,7 +66,7 @@ export class GlobalParameters {
     public constructor(globalsElement?: any | undefined | null) {
         // super();
 
-        if (globalsElement !== undefined && globalsElement !== null) {
+        if (!TypeHelper.isNullOrEmpty(globalsElement)) {
             this.IsDebugging = globalsElement.isDebugging;
             this.ProductTitle = globalsElement.productTitle;
             this.GridPageSize = globalsElement.gridPageSize;

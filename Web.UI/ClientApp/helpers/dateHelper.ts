@@ -7,7 +7,14 @@ import { StringHelper } from "./stringHelper";
 export class DateHelper {
 
     /// <summary>
-    /// Date + time
+    /// Returns timezone offset in minutes.
+    /// </summary>
+    public static timezoneOffset() {
+        return new Date().getTimezoneOffset();
+    }
+
+    /// <summary>
+    /// Date + time. Time is zero in client's timezone.
     /// </summary>
     public static now(): Date { return new Date(); }
 
@@ -15,11 +22,27 @@ export class DateHelper {
     /// Date only
     /// </summary>
     public static today(): Date {
-        return DateHelper.datePart(DateHelper.now());
+        return DateHelper.datePart(DateHelper.now(), true);
     }
 
-    public static datePart(d: Date | undefined | null): Date | undefined | null{
-        return TypeHelper.isNullOrEmpty(d) ? d : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+
+    /// <summary>
+    /// We keep our dates on client side "timezone shifted", which means, hours are set so, that Utc Hour is zero.
+    /// Time is zero in UTC, which means, the returned date will contain Hour = timezoneOffset / 60 * (-1).
+    /// </summary>
+    public static todayUtc(): Date {
+        return DateHelper.datePart(DateHelper.now(), false);
+    }
+
+    /// <summary>
+    /// We keep our dates on client side "timezone shifted", which means, hours are set so, that Utc Hour is zero.
+    /// Is it possible, that local date is one day ahead of or late from Utc day. We prefer the local day here.
+    /// </summary>
+    public static datePart(d: Date | undefined | null, preferLocalDayOverUtcDay: boolean): Date | undefined | null {
+        if (!preferLocalDayOverUtcDay)
+            d = DateHelper.addMinutes(d, d.getTimezoneOffset());
+
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, d.getTimezoneOffset() * (-1), 0, 0);
     }
 
     public static compateDate(d1: Date | undefined | null, d2: Date | undefined | null, dateOnly: boolean): boolean {
@@ -40,17 +63,14 @@ export class DateHelper {
 
     public static toISOString(
         d: Date | undefined | null,
-        noTimeZoneConversion: boolean, // don't convert to UTC, just keep the hour as it is
         emptyOrNullValue?: string | undefined | null
-    ): string {
-        return TypeHelper.isNullOrEmpty(d) ?
-            StringHelper.notNullOrEmpty(emptyOrNullValue, "") :
-            (noTimeZoneConversion ? DateHelper.addMinutes(d, d.getTimezoneOffset() * (-1)) : d).toISOString();
+    ): string | null {
+        return TypeHelper.isNullOrEmpty(d) ? StringHelper.notNullOrEmpty(emptyOrNullValue, "") : d.toISOString();
     }
 
     public static parseISOString(value: string | undefined | null, dateOnly: boolean): Date | null {
         try {
-            return StringHelper.isNullOrEmpty(value) ? null : dateOnly ? DateHelper.datePart(new Date(value)) : new Date(value);
+            return StringHelper.isNullOrEmpty(value) ? null : dateOnly ? DateHelper.datePart(new Date(value), true) : new Date(value);
         }
         catch (err) {
             return null;
@@ -75,28 +95,28 @@ export class DateHelper {
             return d1 <= d2 ? d1 : d2;
     }
 
-    /// <summary>
-    /// https://stackoverflow.com/questions/563406/add-days-to-javascript-date
-    /// </summary>
     public static addDays(date: Date, days: number): Date {
-        date.setDate(date.getDate() + days);
-        return date;
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
     }
 
-    /// <summary>
-    /// https://stackoverflow.com/questions/563406/add-days-to-javascript-date
-    /// </summary>
     public static addMinutes(date: Date, minutes: number): Date {
-        date.setMinutes(date.getMinutes() + minutes);
-        return date;
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + minutes, date.getSeconds(), date.getMilliseconds());
     }
 
-    /// <summary>
-    /// https://stackoverflow.com/questions/563406/add-days-to-javascript-date
-    /// </summary>
     public static addHours(date: Date, hours: number): Date {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + hours, date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+    }
+
+    public static addDaysInPlace(date: Date, days: number) {
+        date.setDate(date.getDate() + days);
+    }
+
+    public static addMinutesInPlance(date: Date, minutes: number) {
+        date.setMinutes(date.getMinutes() + minutes);
+    }
+
+    public static addHoursInPlace(date: Date, hours: number) {
         date.setHours(date.getHours() + hours);
-        return date;
     }
 
     /// <summary>
@@ -110,4 +130,19 @@ export class DateHelper {
 
         return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
     }
+
+    public static parseDateMilliseconds(str: string | number | null | undefined, valueOnError?: Date | null | undefined): Date | null {
+        var s = TypeHelper.toString(str);
+
+        if (s === "")
+            return TypeHelper.notNullOrEmpty(valueOnError, null);
+        else
+            try {
+                var ms = StringHelper.parseNumber(s, true, null);
+                return ms === null ? TypeHelper.notNullOrEmpty(valueOnError, null) : new Date(ms);
+            }
+            catch (err) {
+            }
+    }
 }
+

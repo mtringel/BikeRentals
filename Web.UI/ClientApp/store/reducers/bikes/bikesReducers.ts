@@ -63,15 +63,8 @@ export const BikesReducers: (state: BikesState, action: StoreAction<BikesActions
                 };
             }
 
-            case StoreActionType.BikeModels_ClearState:
-                return {
-                    listFilter: undefined,
-                    listPaging: undefined,
-                    currentLocation: undefined,
-                    totalRowCount: undefined,
-                    listItems: [],
-                    formData: {}
-                };
+            case StoreActionType.Bikes_ClearState:
+                return new BikesState();
 
             case StoreActionType.Bikes_PostSuccess: {
                 var payload = action.payload as BikesActionsPayload_PostPutDelete;

@@ -8,8 +8,11 @@
     @Html.Raw("var globals = {");
     @Html.Raw(string.Format("productTitle: '{0}',", controller.AppConfig.ProductInfo.Title.Replace("'", "\'")));
     @Html.Raw(string.Format("isDebugging: {0},", controller.Helper.IsDebugging.ToString().ToLower()));
-    @Html.Raw(string.Format("shortDateFormat: '{0}',", controller.CallContext.UICulture.DateTimeFormat.ShortDatePattern));
-    @Html.Raw(string.Format("shortDateTimeFormat: '{0}',", controller.CallContext.UICulture.DateTimeFormat.ShortDatePattern));
+    @Html.Raw(string.Format("shortDateFormat: '{0}',", controller.CallContext.UICulture.DateTimeFormat.ShortDatePattern.Replace("'", "\'")));
+    @Html.Raw(string.Format("shortDateTimeFormat: '{0} {1}',",
+        controller.CallContext.UICulture.DateTimeFormat.ShortDatePattern.Replace("'", "\'"),
+        controller.CallContext.UICulture.DateTimeFormat.ShortTimePattern.Replace("'", "\'").Replace("tt", "a").Replace("t", "a") // converting template from .Net to jquery-dateformat
+        ));
     @Html.Raw(string.Format("showDetailedError: {0},", controller.AppConfig.WebApplication.ShowDetailedError.ToString().ToLower()));
     @Html.Raw(string.Format("antiforgeryTokenHeaderName: '{0}',", controller.AppConfig.ServiceApi.AntiforgeryTokenHeaderName));
     @Html.Raw(string.Format("antiforgeryTokenFieldName: '{0}',", controller.AppConfig.ServiceApi.AntiforgeryTokenFieldName));

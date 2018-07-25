@@ -19,7 +19,7 @@ export class BikeListItem extends BikeRef {
     /// Can be available and this is a past date.
     /// Can be unavailable and this is a forecasted future date.
     /// </summary>
-    public readonly AvailableFrom: string; // Date;
+    public readonly AvailableFromUtc: string; // Date;
 
     public readonly CurrentlyAvailable: boolean;
 

@@ -28,7 +28,7 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         /// Can be unavailable and this is a forecasted future date.
         /// </summary>
         [Required]
-        public DateTime AvailableFrom { get; set; }
+        public DateTime AvailableFromUtc { get; set; }
 
         public double? DistanceMiles { get; private set; }
 
@@ -41,7 +41,7 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
             this.BikeModel = new BikeModel(bike.BikeModel);
             this.BikeState = bike.BikeState;
             this.CurrentLocation = bike.CurrentLocation;
-            this.AvailableFrom = bike.AvailableFrom;
+            this.AvailableFromUtc = bike.AvailableFromUtc;
             this.RateAverage = bike.RateAverage;
             this.CurrentlyAvailable = bike.CurrentlyAvailable;
             this.CurrentLocationName = bike.CurrentLocationName;

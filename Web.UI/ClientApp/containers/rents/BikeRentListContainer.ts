@@ -22,16 +22,15 @@ import { BikeRentsActions } from '../../store/actions/rents/bikeRentsActions';
 const mapStateToProps: (state: RootState, myRentsOnly: boolean) => BikeRentListProps = (state, myRentsOnly) => {    
     var store = storeProvider();
     var rootState = store.getState();
-    var today = DateHelper.today();
+    var now = DateHelper.now();
 
     return {
         store: store,
         defaultFilter: {
             ...new BikeRentListFilter(),
-            CurrentLocation: rootState.clientContext.currentLocation,
-            AvailableWhen: { From: today, To: today  }
+            BikeId: rootState.bikeRents.useBikeId
         },
-        defaultOrderBy: ["StartDate", "EndDate"],
+        defaultOrderBy: ["StartDateUtc", "EndDateUtc"],
         defaultOrderByDescending: false,
         myRentsOnly: myRentsOnly
     };

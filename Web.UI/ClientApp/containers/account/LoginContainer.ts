@@ -17,8 +17,8 @@ const mapStateToProps: (state: RootState) => LoginProps = state => {
     
     return {
         store: store,
-        returnUrl: state.loginParams.returnUrl,
-        email: state.loginParams.defaultEmail
+        returnUrl: state.loginParams.useReturnUrl,
+        email: state.loginParams.useDefaultEmail
     };
 };
 

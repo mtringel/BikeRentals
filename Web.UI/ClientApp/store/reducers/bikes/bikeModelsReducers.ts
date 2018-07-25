@@ -13,7 +13,7 @@ export const BikeModelsReducers: (state: BikeModelsState, action: StoreAction<Bi
                 return { bikeModels: action.payload.bikeModels };
 
             case StoreActionType.BikeModels_ClearState:
-                return { bikeModels: null };
+                return new BikeModelsState();
 
             default:
                 return state;

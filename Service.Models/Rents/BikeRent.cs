@@ -15,7 +15,7 @@ namespace Toptal.BikeRentals.Service.Models.Rents
         public BikeRent(BusinessEntities.Rents.BikeRent item)
             : base(item)
         {
-            this.Created = item.Created;
+            this.Created = item.CreatedUtc;
             this.CreatedBy = new UserRef(item.CreatedBy);
         }
     }

@@ -14,12 +14,12 @@ export class BikeRentListItem extends Model {
 
     public readonly User: UserRef;
 
-    public readonly StartDate: Date;
+    public readonly StartDateUtc: Date;
 
     /// <summary>
     /// Until planned (not returned or lost), this is only planned end date.
     /// </summary>
-    public readonly EndDate: Date;
+    public readonly EndDateUtc: Date;
 
     public readonly PickUpLocation: Location;
 

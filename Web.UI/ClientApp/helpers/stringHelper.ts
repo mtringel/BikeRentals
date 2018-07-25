@@ -124,17 +124,53 @@ export class StringHelper {
     public static formatDate(value: Date | undefined | null, format: string): string {
         if (TypeHelper.isNullOrEmpty(value))
             return "";
-        else
+        else {
+            var year = value.getFullYear();
+            var month = value.getMonth();
+            var day = value.getDate();
+            var hour = value.getHours();
+            var minute = value.getMinutes();
+
+            // AM/PM
+            var hourResolved: number;
+            var amPm: string;
+
+            if (StringHelper.contains(format, "a")) {
+                if (hour === 0) {
+                    hourResolved = 12;
+                    amPm = "AM";
+                }
+                else if (hour < 12) {
+                    hourResolved = hour;
+                    amPm = "AM";
+                }
+                else if (hour === 12) {
+                    hourResolved = hour;
+                    amPm = "PM";
+                }
+                else {
+                    hourResolved = hour - 12;
+                    amPm = "PM";
+                }
+            }
+            else {
+                hourResolved = hour;
+                amPm = "";
+            }
+
             return format
-                .replace("yyyy", StringHelper.formatNumber(value.getFullYear(), 4, 0))
-                .replace("yy", StringHelper.formatNumber(value.getFullYear() % 100, 2, 0))
-                .replace("MM", StringHelper.formatNumber(value.getMonth(), 2, 0))
-                .replace("M", value.getMonth().toString())
-                .replace("dd", StringHelper.formatNumber(value.getDate(), 2, 0))
-                .replace("d", value.getDate().toString())
-                .replace("hh", StringHelper.formatNumber(value.getHours(), 2, 0))
-                .replace("h", value.getHours().toString())
-                .replace("m", value.getMinutes().toString())
+                .replace("yyyy", StringHelper.formatNumber(year, 4, 0))
+                .replace("yy", StringHelper.formatNumber(year % 100, 2, 0))
+                .replace("MM", StringHelper.formatNumber(month, 2, 0))
+                .replace("M", month.toString())
+                .replace("dd", StringHelper.formatNumber(day, 2, 0))
+                .replace("d", day.toString())
+                .replace("hh", StringHelper.formatNumber(hourResolved, 2, 0))
+                .replace("h", hourResolved.toString())
+                .replace("mm", StringHelper.formatNumber(minute, 2, 0))
+                .replace("m", minute.toString())
+                .replace("a", amPm)
+        }
     }
 
     public static arrayContains(array: string[], value: string, ignoreCase?: boolean | undefined | null): boolean {
@@ -146,7 +182,7 @@ export class StringHelper {
         str: string,
         allowEmpty: boolean,
         returnOnError?: number | undefined | null,
-        digits?: number | undefined | null,
+        roundToDigits?: number | undefined | null,
         min?: number | undefined | null,
         max?: number | undefined | null
     ): number | null {
@@ -159,8 +195,8 @@ export class StringHelper {
         if (isNaN(value))
             return returnOnError !== undefined ? returnOnError : NaN;
         else {
-            if (!TypeHelper.isNullOrEmpty(digits))
-                value = MathHelper.roundNumber(value, digits);
+            if (!TypeHelper.isNullOrEmpty(roundToDigits))
+                value = MathHelper.roundNumber(value, roundToDigits);
 
             if (!TypeHelper.isNullOrEmpty(min) && value < min)
                 return min;
@@ -194,5 +230,11 @@ export class StringHelper {
             return StringHelper.notNullOrEmpty(ifNull, "");
         else
             return value === true ? ifTrue : ifFalse;
+    }
+
+    public static removeSuffix(str: string, suffix: string, trim: boolean, ignoreCase?: boolean | undefined | null): string {
+        return !StringHelper.endsWith(str, suffix, ignoreCase) ? str :
+            trim ? str.substr(0, str.length - suffix.length).trim() :
+                str.substr(0, str.length - suffix.length);
     }
 }

@@ -1,15 +1,16 @@
 import * as React from 'react';
 import { ComponentBase } from '../../helpers/componentBase';
-import DatePicker from 'react-bootstrap-date-picker';
+import DateTimeField from 'react-bootstrap-datetimepicker';
 import { Store } from '../../store/store';
 import { DateHelper } from '../../helpers/dateHelper';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { StringHelper } from '../../helpers/stringHelper';
+import * as moment from 'moment';
 
 /// <summary>
 /// Mind the timezone, the Utc dates will be rendered.
 /// </summary>
-export interface DateRangeComponentProps {
+export interface DateTimeRangeComponentProps {
     readonly store: Store;
     readonly startDate: Date | null;
     readonly endDate: Date | null;
@@ -23,23 +24,23 @@ export interface DateRangeComponentProps {
     readonly format: string | null;
 }
 
-export interface DateRangeComponentActions {
+export interface DateTimeRangeComponentActions {
     readonly onChange: (startDate: Date, endDate: Date) => void;
 }
 
 /// <summary>
 /// Mind the timezone, the Utc dates will be rendered.
 /// </summary>
-class DateRangeComponentState {
+class DateTimeRangeComponentState {
     readonly startDate: Date | null;
     readonly endDate: Date | null;
     readonly format: string;
 }
 
-type ThisProps = DateRangeComponentProps & DateRangeComponentActions;
-type ThisState = DateRangeComponentState;
+type ThisProps = DateTimeRangeComponentProps & DateTimeRangeComponentActions;
+type ThisState = DateTimeRangeComponentState;
 
-export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
+export class DateTimeRangeComponent extends ComponentBase<ThisProps, ThisState> {
 
     /// <summary>
     /// Mandatory and must call super.
@@ -92,7 +93,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
             }
 
             var to = TypeHelper.notNullOrEmpty(endDate(from), this.props.defaultEndDate);
-            
+
             if (!TypeHelper.isNullOrEmpty(to)) {
                 if (!TypeHelper.isNullOrEmpty(this.props.minDate) && to < this.props.minDate)
                     to = this.props.minDate;
@@ -119,7 +120,6 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     }
 
     public render(): JSX.Element | null | false {
-        {/* DatePicker.defaultValue, minDate and maxDate don't work */ }
         return <div className="text-nowrap form-horizontal">
             {/* From */}
             <span className="col-sm-6 form-group">
@@ -127,12 +127,27 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
                     {!StringHelper.isNullOrEmpty(this.props.glyphIcon) &&
                         < span className="input-group-addon" > <i className={"glyphicon glyphicon-" + this.props.glyphIcon}></i></span>
                     }
-                    <DatePicker
-                        className="form-control"
-                        value={DateHelper.toISOString(this.state.startDate)}
-                        disable={this.props.isReadOnly}
-                        onChange={t => this.onStartChange(DateHelper.parseISOString(t, true))}
-                    />
+                    {/* hack */}
+                    {TypeHelper.isNullOrEmpty(this.state.startDate) &&
+                        <DateTimeField
+                            defaultText={""}
+                            minDate={TypeHelper.isNullOrEmpty(this.props.minDate) ? undefined : moment(this.props.minDate)}
+                            maxDate={TypeHelper.isNullOrEmpty(this.props.maxDate) ? undefined : moment(this.props.maxDate)}
+                            inputProps={{ className: "form-control", disable: this.props.isReadOnly }}
+                            inputFormat={this.state.format}
+                            onChange={t => this.onStartChange(DateHelper.parseDateMilliseconds(t))}
+                        />
+                    }
+                    {!TypeHelper.isNullOrEmpty(this.state.startDate) &&
+                        <DateTimeField
+                            dateTime={moment(this.state.startDate)}
+                            minDate={TypeHelper.isNullOrEmpty(this.props.minDate) ? undefined : moment(this.props.minDate)}
+                            maxDate={TypeHelper.isNullOrEmpty(this.props.maxDate) ? undefined : moment(this.props.maxDate)}
+                            inputProps={{ className: "form-control", disable: this.props.isReadOnly }}
+                            inputFormat={this.state.format}
+                            onChange={t => this.onStartChange(DateHelper.parseDateMilliseconds(t))}
+                        />
+                    }
                 </span>
             </span>
             <span className="col-sm-1">
@@ -141,12 +156,27 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
             {/* To */}
             <span className="col-sm-5 form-group">
                 <span className="col-sm-12 input-group">
-                    <DatePicker
-                        className="form-control"
-                        value={DateHelper.toISOString(this.state.endDate)}
-                        disable={this.props.isReadOnly}
-                        onChange={t => this.onEndChange(DateHelper.parseISOString(t, true))}
-                    />
+                    {/* hack */}
+                    {TypeHelper.isNullOrEmpty(this.state.endDate) &&
+                        <DateTimeField
+                            defaultText={""}
+                            minDate={TypeHelper.isNullOrEmpty(this.props.minDate) ? undefined : moment(this.props.minDate)}
+                            maxDate={TypeHelper.isNullOrEmpty(this.props.maxDate) ? undefined : moment(this.props.maxDate)}
+                            inputProps={{ className: "form-control", disable: this.props.isReadOnly }}
+                            inputFormat={this.state.format}
+                            onChange={t => this.onEndChange(DateHelper.parseDateMilliseconds(t))}
+                        />
+                    }
+                    {!TypeHelper.isNullOrEmpty(this.state.endDate) &&
+                        <DateTimeField
+                            dateTime={moment(this.state.endDate)}
+                            minDate={TypeHelper.isNullOrEmpty(this.props.minDate) ? undefined : moment(this.props.minDate)}
+                            maxDate={TypeHelper.isNullOrEmpty(this.props.maxDate) ? undefined : moment(this.props.maxDate)}
+                            inputProps={{ className: "form-control", disable: this.props.isReadOnly }}
+                            inputFormat={this.state.format}
+                            onChange={t => this.onEndChange(DateHelper.parseDateMilliseconds(t))}
+                        />
+                    }
                 </span>
             </span>
             {!StringHelper.isNullOrEmpty(this.props.suffix) &&

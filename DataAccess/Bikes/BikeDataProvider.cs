@@ -48,20 +48,20 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
                 // State
                 // When filtering for Available, only bikes available on Availability (or current day) will be listed. This is the only accessible option by users.
                 // When filtering for any other states, all bikes are listed.
-                if (filter.State.HasValue && (filter.State.Value != BikeState.Available || filter.AvailableWhen.IsEmpty)) query = query.Where(t => t.BikeState == filter.State.Value);
+                if (filter.State.HasValue && (filter.State.Value != BikeState.Available || filter.AvailableUtc.IsEmpty)) query = query.Where(t => t.BikeState == filter.State.Value);
 
                 // Availability
-                // Dates only.
+                // Date + time.
                 // We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
                 // If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
-                if (filter.State.HasValue && filter.State.Value == BikeState.Available && (filter.AvailableWhen.From.HasValue || filter.AvailableWhen.To.HasValue))
+                if (filter.State.HasValue && filter.State.Value == BikeState.Available && (filter.AvailableUtc.From.HasValue || filter.AvailableUtc.To.HasValue))
                 {
-                    var from = (filter.AvailableWhen.From ?? filter.AvailableWhen.To.Value).Date.AddDays(1);
-                    var to = (filter.AvailableWhen.To ?? filter.AvailableWhen.From.Value).Date;
+                    var from = filter.AvailableUtc.From ?? filter.AvailableUtc.To.Value;
+                    var to = filter.AvailableUtc.To ?? filter.AvailableUtc.From.Value;
 
                     query = query.Where(t =>
-                        t.AvailableFrom <= from &&
-                        !t.Rents.Any(t2 => t2.StartDate <= to && t2.EndDate > from)
+                        t.AvailableFromUtc <= from &&
+                        !t.Rents.Any(t2 => t2.StartDateUtc < to && t2.EndDateUtc > from)
                         );
                 }
 
@@ -173,3 +173,4 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
         }
     }
 }
+

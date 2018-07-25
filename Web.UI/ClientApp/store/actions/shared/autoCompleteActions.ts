@@ -5,6 +5,7 @@ import { AutoCompleteListData } from "../../../models/shared/autoCompleteListDat
 import { StoreActionThunk, StoreAction } from "../storeAction";
 import { StoreActionType } from "../storeActionType";
 import { WebApiServiceActions } from "../shared/webApiServiceActions";
+import { ArrayHelper } from "../../../helpers/arrayHelper";
 
 const serviceUrl = {
     getList: (type: AutoCompleteType, filter: string) =>
@@ -17,8 +18,8 @@ export type AutoCompleteActionsPayload = AutoCompleteActionsPayload_SetListData;
 
 export class AutoCompleteActionsPayload_SetListData {
     public readonly type: AutoCompleteType;
-    public readonly listFilter: string;
-    public readonly listData: AutoCompleteListData;
+    public readonly filter: string;
+    public readonly data: AutoCompleteListData;
 }
 
 export class AutoCompleteActions {
@@ -30,27 +31,44 @@ export class AutoCompleteActions {
             var context = rootState.clientContext;
 
             if (allowCachedData) {
-                var data = rootState.autoComplete.data[type.toString()];
-                var hasData = !TypeHelper.isNullOrEmpty(data) && !TypeHelper.isNullOrEmpty(data.items);
+                var typeData = rootState.autoComplete.data[type.toString()];
 
-                if (hasData && data.listFilter === filter) {
+                if (!TypeHelper.isNullOrEmpty(typeData)) {
+                    var filterData = typeData[filter];
 
-                    // return from store (full match)
-                    onSuccess({ List: data.items });
+                    if (!TypeHelper.isNullOrEmpty(filterData)) {
+                        // return from store (full match)
+                        onSuccess({
+                            List: filterData
+                        });
+                    }
+                    else {
+                        var partialMatch = ArrayHelper.firstOrDefault(
+                            ArrayHelper.whereMax(
+                                ArrayHelper.filterDict(typeData, (key, item) => StringHelper.contains(filter, key, true)),
+                                t => t.key.length
+                            ));
 
-                } else if (hasData  && StringHelper.contains(data.listFilter, filter, true)) {
-
-                    // return from store (partial match)
-                    var match = data.items.filter(t => StringHelper.contains(t.Value, filter, true));
-
-                    onSuccess({ List: match.slice(0, context.globals.AutoCompleteMaxRows) });
-                }
-                else {
+                        // we can use already loaded sets only, if those are full sets (if truncated sets, then server reload is needed)
+                        if (partialMatch !== null && partialMatch.item.length < context.globals.AutoCompleteMaxRows) {
+                            // return from store (partial match)
+                            onSuccess({
+                                List: partialMatch.item.filter(t => StringHelper.contains(t.Value, filter, true))
+                            });
+                        }
+                        else {
+                            // no match
+                            // return from server (updates store)
+                            dispatch(AutoCompleteActions.getList(false, type, filter, onSuccess));
+                        }
+                    }
+                } else {
+                    // no data for type loaded
                     // return from server (updates store)
                     dispatch(AutoCompleteActions.getList(false, type, filter, onSuccess));
                 }
-            }
-            else {
+            } else {
+                // no cached data allowed
                 dispatch(WebApiServiceActions.get<AutoCompleteListData>(
                     serviceUrl.getList(type, filter),
                     result => {
@@ -67,8 +85,8 @@ export class AutoCompleteActions {
             type: StoreActionType.AutoComplete_SetListData,
             payload: {
                 type: type,
-                listFilter: filter,
-                listData: data
+                filter: filter,
+                data: data
             }
         };
     }

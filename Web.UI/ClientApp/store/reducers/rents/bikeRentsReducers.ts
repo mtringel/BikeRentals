@@ -3,7 +3,7 @@ import { StoreAction } from '../../actions/storeAction';
 import { RootState } from '../../state/rootState';
 import { ArrayHelper } from '../../../helpers/arrayHelper';
 import { BikeRentsState } from '../../state/rents/bikeRentsState';
-import { BikeRentsActionsPayload, BikeRentsActionsPayload_SetListData, BikeRentsActionsPayload_SetFormData, BikeRentsActionsPayload_PostPutDelete } from '../../actions/rents/bikeRentsActions';
+import { BikeRentsActionsPayload, BikeRentsActionsPayload_SetListData, BikeRentsActionsPayload_SetFormData, BikeRentsActionsPayload_PostPutDelete, BikeRentsActionsPayload_UseBikeId } from '../../actions/rents/bikeRentsActions';
 import { TypeHelper } from '../../../helpers/typeHelper';
 import { BikeRentListFilter } from '../../../models/rents/bikeRentListFilter';
 import { PagingInfo } from '../../../models/shared/pagingInfo';
@@ -59,18 +59,11 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
                 };
             }
 
-            case StoreActionType.BikeModels_ClearState:
-                return {
-                    listFilter: undefined,
-                    listPaging: undefined,
-                    currentLocation: undefined,
-                    totalRowCount: undefined,
-                    listItems: [],
-                    formData: {}
-                };
+            case StoreActionType.BikeRents_ClearState:
+                return new BikeRentsState();
 
             case StoreActionType.BikeRents_PostSuccess: {
-                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -79,7 +72,7 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
             }
 
             case StoreActionType.BikeRents_DeleteSuccess: {
-                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -88,11 +81,20 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
             }
 
             case StoreActionType.BikeRents_PutSuccess: {
-                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
                     listItems: ArrayHelper.update(state.listItems, payload.bikeRent, t => t.BikeRentId === payload.bikeRentId)
+                };
+            }
+
+            case StoreActionType.BikeRents_SetUseBikeId: {
+                let payload = action.payload as BikeRentsActionsPayload_UseBikeId;
+
+                return {
+                    ...state,
+                    useBikeId: payload.bikeId
                 };
             }
 

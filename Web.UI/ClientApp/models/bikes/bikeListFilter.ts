@@ -29,7 +29,7 @@ export class BikeListFilter extends Filter
     /// We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
     /// If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
     /// </summary>
-    public readonly AvailableWhen = new Interval<Date | null>();
+    public readonly AvailableUtc = new Interval<Date | null>();
 
     public readonly Colors: string[] = [];
 

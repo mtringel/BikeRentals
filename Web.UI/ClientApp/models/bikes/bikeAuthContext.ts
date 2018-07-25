@@ -7,4 +7,8 @@ export class BikeAuthContext {
     public readonly currentUserId: string;
 
     public readonly canManage: boolean;
+
+    public readonly canRent: boolean;
+
+    public readonly canViewRents: boolean;
 }

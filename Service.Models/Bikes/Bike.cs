@@ -16,7 +16,7 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         public Bike(BusinessEntities.Bikes.Bike bike, Location? currentLocation)
             : base(bike, currentLocation)
         {
-            this.Created = bike.Created;
+            this.Created = bike.CreatedUtc;
             this.CreatedBy = new UserRef(bike.CreatedBy);
         }
     }

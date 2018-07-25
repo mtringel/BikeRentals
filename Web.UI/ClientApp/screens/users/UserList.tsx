@@ -81,9 +81,13 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
             this.props.onEdit(this.state.filter, user);
     }
 
-    private userIsEditable(user: User): boolean {
+    private canEdit(user: User): boolean {
         // only admin can edit admin (plus only admin can edit the role of a user manager)
         return this.state.authContext.canManage && (this.state.authContext.canEditAdmin || (user.Role !== RoleType.Manager && user.Role !== RoleType.Admin));
+    }
+
+    private canAddNew(): boolean {
+        return this.state.authContext.canManage;
     }
 
     public render(): JSX.Element | null | false {
@@ -101,7 +105,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                     {/* Header row */}
                     <div className="row">
                         <div className="col-md-4">
-                            {this.state.authContext.canManage && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
+                            {this.canAddNew() && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
                                 <i className="glyphicon glyphicon-file"></i> New
                             </Button>}
                         </div>
@@ -144,7 +148,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                                         <td>{item.Email}</td>
                                         <td>{item.RoleTitle}</td>
                                         <td>
-                                            {this.userIsEditable(item) && <Button bsStyle="primary" bsSize="xsmall" onClick={e => this.edit(item)} >
+                                            {this.canEdit(item) && <Button bsStyle="primary" bsSize="xsmall" onClick={e => this.edit(item)} >
                                                 <i className="glyphicon glyphicon-edit"></i>
                                             </Button>
                                             }

@@ -65,7 +65,7 @@ export class BikesActions {
         return (dispatch, getState) => {
             if (allowCachedData) {
                 var data = getState().bikes;
-
+                
                 if (// filter is matching?
                     PagingInfo.CompareOrdering(data.listPaging, paging) &&
                     JSON.stringify(data.listFilter) === JSON.stringify(filter) &&
@@ -254,7 +254,9 @@ export class BikesActions {
                         onSuccess({
                             currentUser: user,
                             currentUserId: user.UserId,
-                            canManage: AppUser.hasPermission(user, Permission.Bike_Management)
+                            canManage: AppUser.hasPermission(user, Permission.Bike_Management),
+                            canRent: AppUser.hasPermission(user, Permission.BikeRents_ManageOwn),
+                            canViewRents: AppUser.hasPermission(user, Permission.BikeRents_ViewAll)
                         });
                 },
                 error => {

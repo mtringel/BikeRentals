@@ -35,13 +35,13 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         public User User { get; set; }
 
         [Required]
-        public DateTime StartDate { get; set; }
+        public DateTime StartDateUtc { get; set; }
 
         /// <summary>
         /// Until planned (not returned or lost), this is only planned end date.
         /// </summary>
         [Required]
-        public DateTime EndDate { get; set; }
+        public DateTime EndDateUtc { get; set; }
 
         [Required]
         [NotMapped]
@@ -88,14 +88,14 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         }
 
         [Required]
-        public DateTime Created { get; set; }
+        public DateTime CreatedUtc { get; set; }
 
         [Required]
         public User CreatedBy { get; set; }
 
         public BikeRent()
         {
-            this.Created = DateTime.Now;
+            this.CreatedUtc = DateTime.Now;
         }
 
         public override object[] Keys()

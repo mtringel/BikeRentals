@@ -18,8 +18,8 @@ import NumericInput from 'react-numeric-input';
 import { Interval } from '../../models/shared/interval';
 import { DateHelper } from '../../helpers/dateHelper';
 import { BikeStateHelper, BikeState } from '../../models/bikes/bikeState';
-import { DateRangeComponent } from '../shared/DateRangeComponent';
 import { NumericRangeComponent } from '../shared/NumericRangeComponent';
+import { DateTimeRangeComponent } from '../shared/DateTimeRangeComponent';
 
 
 export interface BikeListFilterComponentProps  {
@@ -95,7 +95,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                     {/* Status */}
                     {this.props.authContext.canManage &&
                         <div className="form-group col-sm-6" >
-                            <label className="col-sm-3 control-label text-nowrap">Status</label>
+                            <label className="col-sm-2 control-label text-nowrap">Status</label>
                             <div className="col-sm-4 input-group">
                                 <span className="input-group-addon"><i className="glyphicon glyphicon-calendar"></i></span>
                                 <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
@@ -111,19 +111,20 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                     {/* Available */}
                     {this.state.filter.State == BikeState.Available &&
                         <div className="form-group col-sm-6" >
-                            <label className="col-sm-3 control-label text-nowrap">When</label>
-                            <div className="col-sm-9 input-group">
-                                <DateRangeComponent
+                            <label className="col-sm-2 control-label text-nowrap">When</label>
+                            <div className="col-sm-10 input-group">
+                                <DateTimeRangeComponent
                                     store={this.props.store}
-                                    defaultStartDate={DateHelper.today()}
-                                    defaultEndDate={DateHelper.today()}
-                                    minDate={DateHelper.today()}
+                                    defaultStartDate={DateHelper.todayUtc()}
+                                    defaultEndDate={DateHelper.todayUtc()}
+                                    minDate={DateHelper.todayUtc()}
                                     maxDate={null}
-                                    startDate={this.state.filter.AvailableWhen.From}
-                                    endDate={this.state.filter.AvailableWhen.To}
+                                    startDate={this.state.filter.AvailableUtc.From}
+                                    endDate={this.state.filter.AvailableUtc.To}
                                     glyphIcon={"calendar"}
                                     suffix={""}
-                                    onChange={(start, end) => this.changeFilter({ AvailableWhen: { From: start, To: end } })}
+                                    format={"DD/MM hh:mm"}
+                                    onChange={(start, end) => this.changeFilter({ AvailableUtc: { From: start, To: end } })}
                                     isReadOnly={this.props.isReadOnly}
                                 />
                             </div>
@@ -134,8 +135,8 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                 <div className="row" >
                     {/* BikeModels */}
                     <div className="form-group col-sm-6" >
-                        <label className="col-sm-3 control-label text-nowrap ">Models</label>
-                        <div className="col-sm-9 input-group">
+                        <label className="col-sm-2 control-label text-nowrap ">Models</label>
+                        <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
                             <Select
                                 name={"models"}
@@ -151,8 +152,8 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
 
                     {/* Colors */}
                     <div className="form-group col-sm-6" >
-                        <label className="col-sm-3 control-label text-nowrap">Colors</label>
-                        <div className="col-sm-9 input-group">
+                        <label className="col-sm-2 control-label text-nowrap">Colors</label>
+                        <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-tint"></i></span>
                             <Select
                                 name={"colors"}
@@ -171,8 +172,8 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                 <div className="row" >
                     {/* WeightLbs */}
                     <div className="form-group col-sm-6" >
-                        <label className="col-sm-3 control-label text-nowrap ">Weight</label>
-                        <div className="col-sm-9 input-group">
+                        <label className="col-sm-2 control-label text-nowrap ">Weight</label>
+                        <div className="col-sm-10 input-group">
                             <NumericRangeComponent
                                 defaultStart={null}
                                 defaultEnd={null}
@@ -185,6 +186,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 isReadOnly={this.props.isReadOnly}
                                 glyphIcon={"dashboard"}
                                 suffix={"lbs"}
+                                inputSuffix={""}
                                 onChange={(start, end) => this.changeFilter({ WeightLbs: { From: start, To: end } })}
                             />
                         </div>
@@ -192,8 +194,8 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
 
                     {/* RateAverage */}
                     <div className="form-group col-sm-6" >
-                        <label className="col-sm-3 control-label text-nowrap ">Rate</label>
-                        <div className="col-sm-9 input-group">
+                        <label className="col-sm-2 control-label text-nowrap ">Rate</label>
+                        <div className="col-sm-10 input-group">
                             <NumericRangeComponent
                                 defaultStart={null}
                                 defaultEnd={null}
@@ -206,6 +208,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 isReadOnly={this.props.isReadOnly}
                                 glyphIcon={"star"}
                                 suffix={""}
+                                inputSuffix={"*"}
                                 onChange={(start, end) => this.changeFilter({ RateAverage: { From: start, To: end } })}
                             />
                         </div>
@@ -214,19 +217,22 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                 </div>
 
                 <div className="row" >
-                    <div className="form-group col-sm-6" >
+                    <div className="form-group col-sm-6 form-horizontal" >
                         {/* MaxDistance */}
-                        <label className="col-sm-3 control-label text-nowrap ">Distance (mi)</label>
+                        <label className="col-sm-2 control-label text-nowrap ">Distance</label>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-record"></i></span>
                             <NumericInput className="form-control text-right" step={0.1} precision={1} value={this.state.filter.MaxDistanceMiles} min={0} max={9999} disabled={this.props.isReadOnly} snap
-                                onChange={(value: number) => this.changeFilter({ MaxDistanceMiles: value })} />
+                                onChange={(value: number) => this.changeFilter({ MaxDistanceMiles: value })}
+                                format={t => t + " mi"}
+                                parse={t => StringHelper.removeSuffix(t, "mi", true)}
+                            />
                         </div>
                     </div>
 
                     <div className="form-group col-sm-6" >
                         {/* BikeId */}
-                        <label className="col-sm-3 control-label text-nowrap ">Bike#</label>
+                        <label className="col-sm-2 control-label text-nowrap ">Bike#</label>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-barcode"></i></span>
                             <NumericInput className="form-control" value={this.state.filter.BikeId} min={0} max={999999999} disabled={this.props.isReadOnly} snap

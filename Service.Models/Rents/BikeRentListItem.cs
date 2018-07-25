@@ -28,13 +28,13 @@ namespace Toptal.BikeRentals.Service.Models.Rents
         public UserRef User { get; set; }
 
         [Required]
-        public DateTime StartDate { get; set; }
+        public DateTime StartDateUtc { get; set; }
 
         /// <summary>
         /// Until planned (not returned or lost), this is only planned end date.
         /// </summary>
         [Required]
-        public DateTime EndDate { get; set; }
+        public DateTime EndDateUtc { get; set; }
 
         [Required]
         public Location PickUpLocation { get; set; }
@@ -56,8 +56,8 @@ namespace Toptal.BikeRentals.Service.Models.Rents
             this.BikeRentState = item.BikeRentState;
             this.Bike = new BikeRef(item.Bike);
             this.User = new UserRef(item.User);
-            this.StartDate = item.StartDate;
-            this.EndDate = item.EndDate;
+            this.StartDateUtc = item.StartDateUtc;
+            this.EndDateUtc = item.EndDateUtc;
             this.PickUpLocation = item.PickUpLocation;
             this.PickUpLocationName = item.PickUpLocationName;
             this.ReturnLocation = item.ReturnLocation;

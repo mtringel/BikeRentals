@@ -6,11 +6,11 @@ import { AppContainer } from 'react-hot-loader';
 import { BrowserRouter } from 'react-router-dom';
 import * as RoutesModule from './routes';
 import { Store } from './store/store';
-import Select from 'react-select';
-import 'react-select/dist/react-select.css';
 import { ClientContextActions } from './store/actions/shared/clientContextActions';
+import 'react-select/dist/react-select.min.css';
 import 'babel-polyfill';
-import 'react-bootstrap-typeahead/css/Typeahead.css';
+import 'react-bootstrap-typeahead/css/Typeahead.min.css';
+import 'react-bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css';
 
 let routes = RoutesModule.routes;
 

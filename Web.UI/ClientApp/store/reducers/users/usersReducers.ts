@@ -32,11 +32,7 @@ export const UsersReducers: (state: UsersState, action: StoreAction<UsersActions
         }
 
             case StoreActionType.Users_ClearState:
-                return {
-                    users: [],
-                    listFilter: null,
-                    tooMuchData: false
-                };
+                return new UsersState();
 
             case StoreActionType.Users_PostSuccess: {
                 let payload = action.payload as UsersActionsPayload_PostPutDelete;

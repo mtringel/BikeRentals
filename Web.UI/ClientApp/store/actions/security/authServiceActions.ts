@@ -76,7 +76,7 @@ export class AuthServiceActions {
                         onError(err);
                 }
                 // authorized?
-                else if (demandPermission !== undefined && demandPermission !== null && !AppUser.hasPermission(user, demandPermission, allPermissions)) {
+                else if (!TypeHelper.isNullOrEmpty(demandPermission) && !AppUser.hasPermission(user, demandPermission, allPermissions)) {
 
                     var err = new WebApiResult(
                         HttpStatusCode.Forbidden,

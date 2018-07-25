@@ -59,27 +59,26 @@ export class UsersActions {
 
                     // return from store (full match)
                     onSuccess({ List: data.users, TooMuchData: data.tooMuchData });
+                } else
+                    // we can use already loaded sets only, if those are full sets (if truncated sets, then server reload is needed)
+                    if (StringHelper.contains(filter, data.listFilter, true) && !TypeHelper.isNullOrEmpty(data.users) && !data.tooMuchData) {
 
-                } else if (StringHelper.contains(data.listFilter, filter, true) && !TypeHelper.isNullOrEmpty(data.users)) {
-
-                    // return from store (partial match)
-                    var match = data.users.filter(t =>
-                        StringHelper.contains(t.Email, filter, true) ||
-                        StringHelper.contains(t.FirstName, filter, true) ||
-                        StringHelper.contains(t.LastName, filter, true) ||
-                        StringHelper.contains(t.RoleTitle, filter, true) ||
-                        StringHelper.contains(t.UserName, filter, true)
-                    );
-
-                    onSuccess({
-                        List: match.slice(0, context.globals.GridMaxRows),
-                        TooMuchData: match.length > context.globals.GridMaxRows
-                    });
-                }
-                else {
-                    // return from server (updates store)
-                    dispatch(UsersActions.getList(false, filter, onSuccess));
-                }
+                        // return from store (partial match)
+                        onSuccess({
+                            List: data.users.filter(t =>
+                                StringHelper.contains(t.Email, filter, true) ||
+                                StringHelper.contains(t.FirstName, filter, true) ||
+                                StringHelper.contains(t.LastName, filter, true) ||
+                                StringHelper.contains(t.RoleTitle, filter, true) ||
+                                StringHelper.contains(t.UserName, filter, true)
+                            ),
+                            TooMuchData: false
+                        });
+                    }
+                    else {
+                        // return from server (updates store)
+                        dispatch(UsersActions.getList(false, filter, onSuccess));
+                    }
             }
             else {
                 dispatch(WebApiServiceActions.get<UserListData>(

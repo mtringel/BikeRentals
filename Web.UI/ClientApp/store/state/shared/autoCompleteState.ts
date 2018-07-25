@@ -6,5 +6,5 @@
 /// </summary>
 export class AutoCompleteState {
 
-    public readonly data: { [autoCompleteType: string]: { listFilter: string, items: AutoCompleteItem[] } } = {};
+    public readonly data: { [autoCompleteType: string]: { [filter: string]: AutoCompleteItem[] } } = {};
 }

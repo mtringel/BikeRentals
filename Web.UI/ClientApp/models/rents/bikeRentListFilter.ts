@@ -14,12 +14,12 @@ export class BikeRentListFilter {
     /// We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
     /// If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
     /// </summary>
-    public readonly StartDate = new Interval<Date | null>();
+    public readonly StartDateUtc = new Interval<Date | null>();
 
     /// <summary>
     /// Until planned (not returned or lost), this is only planned end date.
     /// </summary>
-    public readonly EndDate = new Interval<Date | null>();
+    public readonly EndDateUtc = new Interval<Date | null>();
 
     public readonly Users: string[] = [];
 

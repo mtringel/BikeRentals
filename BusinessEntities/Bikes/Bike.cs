@@ -62,13 +62,13 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
         /// Can be unavailable and this is a forecasted future date.
         /// </summary>
         [Required]
-        public DateTime AvailableFrom { get; set; }
+        public DateTime AvailableFromUtc { get; set; }
 
         [Required]
         public float RateAverage { get; set; }
 
         [Required]
-        public DateTime Created { get; set; }
+        public DateTime CreatedUtc { get; set; }
 
         [Required]
         public User CreatedBy { get; set; }
@@ -83,7 +83,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
 
         public Bike()
         {
-            Created = DateTime.Now;
+            CreatedUtc = DateTime.Now;
         }
 
         public Bike(
@@ -105,11 +105,11 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             this.BikeModel = bikeModel;
             this.Color = color;
             this.CurrentLocation = currentLocation;
-            this.AvailableFrom = availableFrom;
+            this.AvailableFromUtc = availableFrom;
             this.RateAverage = rateAverage;
             this.CurrentlyAvailable = currentlyAvailable;
             this.CurrentLocationName = currentLocationName;
-            this.Created = created;
+            this.CreatedUtc = created;
             this.CreatedBy = createdBy;
             this.IsActive = true;
         }

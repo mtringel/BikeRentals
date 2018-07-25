@@ -20,6 +20,7 @@ import { Color } from '../../models/master/color';
 import { BikeModel } from '../../models/bikes/bikeModel';
 import { Location } from '../../models/master/location';
 import { BikeState } from '../../models/bikes/bikeState';
+import { Bike } from '../../models/bikes/bike';
 
 export interface BikeListProps extends PropsBase {
     readonly store: Store;
@@ -33,6 +34,7 @@ export interface BikeListActions {
     readonly onAllowCachedData: (invalidateCaches: boolean) => boolean;
     readonly onLoadFilter: (allowCachedData: boolean, onSuccess: (colors: Color[], models: BikeModel[]) => void) => void;
     readonly onLoad: (allowCachedData: boolean, filter: BikeListFilter, paging: PagingInfo, onSuccess: (data: BikeListData) => void) => void;
+    readonly onViewRents: (bikeId: number) => void;
     //readonly onEdit: (filter: string, user: Bike) => void;
     //readonly onAddNew: (filter: string) => void;    
 }
@@ -109,7 +111,7 @@ export class BikeList extends ScreenBase<ThisProps, ThisState>
                                 allColors: colors,
                                 allBikeModels: models,
                                 filter: defaultFilter,
-                                defaultFilter: defaultFilter 
+                                defaultFilter: defaultFilter
                             },
                                 // load list
                                 () => this.loadData(allowCachedData)
@@ -174,6 +176,18 @@ export class BikeList extends ScreenBase<ThisProps, ThisState>
         );
     }
 
+    private canAddNew(): boolean {
+        return this.state.authContext.canManage;
+    }
+
+    private addNew() {
+        // TODO
+    }
+
+    private edit(bike: Bike) {
+        // TODO
+    }
+
     public render(): JSX.Element | null | false {
         return <div>
             <h2>Bikes</h2>
@@ -202,9 +216,12 @@ export class BikeList extends ScreenBase<ThisProps, ThisState>
                     {/* Pager */}
 
                     <div className="row">
-                        <div className="col-sm-3">
+                        <div className="col-sm-4">
+                            {this.canAddNew() && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
+                                <i className="glyphicon glyphicon-file"></i> New
+                            </Button>}
                         </div>
-                        <div className="col-sm-9 text-right">
+                        <div className="col-sm-8 text-right">
                             <span><b>{this.state.data.TotalRowCount} bikes</b></span>
                             &nbsp;&nbsp;&nbsp;
                             <PagerComponent
@@ -229,6 +246,7 @@ export class BikeList extends ScreenBase<ThisProps, ThisState>
                             defaultOrderBy={this.props.defaultOrderBy}
                             defaultOrderByDescending={this.props.defaultOrderByDescending}
                             onOrderByChange={(orderBy, orderByDescending) => this.orderByChanged(orderBy, orderByDescending)}
+                            onViewRents={t => this.props.onViewRents(t)}
                         />
                     </div>
                 </div>

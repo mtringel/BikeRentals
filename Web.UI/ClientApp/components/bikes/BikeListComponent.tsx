@@ -14,6 +14,8 @@ import { ArrayHelper } from '../../helpers/arrayHelper';
 import { RenderHelper } from '../../helpers/renderHelper';
 import { Store } from '../../store/store';
 import { BikeStateHelper } from '../../models/bikes/bikeState';
+import { BikeListItem } from '../../models/bikes/bikeListItem';
+import Button from 'react-bootstrap/lib/Button';
 
 export interface BikeListComponentProps  {
     readonly store: Store;
@@ -35,6 +37,7 @@ class BikeListComponentState {
 
 export interface BikeListComponentActions {
     readonly onOrderByChange: (orderBy: string[], orderByDescending: boolean) => void;
+    readonly onViewRents: (bikeId: number) => void;
 }
 
 type ThisProps = BikeListComponentProps & BikeListComponentActions;
@@ -89,6 +92,31 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
         );
     }
 
+    private canEdit(bike: BikeListItem): boolean {
+        return this.props.authContext.canManage;
+    }
+
+    private canViewRents(bike: BikeListItem): boolean {
+        return this.props.authContext.canViewRents;
+    }
+
+    private canRent(bike: BikeListItem): boolean {
+        return this.props.authContext.canRent;
+    }
+
+    private edit(bike: BikeListItem) {
+        // TODO
+    }
+
+    private viewRents(bike: BikeListItem) {
+        if (!this.props.isReadOnly)
+            this.props.onViewRents(bike.BikeId);
+    }
+
+    private rent(bike: BikeListItem) {
+        // TODO
+    }
+
     public render(): JSX.Element | null | false {
         return <div className="table table-responsive">
             <table className="table table-striped">
@@ -126,15 +154,16 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
                             <td className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, "lbs")}</td>
                             <td>{item.CurrentLocationName}</td>
                             <td>{item.DistanceMiles === null ? "" : item.DistanceMiles >= 0.2 ? StringHelper.formatNumber(item.DistanceMiles, 0, 1, "mi") : StringHelper.formatNumber(item.DistanceMiles * 5280, 0, 0, "ft")}</td>
-                            <td>{StringHelper.formatDate(new Date(item.AvailableFrom), this.state.shortDateTimeFormat) + (item.CurrentlyAvailable ? " (now)" : " (forecasted)")}</td>
+                            <td>{StringHelper.formatDate(new Date(item.AvailableFromUtc), this.state.shortDateTimeFormat) + (item.CurrentlyAvailable ? " (now)" : " (forecasted)")}</td>
                             <td>#{item.BikeId}</td>
                             <td>
-                                {/*
-                                            {this.userIsEditable(item) && <Button bsStyle="primary" bsSize="xsmall" onClick={e => this.edit(item)} >
-                                                <i className="glyphicon glyphicon-edit"></i>
-                                            </Button>
-                                            }
-                                            */}
+                                {this.canRent(item) && <div style={{ marginBottom: "4px" }}><Button bsStyle="success" bsSize="small" onClick={e => this.rent(item)} >
+                                    <i className="glyphicon glyphicon-tag"></i> Rent
+                                </Button></div>
+                                }
+                                {this.canViewRents(item) && <Button bsStyle="primary" bsSize="small" title="View rents" onClick={e => this.viewRents(item)} ><i className="glyphicon glyphicon-tags"></i></Button>}
+                                &nbsp;
+                                {this.canEdit(item) && <Button bsStyle="primary" bsSize="small" title="Edit" onClick={e => this.edit(item)} ><i className="glyphicon glyphicon-edit"></i></Button>}                                
                             </td>
                         </tr>
                         , this)}

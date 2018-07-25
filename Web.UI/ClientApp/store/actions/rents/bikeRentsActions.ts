@@ -34,7 +34,11 @@ const serviceUrl = {
     delete: (bikeRentId: string) => "api/bikeRents/" + encodeURI(bikeRentId)
 };
 
-export type BikeRentsActionsPayload = BikeRentsActionsPayload_PostPutDelete | BikeRentsActionsPayload_SetListData | BikeRentsActionsPayload_SetFormData;
+export type BikeRentsActionsPayload =
+    BikeRentsActionsPayload_PostPutDelete |
+    BikeRentsActionsPayload_SetListData |
+    BikeRentsActionsPayload_SetFormData |
+    BikeRentsActionsPayload_UseBikeId;
 
 export class BikeRentsActionsPayload_PostPutDelete {
     public readonly bikeRentId: string;
@@ -50,6 +54,10 @@ export class BikeRentsActionsPayload_SetListData {
 export class BikeRentsActionsPayload_SetFormData {
     public readonly bikeRentId: string;
     public readonly formData: BikeRentFormData;
+}
+
+export class BikeRentsActionsPayload_UseBikeId {
+    public readonly bikeId: number;
 }
 
 export class BikeRentsActions {
@@ -269,6 +277,15 @@ export class BikeRentsActions {
         
         return (dispatch, getState) => {
             dispatch(BikeRentsActions.authorizeAny(true, [Permission.BikeRents_ViewAll, Permission.BikeRents_ManageOwn, Permission.BikeRents_ManageAll], false, onSuccess, onError));
+        };
+    }
+
+    public static useBikeId(bikeId: number): StoreAction<BikeRentsActionsPayload_UseBikeId> {
+        return {
+            type: StoreActionType.BikeRents_SetUseBikeId,
+            payload: {
+                bikeId: bikeId
+            }
         };
     }
 

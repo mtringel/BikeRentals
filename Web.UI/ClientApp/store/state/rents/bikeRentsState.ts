@@ -15,8 +15,8 @@ export class BikeRentsState {
     /// The filter we got the data for.
     /// List of bikes is completed for this filter. 
     /// </summary>
-    public readonly listFilter: BikeRentListFilter | undefined = undefined;
-    public readonly listPaging: PagingInfo | undefined = undefined;
+    public readonly listFilter: BikeRentListFilter | null | undefined = undefined;
+    public readonly listPaging: PagingInfo | null | undefined = undefined;
 
     /// <summary>
     /// The filter we got the data for.
@@ -25,7 +25,9 @@ export class BikeRentsState {
     /// </summary>
     public readonly listItems: (BikeRentListItem | null | undefined)[] = [];
 
-    public readonly formData: { [bikeRentId: string]: BikeRentFormData } = {}; 
+    public readonly formData: { [bikeRentId: string]: BikeRentFormData } = {};
 
-    public readonly totalRowCount: number | undefined = undefined;
+    public readonly totalRowCount: number | null = null;
+
+    public readonly useBikeId: number | null = null;
 }

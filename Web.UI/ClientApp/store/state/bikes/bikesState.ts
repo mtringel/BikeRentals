@@ -16,9 +16,9 @@ export class BikesState {
     /// The filter we got the data for.
     /// List of bikes is completed for this filter. 
     /// </summary>
-    public readonly listFilter: BikeListFilter | undefined = undefined;
-    public readonly listPaging: PagingInfo | undefined = undefined;
-    public readonly currentLocation: Location | undefined = undefined;
+    public readonly listFilter: BikeListFilter | null | undefined = undefined;
+    public readonly listPaging: PagingInfo | null | undefined = undefined;
+    public readonly currentLocation: Location | null = null;
 
     /// <summary>
     /// The filter we got the data for.
@@ -29,5 +29,5 @@ export class BikesState {
 
     public readonly formData: { [bikeId: string]: BikeFormData } = {}; 
 
-    public readonly totalRowCount: number | undefined = undefined;
+    public readonly totalRowCount: number | null = null;
 }

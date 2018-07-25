@@ -13,16 +13,16 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         public int[] BikeModels { get; set; }
 
         /// <summary>
-        /// Dates only.
+        /// Date + time.
         /// We don't plan for hours. A bike is either available now (brought back at 10am and now it's 1pm) or has a planned end date, which can be exceeded.
         /// If a bike is _planned_ to be brought back at 3rd, it's only available for rent from 4th.
         /// </summary>
-        public Interval<DateTime?> StartDate { get; set; }
+        public Interval<DateTime?> StartDateUtc { get; set; }
 
         /// <summary>
         /// Until planned (not returned or lost), this is only planned end date.
         /// </summary>
-        public Interval<DateTime?> EndDate { get; set; }
+        public Interval<DateTime?> EndDateUtc { get; set; }
 
         public string[] Users { get; set; }
 
@@ -42,8 +42,8 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         /// </summary>
         public override bool IsEmpty =>
             !State.HasValue &&
-            StartDate.IsEmpty &&
-            EndDate.IsEmpty &&
+            StartDateUtc.IsEmpty &&
+            EndDateUtc.IsEmpty &&
             string.IsNullOrEmpty(BikeRentId) &&
             !BikeId.HasValue &&
             !Late.HasValue &&

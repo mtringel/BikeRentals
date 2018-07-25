@@ -31,8 +31,7 @@ namespace Toptal.BikeRentals.DataAccess.Users
                 var filter = userLisFilter.ToLower();
 
                 query = query.Where(t =>
-                    t.FirstName.ToLower().Contains(filter) ||
-                    t.LastName.ToLower().Contains(filter) ||
+                    (t.LastName + " " + t.FirstName).ToLower().Contains(filter) ||
                     t.Email.ToLower().Contains(filter) ||
                     t.UserName.ToLower().Contains(filter) ||
                     t.RoleTitle.ToLower().Contains(filter)
@@ -42,11 +41,7 @@ namespace Toptal.BikeRentals.DataAccess.Users
             if (!string.IsNullOrEmpty(autoCompleteFilter))
             {
                 var filter = autoCompleteFilter.ToLower();
-
-                query = query.Where(t =>
-                    t.FirstName.ToLower().Contains(filter) ||
-                    t.LastName.ToLower().Contains(filter)
-                    );
+                query = query.Where(t => (t.LastName + " " + t.FirstName).ToLower().Contains(filter));
             }
 
             return query.Take(maxRows.GetValueOrDefault(int.MaxValue));

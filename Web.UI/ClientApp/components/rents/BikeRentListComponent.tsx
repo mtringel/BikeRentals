@@ -99,8 +99,8 @@ export class BikeRentListComponent extends ComponentBase<ThisProps, ThisState>
                             { title: "Model", fieldName: "BikeModel.BikeModelName" },
                             { title: "Color", fieldName: "Color.ColorName" },
                             { title: "User", fieldName: "tmp_UserFullName" }, // not existing field, see DataProvider for OrderBy implementation
-                            { title: "Start date", fieldName: "StartDate" },
-                            { title: "End date", fieldName: "EndDate" },
+                            { title: "Start date", fieldName: "StartDateUtc" },
+                            { title: "End date", fieldName: "EndDateUtc" },
                             { title: "Pick up location", fieldName: "PickupLocationName" },
                             { title: "Return location", fieldName: "ReturnLocationName" },
                             { title: "Rent#", fieldName: "BikeRentId" },
@@ -120,8 +120,8 @@ export class BikeRentListComponent extends ComponentBase<ThisProps, ThisState>
                             <td>{item.Bike.BikeModel.BikeModelName}</td>
                             <td><span style={{ background: "#" + item.Bike.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Bike.Color.ColorName}</td>
                             <td>{item.User.LastName.toUpperCase()}, {item.User.FirstName}</td>
-                            <td className="text-right">{StringHelper.formatDate(item.StartDate, this.state.shortDateTimeFormat)}</td>
-                            <td className="text-right">{StringHelper.formatDate(item.EndDate, this.state.shortDateTimeFormat)}</td>
+                            <td className="text-right">{StringHelper.formatDate(item.StartDateUtc, this.state.shortDateTimeFormat)}</td>
+                            <td className="text-right">{StringHelper.formatDate(item.EndDateUtc, this.state.shortDateTimeFormat)}</td>
                             <td>{item.PickUpLocationName}</td>
                             <td>{item.ReturnLocationName}</td>
                             <td>#{item.BikeRentId}</td>

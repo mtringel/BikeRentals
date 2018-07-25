@@ -15,19 +15,21 @@ import { AuthServiceActions } from '../../store/actions/security/authServiceActi
 import { BikesActions } from '../../store/actions/bikes/bikesActions';
 import { BikeModelsActions } from '../../store/actions/bikes/bikeModelsActions';
 import { ColorsActions } from '../../store/actions/master/colorsActions';
+import { BikeRentsActions } from '../../store/actions/rents/bikeRentsActions';
+import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
 
 
 const mapStateToProps: (state: RootState) => BikeListProps  = state => {    
     var store = storeProvider();
     var rootState = store.getState();
-    var today = DateHelper.today();
+    var now = DateHelper.now();
 
     return {
         store: store,
         defaultFilter: {
             ...new BikeListFilter(),
             CurrentLocation: rootState.clientContext.currentLocation,
-            AvailableWhen: { From: today, To: today  }
+            AvailableUtc: { From: now, To: DateHelper.addHours(now, 1) }
         },
         defaultOrderBy: ["DistanceMiles"],
         defaultOrderByDescending: false
@@ -60,7 +62,12 @@ const mapDispatchToProps: (dispatch: StoreActionDispatch) => BikeListActions = d
                     onSuccess(colors.List, models.List);
                 }));
             }));
-        }
+        },
+
+        onViewRents: (bikeId) => {
+            store.dispatch(BikeRentsActions.useBikeId(bikeId));
+            store.dispatch(ClientContextActions.redirect(routeUrls.rents.listAll()));
+        },
 
         //onEdit: (filter, user) => store.redirect(routeUrls.users.edit(user.BikeId)),
 
