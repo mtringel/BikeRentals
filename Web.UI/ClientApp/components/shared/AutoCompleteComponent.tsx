@@ -1,3 +1,9 @@
+/// <summary>
+/// Auto-complete selection component for single selection or multiple selection. Loads data on-demand.
+/// Wraps react-bootstrap-typeahead.
+/// https://www.npmjs.com/package/react-bootstrap-typeahead
+/// </summary>
+
 import * as React from 'react';
 import { ComponentBase } from '../../helpers/componentBase';
 import { AutoCompleteType } from '../../models/shared/autoCompleteType';
@@ -88,7 +94,7 @@ export class AutoCompleteComponent extends ComponentBase<ThisProps, ThisState> {
         return <AsyncTypeahead
             clearButton={true}
             disabled={this.props.isReadOnly}
-            labelKey={"Value"}
+            labelKey="Value"
             multiple={this.props.allowMultiple}
             options={this.state.items}
             allowNew={this.props.allowNew}

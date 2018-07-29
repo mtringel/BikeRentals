@@ -1,3 +1,8 @@
+/// <summary>
+/// Error indicator component for displaying errors and validation errors on top of the screen.
+/// Global list of instantiated components is maintained within ClientContext.
+/// </summary>
+
 import * as React from 'react';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { StringHelper } from '../../helpers/stringHelper';

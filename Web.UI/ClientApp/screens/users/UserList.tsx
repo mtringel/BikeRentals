@@ -17,19 +17,18 @@ export interface UserListProps extends PropsBase {
     readonly store: Store;
 }
 
-export interface UserListActions {
-    readonly onAuthorize: (onSuccess: (authContext: UserAuthContext) => void) => void;
-    readonly onAllowCachedData: (invalidateCaches: boolean) => boolean;
+export interface UserListActions {    
+    readonly onInit: (onSuccess: (options: { authContext: UserAuthContext, initialLoadCached: boolean, keepNavigation: boolean }) => void) => void;
     readonly onLoad: (allowCachedData: boolean, filter: string, onSuccess: (data: UserListData) => void) => void;
     readonly onEdit: (filter: string, user: User) => void;
     readonly onAddNew: (filter: string) => void;    
 }
 
 class UserListState {
-    public readonly filter: string;
-    public readonly data: UserListData;
-    public readonly authContext: UserAuthContext;
-    public readonly isInitialized: boolean;
+    readonly filter: string;
+    readonly data: UserListData;
+    readonly authContext: UserAuthContext;
+    readonly isInitialized: boolean;    
 }
 
 export class UserList extends ScreenBase<UserListProps & UserListActions, UserListState>
@@ -39,28 +38,21 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var allowCachedData = this.props.onAllowCachedData(true);
-        var storeState = this.props.store.getState().users;
+        this.props.onInit(options => {
 
-        // set empty state for render()
-        var empty: UserListState = {
-            filter: StringHelper.notNullOrEmpty(storeState.listFilter, ""),
-            data: new UserListData(),
-            authContext: new UserAuthContext(),
-            isInitialized: false,
-        };
+            var storeState = this.props.store.getState().users;
 
-        // invoke asynchronous load after successful authorization
-        this.setState(empty,
-            () => {
-                this.props.onAuthorize(
-                    authContext => {
-                        this.setState({ authContext: authContext },
-                            () => {
-                                this.loadData(allowCachedData);
-                            });
-                    });
-            });
+            // set empty state for render()
+            var empty: UserListState = {
+                filter: options.keepNavigation ? StringHelper.notNullOrEmpty(storeState.listFilter, "") : "",
+                data: new UserListData(),
+                authContext: options.authContext,
+                isInitialized: false,
+            };
+
+            // invoke asynchronous load after successful authorization
+            this.setState(empty, () => this.loadData(options.initialLoadCached));
+        });
     }
 
     private loadData(allowCachedData: boolean) {
@@ -104,18 +96,21 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
 
                     {/* Header row */}
                     <div className="row">
-                        <div className="col-md-4">
+                        {/* New button */}
+                        <div className="col-md-4 text-left">
                             {this.canAddNew() && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
                                 <i className="glyphicon glyphicon-file"></i> New
                             </Button>}
                         </div>
 
-                        <div className="col-md-4">
+                        {/* Message */}
+                        <div className="col-md-4 text-center">
                             {this.state.data.TooMuchData && <b>Too many rows, please enter a search criteria!</b>}
                             &nbsp;
                         </div>
 
-                        <div className="col-md-4">
+                        {/* Free text filter */}
+                        <div className="col-md-4 text-right">
                             <div className="input-group">
                                 <input type="text" id="searchText" className="form-control pull-right" disabled={!this.state.isInitialized} value={StringHelper.notNullOrEmpty(this.state.filter, "")}
                                     placeholder="Search for..." onChange={e => this.setState({ filter: e.target.value })} />

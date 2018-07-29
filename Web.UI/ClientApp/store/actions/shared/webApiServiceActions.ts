@@ -40,7 +40,7 @@ export class WebApiServiceActions {
     /// resource is optional, $window.location.hash is the defult.
     /// If not debugging, always $window.location.hash is displayed.
     /// </summary>
-    public static showResult<T extends Model>(
+    public static showResult<T>(
         result: WebApiResult<T> | AxiosResponse<T> | Error,
         onSuccess?: ((data: T) => void) | undefined | null
     ): StoreActionThunk{
@@ -158,7 +158,7 @@ export class WebApiServiceActions {
     /// <summary>
     /// Do not add the Post action name suffix to the url, unless it's specified in HttpPostAttribute on method.
     /// </summary>
-    public static post<TResult extends Model>(
+    public static post<TResult>(
         url: string,
         data: Model,
         addLastAntiforgeryToken: boolean,
@@ -172,7 +172,7 @@ export class WebApiServiceActions {
     /// <summary>
     /// Do not add the Post action name suffix to the url, unless it's specified in HttpPutAttribute on method.
     /// </summary>
-    public static put<TResult extends Model>(
+    public static put<TResult>(
         url: string,
         data: Model,
         addLastAntiforgeryToken: boolean,
@@ -186,7 +186,7 @@ export class WebApiServiceActions {
     /// <summary>
     /// Do not add the Post action name suffix to the url, unless it's specified in HttpGetAttribute on method.
     /// </summary>
-    public static get<TResult extends Model>(
+    public static get<TResult>(
         url: string,
         onSuccess?: ((result: TResult) => void) | undefined | null,
         onError?: ((error: Error) => void) | undefined | null
@@ -198,7 +198,7 @@ export class WebApiServiceActions {
     /// <summary>
     /// Do not add the Post action name suffix to the url, unless it's specified in HttpDeleteAttribute on method.
     /// </summary>
-    public static delete<TResult extends Model>(
+    public static delete<TResult>(
         url: string,
         addLastAntiforgeryToken: boolean,
         onSuccess?: ((result: TResult) => void) | undefined | null,
@@ -214,7 +214,7 @@ export class WebApiServiceActions {
     /// webApiResult() is called automatically to show any errors.
     /// Call then() on the returned Observable object, otherwise the action won't be executed.
     /// </summary>
-    private static deferredAction<TResult extends Model>(
+    private static deferredAction<TResult>(
         url: string,
         method: HttpMethod,
         data: Model,

@@ -22,6 +22,8 @@ import { AutoCompleteComponent } from '../../components/shared/AutoCompleteCompo
 import { AutoCompleteType } from '../../models/shared/autoCompleteType';
 import { AutoCompleteItem } from '../../models/shared/autoCompleteItem';
 import { DateTimeRangeComponent } from '../../components/shared/DateTimeRangeComponent';
+import { SelectComponent } from '../shared/SelectComponent';
+import { MultiSelectComponent } from '../shared/MultiSelectComponent';
 
 export interface BikeRentListFilterComponentProps {
     readonly authContext: BikeRentAuthContext;
@@ -41,6 +43,10 @@ class BikeRentListFilterComponentState {
 export interface BikeRentListFilterComponentActions {
     readonly onSearch: (filter: BikeRentListFilter, resetFilter: boolean) => void;
 }
+
+class BikeRentStateSelect extends SelectComponent<BikeRentState>{ }
+class BikeModelSelect extends MultiSelectComponent<BikeModel, number>{ }
+class ColorSelect extends MultiSelectComponent<Color, string>{ }
 
 type ThisProps = BikeRentListFilterComponentProps & BikeRentListFilterComponentActions;
 type ThisState = BikeRentListFilterComponentState;
@@ -76,7 +82,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
         this.setState(initial);
     }
 
-    private changeFilter(changed: Partial<BikeRentListFilter>, stateChange?: Partial<ThisState> | undefined | null) {
+    private change(changed: Partial<BikeRentListFilter>, stateChange?: Partial<ThisState> | undefined | null) {
         if (TypeHelper.isNullOrEmpty(stateChange))
             this.setState({ ...this.state, filter: { ...this.state.filter, ...changed } });
         else
@@ -100,14 +106,14 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                     <div className="form-group col-sm-6" >
                         <label className="col-sm-2 control-label text-nowrap">Status</label>
                         <div className="col-sm-10 input-group">
-                            <span className="input-group-addon"><i className="glyphicon glyphicon-calendar"></i></span>
-                            <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
-                                value={TypeHelper.toString(this.state.filter.State, "All")}
-                                onChange={e => this.changeFilter({ State: parseInt(e.target.value) })}
-                            >
-                                <option key="All" value="All">All</option>
-                                {BikeRentStateHelper.allStates.map(t => BikeRentStateHelper.getOption(t))}
-                            </select>
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-flash"></i></span>
+                            <BikeRentStateSelect id="state" name="state" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.filter.State}
+                                placeholder="Fill to filter"
+                                getItem={t => BikeRentStateHelper.allStates[parseInt(t.value)]}
+                                getOption={t => { return { value: TypeHelper.toString(t), text: BikeRentStateHelper.allNames[t] }; }}
+                                items={BikeRentStateHelper.allStates}
+                                onChange={t => this.change({ State: t })}
+                            />
                         </div>
                     </div>
 
@@ -119,7 +125,8 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 <span className="input-group-addon"><i className="glyphicon glyphicon-time"></i></span>
                                 <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
                                     value={TypeHelper.toString(this.state.filter.Late)}
-                                    onChange={e => this.changeFilter({ Late: StringHelper.parseBool(e.target.value) })}
+                                    placeholder="Fill to filter"
+                                    onChange={e => this.change({ Late: StringHelper.parseBool(e.target.value) })}
                                 >
                                     <option key="All" value="null">All</option>
                                     <option key="true" value="true">Late</option>
@@ -143,10 +150,11 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 maxDate={null}
                                 startDate={this.state.filter.StartDateUtc.From}
                                 endDate={this.state.filter.StartDateUtc.To}
-                                glyphIcon={"calendar"}
-                                suffix={""}
-                                format={"DD/MM hh:mm"}
-                                onChange={(start, end) => this.changeFilter({ StartDateUtc: { From: start, To: end } })}
+                                placeholder="Fill to filter"
+                                glyphIcon="calendar"
+                                suffix=""
+                                format="DD/MM hh:mm"
+                                onChange={(start, end) => this.change({ StartDateUtc: { From: start, To: end } })}
                                 isReadOnly={this.props.isReadOnly}
                             />
                         </div>
@@ -164,10 +172,11 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 maxDate={null}
                                 startDate={this.state.filter.EndDateUtc.From}
                                 endDate={this.state.filter.EndDateUtc.To}
-                                glyphIcon={"calendar"}
-                                suffix={""}
-                                format={"DD/MM hh:mm"}
-                                onChange={(start, end) => this.changeFilter({ EndDateUtc: { From: start, To: end } })}
+                                placeholder="Fill to filter"
+                                glyphIcon="calendar"
+                                suffix=""
+                                format="DD/MM hh:mm"
+                                onChange={(start, end) => this.change({ EndDateUtc: { From: start, To: end } })}
                                 isReadOnly={this.props.isReadOnly}
                             />
                         </div>
@@ -181,14 +190,18 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <label className="col-sm-2 control-label text-nowrap ">Models</label>
                         <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
-                            <Select
-                                name={"models"}
-                                multi={true}
-                                valueKey={"BikeModelId"}
-                                labelKey={"BikeModelName"}
-                                options={this.props.allBikeModels}
-                                value={this.state.filter.BikeModels}
-                                onChange={(selectedOptions: BikeModel[]) => this.changeFilter({ BikeModels: ArrayHelper.select(selectedOptions, t => t.BikeModelId) })}
+                            <BikeModelSelect
+                                id="models"
+                                name="models"
+                                className="form-control"
+                                disabled={this.props.isReadOnly}
+                                allowMultiple={true}
+                                placeholder="Fill to filter"
+                                valueKey="BikeModelId"
+                                labelKey="BikeModelName"
+                                items={this.props.allBikeModels}
+                                values={this.state.filter.BikeModels}
+                                onChange={(keys, items) => this.change({ BikeModels: keys })}
                             />
                         </div>
                     </div>
@@ -198,14 +211,18 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <label className="col-sm-2 control-label text-nowrap">Colors</label>
                         <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-tint"></i></span>
-                            <Select
-                                name={"colors"}
-                                multi={true}
-                                valueKey={"ColorId"}
-                                labelKey={"ColorName"}
-                                options={this.props.allColors}
-                                value={this.state.filter.Colors}
-                                onChange={(selectedOptions: Color[]) => this.changeFilter({ Colors: ArrayHelper.select(selectedOptions, t => t.ColorId) })}
+                            <ColorSelect
+                                id="colors"
+                                name="colors"
+                                className="form-control"
+                                disabled={this.props.isReadOnly}
+                                allowMultiple={true}
+                                placeholder="Fill to filter"
+                                valueKey="ColorId"
+                                labelKey="ColorName"
+                                items={this.props.allColors}
+                                values={this.state.filter.Colors}
+                                onChange={(keys, items) => this.change({ Colors: keys })}
                             />
                         </div>
                     </div>
@@ -218,7 +235,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <label className="col-sm-2 control-label text-nowrap ">User</label>
                         <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-user"></i></span>
-                            <AutoCompleteComponent                  
+                            <AutoCompleteComponent
                                 store={this.props.store}
                                 allowMultiple={true}
                                 autoCompleteType={AutoCompleteType.User}
@@ -226,8 +243,8 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 isReadOnly={this.props.isReadOnly}
                                 items={this.state.users}
                                 minFilterChars={1}
-                                onChange={t => this.changeFilter({ Users: ArrayHelper.select(t, t2 => t2.Key) }, { users: t })}
-                                />
+                                onChange={t => this.change({ Users: ArrayHelper.select(t, t2 => t2.Key) }, { users: t })}
+                            />
                         </div>
                     </div>
                 </div>
@@ -239,7 +256,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-qrcode"></i></span>
                             <input type="text" className="form-control" value={this.state.filter.BikeRentId} disabled={this.props.isReadOnly}
-                                onChange={e => this.changeFilter({ BikeRentId: e.target.value })} />
+                                onChange={e => this.change({ BikeRentId: e.target.value })} />
                         </div>
                     </div>
 
@@ -249,7 +266,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-barcode"></i></span>
                             <NumericInput className="form-control" value={this.state.filter.BikeId} min={0} max={999999999} disabled={this.props.isReadOnly} snap
-                                onChange={(value: number) => this.changeFilter({ BikeId: value })} />
+                                onChange={(value: number) => this.change({ BikeId: value })} />
                         </div>
                     </div>
                 </div>

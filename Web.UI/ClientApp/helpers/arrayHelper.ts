@@ -5,8 +5,12 @@
 /// </summary>
 export class ArrayHelper {
 
-    public static isNullOrEmpty(array: any[] | undefined|null) {
+    public static isNullOrEmpty(array: any[] | undefined | null): boolean {
         return array === undefined || array === null || array.length === 0;
+    }
+
+    public static isNullOrAllItemsAreEmpty(array: any[] | undefined | null): boolean {
+        return ArrayHelper.isNullOrEmpty(array) || ArrayHelper.all(array, t => TypeHelper.isNullOrEmpty(t));
     }
 
     public static notNullOrEmpty<T>(array: T[] | undefined | null, valueIfNullOrEmpty: T[] | undefined | null): T[] | undefined | null {
@@ -165,27 +169,34 @@ export class ArrayHelper {
         return -1;
     }
 
-    public static findByPredicate<T>(array: T[], predicate: (item: T) => boolean): T {
-
-        var i = ArrayHelper.indexByPredicate(array, predicate);
-        return i < 0 ? null : array[i];
+    public static findByPredicate<T>(array: T[], predicate: (item: T) => boolean): T | null {
+        if (TypeHelper.isNullOrEmpty(array))
+            return null;
+        else {
+            var i = ArrayHelper.indexByPredicate(array, predicate);
+            return i < 0 ? null : array[i];
+        }
     }
 
-    public static findByPredicateInDict<T, T2>(dict: { [key: string]: T }, getArray: (item: T) => T2[], predicate: (item: T2) => boolean): T2 {
+    public static findByPredicateInDict<T, T2>(dict: { [key: string]: T }, getArray: (item: T) => T2[], predicate: (item: T2) => boolean): T2 | null {
 
-        var result: T2 = null;
+        if (TypeHelper.isNullOrEmpty(dict))
+            return null;
+        else {
+            var result: T2 = null;
 
-        for (var key in dict) {
-            var array = getArray(dict[key]);
-            var i = ArrayHelper.indexByPredicate(array, predicate);
+            for (var key in dict) {
+                var array = getArray(dict[key]);
+                var i = ArrayHelper.indexByPredicate(array, predicate);
 
-            if (i >= 0) {
-                result = array[i];
-                break;
+                if (i >= 0) {
+                    result = array[i];
+                    break;
+                }
             }
-        }
 
-        return result;
+            return result;
+        }
     }
 
     public static clone<T>(array: T[]) {
@@ -194,7 +205,7 @@ export class ArrayHelper {
 
     public static cloneDict<T>(
         dict: { [key: string]: T },
-        clone?: ((item: T) => T) | undefined | null,
+        clone?: ((key: string, item: T) => T) | undefined | null,
         predicate?: ((key: string, item: T) => boolean) | undefined | null
     ): { [key: string]: T } {
 
@@ -204,7 +215,7 @@ export class ArrayHelper {
             var result: { [key: string]: T } = {};
 
             if (TypeHelper.isNullOrEmpty(clone))
-                clone = t => t;
+                clone = (key, item) => item;
 
             if (TypeHelper.isNullOrEmpty(predicate))
                 predicate = (tkey, titem) => true;
@@ -213,7 +224,7 @@ export class ArrayHelper {
                 var item = dict[key];
 
                 if (predicate(key, item))
-                    result[key] = clone(item);
+                    result[key] = clone(key, item);
             }
 
             return result;
@@ -221,16 +232,16 @@ export class ArrayHelper {
     }
 
     public static add<T>(array: T[], item: T): T[] {
-        return ArrayHelper.isNullOrEmpty(array) ? [item] : array.concat([item]);
+        return !ArrayHelper.isNullOrEmpty(array) ? array.concat([item]) : [item];
     }
 
     public static remove<T>(array: T[], predicate: (item: T) => boolean): T[] {
-        return ArrayHelper.isNullOrEmpty(array) ? array : array.filter(t => !predicate(t));
+        return !ArrayHelper.isNullOrEmpty(array) ? array.filter(t => !predicate(t)) : [];
     }
 
     public static update<T>(array: T[], item: T, predicate: (item: T) => boolean): T[] {
         if (ArrayHelper.isNullOrEmpty(array))
-            return [item];
+            return [];
         else {
             var i = ArrayHelper.indexByPredicate(array, predicate);
 
@@ -244,10 +255,11 @@ export class ArrayHelper {
         }
     }
 
+
     /// <summary>
     /// Items in the array should be sorted.
     /// </summary>
-    public static equals<T>(arr1: T[], arr2: T[], predicate: (item1: T, item2: T) => boolean): boolean {
+    public static equals<T>(arr1: T[], arr2: T[], predicate?: ((item1: T, item2: T) => boolean) | undefined | null): boolean {
         if (ArrayHelper.isNullOrEmpty(arr1))
             return ArrayHelper.isNullOrEmpty(arr2);
         else if (ArrayHelper.isNullOrEmpty(arr2))
@@ -256,6 +268,9 @@ export class ArrayHelper {
             return false;
         else {
             var length = arr1.length;
+
+            if (TypeHelper.isNullOrEmpty(predicate))
+                predicate = (t1, t2) => t1 === t2;
 
             for (var i = 0; i < length; i++)
                 if (!predicate(arr1[i], arr2[i]))
@@ -305,17 +320,47 @@ export class ArrayHelper {
     /// <summary>
     /// Returns clone of dict.
     /// </summary>
-    public static addToDict<T>(dict: { [key: string]: T }, key: string, addOrOverwrite: (oldItem: T) => T): { [key: string]: T } {
-        var clone = ArrayHelper.cloneDict(dict);
-        clone[key] = addOrOverwrite(clone[key]);
-        return clone;
+    public static addToDict<T>(dict: { [key: string]: T }, key: string, item: T): { [key: string]: T } {
+        var res = TypeHelper.isNullOrEmpty(dict) ? {} : ArrayHelper.cloneDict(dict);
+        res[key] = item;
+        return res;
+    }
+
+    /// <summary>
+    /// Returns clone of dict.
+    /// </summary>
+    public static addOrUpdateDict<T>(dict: { [key: string]: T }, key: string, add: (oldItemIfExists: T | undefined | null) => T): { [key: string]: T } {
+        var res = TypeHelper.isNullOrEmpty(dict) ? {} : ArrayHelper.cloneDict(dict);
+        res[key] = add(res[key]);
+        return res;
     }
 
     /// <summary>
     /// Returns clone of dict.
     /// </summary>
     public static removeFromDict<T>(dict: { [key: string]: T }, key: string): { [key: string]: T } {
-        return ArrayHelper.cloneDict(dict, null, (tkey, tvalue) => tkey !== key);
+        return !TypeHelper.isNullOrEmpty(dict) ? ArrayHelper.cloneDict(dict, null, (tkey, tvalue) => tkey !== key) : {};
+    }
+
+    /// <summary>
+    /// Returns clone of dict.
+    /// </summary>
+    public static updateDict<T>(dict: { [key: string]: T }, key: string, update: (olditem: T) => T): { [key: string]: T } {
+        return !TypeHelper.isNullOrEmpty(dict) ? ArrayHelper.cloneDict(dict, (tkey, titem) => tkey === key ? update(titem) : titem) : {};
+    }
+
+    /// <summary>
+    /// Returns clone of dict.
+    /// </summary>
+    public static updateDictAll<T>(dict: { [key: string]: T }, update: (key: string, olditem: T) => T): { [key: string]: T } {
+        return !TypeHelper.isNullOrEmpty(dict) ? ArrayHelper.cloneDict(dict, (tkey, titem) => update(tkey, titem)) : {};
+    }
+
+    /// <summary>
+    /// Returns clone of dict.
+    /// </summary>
+    public static updateDictByPredicate<T>(dict: { [key: string]: T }, predicate: (key: string, item: T) => boolean, update: (key: string, olditem: T) => T): { [key: string]: T } {
+        return !TypeHelper.isNullOrEmpty(dict) ? ArrayHelper.cloneDict(dict, (tkey, titem) => predicate(tkey, titem) ? update(tkey, titem) : titem) : {};
     }
 
     public static all<T>(array: T[], predicate: (item: T) => boolean, from?: number | undefined | null, to?: number | undefined | null) {
@@ -355,16 +400,20 @@ export class ArrayHelper {
     }
 
     public static filterDict<T>(dict: { [key: string]: T }, predicate: (key: string, item: T) => boolean): { key: string, item: T }[] {
-        var res = [];
+        if (TypeHelper.isNullOrEmpty(dict))
+            return [];
+        else {
+            var res = [];
 
-        for (var key in dict) {
-            var item = dict[key];
+            for (var key in dict) {
+                var item = dict[key];
 
-            if (predicate(key, item))
-                res.push({ key: key, item: item });
+                if (predicate(key, item))
+                    res.push({ key: key, item: item });
+            }
+
+            return res;
         }
-
-        return res;
     }
 
     public static firstOrDefault<T>(array: T[]): T | null{

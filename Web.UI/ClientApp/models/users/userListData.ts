@@ -1,4 +1,5 @@
 ﻿import { User } from "./user";
+import { TypeHelper } from "../../helpers/typeHelper";
 
 export class UserListData {
 

@@ -1,3 +1,9 @@
+/// <summary>
+/// Numberic range component for numberic range selection (with or without precision).
+/// Wraps react-numeric-input.
+/// https://www.npmjs.com/package/react-numeric-input
+/// </summary>
+
 import * as React from 'react';
 import { ComponentBase } from '../../helpers/componentBase';
 import { Store } from '../../store/store';

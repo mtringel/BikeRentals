@@ -51,15 +51,15 @@ namespace Toptal.BikeRentals.Service.Api.Users
                 AuthProvider.Authorize(Permission.User_Management);
 
                 // process
-                var gridMaxRows = AppConfig.WebApplication.GridMaxRows;
-                var list = UserManager.GetList(filter, null, gridMaxRows + 1).ToArray();
+                var maxRows = AppConfig.WebApplication.GridMaxRows;
+                var list = UserManager.GetList(filter, null, maxRows + 1).ToArray();
                 Helper.ValidateResult(list);
 
                 return scope.Complete(
                     () => new UserListData()
                     {
-                        List = list.Take(gridMaxRows).Select(t => new User(t)).ToArray(),
-                        TooMuchData = list.Count() > gridMaxRows
+                        List = list.Take(maxRows).Select(t => new User(t)).ToArray(),
+                        TooMuchData = list.Count() > maxRows
                     },
                     t => $"User list loaded {t.List.Length} items."
                     );

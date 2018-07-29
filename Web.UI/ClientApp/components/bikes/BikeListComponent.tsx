@@ -13,7 +13,7 @@ import { TypeHelper } from '../../helpers/typeHelper';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { RenderHelper } from '../../helpers/renderHelper';
 import { Store } from '../../store/store';
-import { BikeStateHelper } from '../../models/bikes/bikeState';
+import { BikeStateHelper, BikeState } from '../../models/bikes/bikeState';
 import { BikeListItem } from '../../models/bikes/bikeListItem';
 import Button from 'react-bootstrap/lib/Button';
 
@@ -37,7 +37,7 @@ class BikeListComponentState {
 
 export interface BikeListComponentActions {
     readonly onOrderByChange: (orderBy: string[], orderByDescending: boolean) => void;
-    readonly onViewRents: (bikeId: number) => void;
+    readonly onViewRents: (bikeId: number, authContext: BikeAuthContext) => void;
 }
 
 type ThisProps = BikeListComponentProps & BikeListComponentActions;
@@ -97,7 +97,7 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
     }
 
     private canViewRents(bike: BikeListItem): boolean {
-        return this.props.authContext.canViewRents;
+        return this.props.authContext.canViewMyRents || this.props.authContext.canViewAllRents;
     }
 
     private canRent(bike: BikeListItem): boolean {
@@ -110,7 +110,7 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
 
     private viewRents(bike: BikeListItem) {
         if (!this.props.isReadOnly)
-            this.props.onViewRents(bike.BikeId);
+            this.props.onViewRents(bike.BikeId, this.props.authContext);
     }
 
     private rent(bike: BikeListItem) {
@@ -151,10 +151,10 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
                             <td><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.BikeId.toString()} width="100" height="60" /></td>
                             <td>{item.BikeModel.BikeModelName}</td>
                             <td><span style={{ background: "#" + item.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Color.ColorName}</td>
-                            <td className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, "lbs")}</td>
+                            <td className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, " lbs")}</td>
                             <td>{item.CurrentLocationName}</td>
-                            <td>{item.DistanceMiles === null ? "" : item.DistanceMiles >= 0.2 ? StringHelper.formatNumber(item.DistanceMiles, 0, 1, "mi") : StringHelper.formatNumber(item.DistanceMiles * 5280, 0, 0, "ft")}</td>
-                            <td>{StringHelper.formatDate(new Date(item.AvailableFromUtc), this.state.shortDateTimeFormat) + (item.CurrentlyAvailable ? " (now)" : " (forecasted)")}</td>
+                            <td>{item.DistanceMiles === null ? "" : item.DistanceMiles >= 0.2 ? StringHelper.formatNumber(item.DistanceMiles, 0, 1, " mi") : StringHelper.formatNumber(item.DistanceMiles * 5280, 0, 0, " ft")}</td>
+                            <td>{StringHelper.formatDate(new Date(item.AvailableFromUtc), this.state.shortDateTimeFormat) + (item.BikeState === BikeState.Available ? " (now)" : " (forecasted)")}</td>
                             <td>#{item.BikeId}</td>
                             <td>
                                 {this.canRent(item) && <div style={{ marginBottom: "4px" }}><Button bsStyle="success" bsSize="small" onClick={e => this.rent(item)} >

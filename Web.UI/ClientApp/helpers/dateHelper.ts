@@ -131,6 +131,18 @@ export class DateHelper {
         return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
     }
 
+    /// <summary>
+    /// https://stackoverflow.com/questions/3224834/get-difference-between-2-dates-in-javascript
+    /// a + result = b
+    /// </summary>
+    public static dateDiffInMinutes(a: Date, b: Date): number {
+        // Discard the time and time-zone information.
+        var utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+        var utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+
+        return Math.floor((utc2 - utc1) / (1000 * 60));
+    }
+
     public static parseDateMilliseconds(str: string | number | null | undefined, valueOnError?: Date | null | undefined): Date | null {
         var s = TypeHelper.toString(str);
 
@@ -144,5 +156,19 @@ export class DateHelper {
             catch (err) {
             }
     }
-}
 
+    public static setDateParts(
+        d: Date,
+        options: Partial<{ year: number, month: number, day: number, hours: number, minutes: number, seconds: number, milliseconds: number }>
+    ): Date {
+        return new Date(
+            TypeHelper.notNullOrEmpty(options.year, d.getFullYear()),
+            TypeHelper.notNullOrEmpty(options.month, d.getMonth()),
+            TypeHelper.notNullOrEmpty(options.day, d.getDate()),
+            TypeHelper.notNullOrEmpty(options.hours, d.getHours()),
+            TypeHelper.notNullOrEmpty(options.minutes, d.getMinutes()),
+            TypeHelper.notNullOrEmpty(options.seconds, d.getSeconds()),
+            TypeHelper.notNullOrEmpty(options.milliseconds, d.getMilliseconds())
+        );
+    }
+}

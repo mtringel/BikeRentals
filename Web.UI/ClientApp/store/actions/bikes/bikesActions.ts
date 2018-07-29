@@ -19,6 +19,7 @@ import { BikeFormData } from '../../../models/bikes/bikeFormData';
 import { BikeModelsActions } from '../bikes/bikeModelsActions';
 import { ColorsActions } from '../master/colorsActions';
 import { AppUser } from '../../../models/security/appUser';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 const serviceUrl = {
     getList: (filter: BikeListFilter, paging: PagingInfo, currentLocation: Location | null) =>
@@ -61,33 +62,17 @@ export class BikesActions {
         currentLocation: Location | null,
         onSuccess: (data: BikeListData) => void
     ): StoreActionThunk {
-        
+
         return (dispatch, getState) => {
-            if (allowCachedData) {
-                var data = getState().bikes;
-                
-                if (// filter is matching?
-                    PagingInfo.CompareOrdering(data.listPaging, paging) &&
-                    JSON.stringify(data.listFilter) === JSON.stringify(filter) &&
-                    Location.compare(data.currentLocation, currentLocation)
-                    &&
-                    // page is already loaded?
-                    !TypeHelper.isNullOrEmpty(data.listItems) &&
-                    !TypeHelper.isNullOrEmpty(paging.RowCount) &&
-                    data.listItems.length >= paging.FirstRow + paging.RowCount &&
-                    ArrayHelper.all(data.listItems, t => !TypeHelper.isNullOrEmpty(t), paging.FirstRow, paging.FirstRow + paging.RowCount - 1)
-                ) {
-                    // return from store (full match)                   
-                    onSuccess({
-                        List: data.listItems.slice(paging.FirstRow, paging.FirstRow + paging.RowCount - 1),
-                        TotalRowCount: data.totalRowCount
-                    });
-                } else {
-                    // return from server (updates store) -- no partial match here now 
-                    dispatch(BikesActions.getList(false, filter, paging, currentLocation, onSuccess));
-                }
-            }
-            else {
+            var rootState = getState();
+            var state = rootState.bikes;
+            var data = allowCachedData ? state.listCache.getListData({ ...filter, ...paging }) : null;
+
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from store 
+                onSuccess(data);
+            } else {
+                // return from server
                 dispatch(WebApiServiceActions.get<BikeListData>(
                     serviceUrl.getList(filter, paging, currentLocation),
                     result => {
@@ -112,27 +97,26 @@ export class BikesActions {
     }
 
     public static getById(allowCachedData: boolean, bikeId: number, onSuccess: (data: BikeFormData) => void): StoreActionThunk {
-        
+
         return (dispatch, getState) => {
             if (allowCachedData) {
-                var data = getState().bikes.formData[bikeId];
+                var rootState = getState();
+                var state = rootState.bikes;
+                var data = allowCachedData ? state.formCache.getFormData(bikeId) : null;
 
                 if (!TypeHelper.isNullOrEmpty(data)) {
                     // return from store
                     onSuccess(data);
                 } else {
-                    // return from server (updates store)
-                    dispatch(BikesActions.getById(false, bikeId, onSuccess));
+                    // return from server
+                    dispatch(WebApiServiceActions.get<BikeFormData>(
+                        serviceUrl.getById(bikeId),
+                        result => {
+                            dispatch(BikesActions.setFormData(result));
+                            onSuccess(result);
+                        }
+                    ));
                 }
-            }
-            else {
-                dispatch(WebApiServiceActions.get<BikeFormData>(
-                    serviceUrl.getById(bikeId),
-                    result => {
-                        dispatch(BikesActions.setFormData(result));
-                        onSuccess(result);
-                    }
-                ));
             }
         }
     }
@@ -147,20 +131,21 @@ export class BikesActions {
         };
     }
 
-    private static clearState(): StoreAction<BikesActionsPayload> {
+    public static clearState(): StoreAction<BikesActionsPayload> {
         return {
             type: StoreActionType.Bikes_ClearState,
             payload: null
         };
     }
 
-    public static invalidateRelevantCaches(): StoreActionThunk {
 
+    public static clearStateIfExpired(): StoreActionThunk {
         return (dispatch, getState) => {
-            dispatch(BikesActions.clearState());
+            var rootState = getState();
+            var state = rootState.bikes;
 
-            dispatch(ColorsActions.invalidateRelevantCaches());
-            dispatch(BikeModelsActions.invalidateRelevantCaches());
+            if (TypeHelper.isNullOrEmpty(state.timestamp) || DateHelper.dateDiffInDays(state.timestamp, DateHelper.now()) >= rootState.clientContext.globals.ClientCacheDurationInMinutes)
+                dispatch(BikesActions.clearState());
         };
     }
 
@@ -256,7 +241,8 @@ export class BikesActions {
                             currentUserId: user.UserId,
                             canManage: AppUser.hasPermission(user, Permission.Bike_Management),
                             canRent: AppUser.hasPermission(user, Permission.BikeRents_ManageOwn),
-                            canViewRents: AppUser.hasPermission(user, Permission.BikeRents_ViewAll)
+                            canViewMyRents: AppUser.hasPermission(user, Permission.BikeRents_ManageOwn),
+                            canViewAllRents: AppUser.hasPermission(user, Permission.BikeRents_ViewAll)
                         });
                 },
                 error => {

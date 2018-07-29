@@ -54,9 +54,6 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             set { CurrentLocation = new Location(CurrentLocationLat, value); }
         }
 
-        [Required]
-        public bool CurrentlyAvailable { get; set; }
-
         /// <summary>
         /// Can be available and this is a past date.
         /// Can be unavailable and this is a forecasted future date.
@@ -107,7 +104,6 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             this.CurrentLocation = currentLocation;
             this.AvailableFromUtc = availableFrom;
             this.RateAverage = rateAverage;
-            this.CurrentlyAvailable = currentlyAvailable;
             this.CurrentLocationName = currentLocationName;
             this.CreatedUtc = created;
             this.CreatedBy = createdBy;

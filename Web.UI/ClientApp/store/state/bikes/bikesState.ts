@@ -5,6 +5,8 @@ import { Bike } from "../../../models/bikes/bike";
 import { Location } from "../../../models/master/location";
 import { BikeListItem } from "../../../models/bikes/bikeListItem";
 import { BikeFormData } from "../../../models/bikes/bikeFormData";
+import { ReduxListDataCache, ReduxListDataCacheProps } from "../../../helpers/reduxListDataCache";
+import { ReduxFormDataCache, ReduxFormDataCacheProps } from "../../../helpers/reduxFormDataCache";
 
 /// <summary>
 /// DO NOT add instance properties and functions here.
@@ -20,14 +22,26 @@ export class BikesState {
     public readonly listPaging: PagingInfo | null | undefined = undefined;
     public readonly currentLocation: Location | null = null;
 
-    /// <summary>
-    /// The filter we got the data for.
-    /// List of users is completed for this filter. 
-    /// Might contain holes (null), since we load pages and put items at absolute indexes here.
-    /// </summary>
-    public readonly listItems: (BikeListItem | null | undefined)[] = [];
+    public readonly timestamp: Date | null = null;
 
-    public readonly formData: { [bikeId: string]: BikeFormData } = {}; 
+    // the key is the union of filter and paging
+    public readonly listCache = new ReduxListDataCache<BikeListData, BikeListItem, number, BikeListFilter & PagingInfo>(
+        new ReduxListDataCacheProps<BikeListData, BikeListItem, number, BikeListFilter & PagingInfo>(
+            // getKey
+            t => t.BikeId,
+            // getItems
+            t => t.List,
+            // setItems (Bike and BikeListData are immutable)
+            (data, items) => { return { List: items, TotalRowCount: items.length } }
+        ));
 
-    public readonly totalRowCount: number | null = null;
+    public readonly formCache = new ReduxFormDataCache<BikeFormData, Bike, number>(
+        new ReduxFormDataCacheProps<BikeFormData, Bike, number>(
+            // getKey
+            t => t.BikeId,
+            // getItem
+            t => t.Bike,
+            // setItem (Bike and BikeListData are immutable)
+            (data, newItem) => { return { Bike: newItem } }
+        ));
 }

@@ -5,5 +5,5 @@
 /// DO NOT add instance properties or methods here.
 /// DO add static methods for logic.
 /// </summary>
-export class Model implements IDataObject {
+export abstract class Model implements IDataObject {
 }

@@ -27,6 +27,8 @@ export class GlobalParameters {
 
     public readonly BaseUrl: string;
 
+    public readonly ClientCacheDurationInMinutes: number;
+
     // Auto login
     public readonly AutoLoginEmail: string;
 
@@ -79,6 +81,7 @@ export class GlobalParameters {
             this.AntiforgeryTokenFieldName = globalsElement.antiforgeryTokenFieldName; 
             this.BasePath = globalsElement.basePath;
             this.BaseUrl = globalsElement.baseUrl;
+            this.ClientCacheDurationInMinutes = globalsElement.clientCacheDurationInMinutes;
 
             // Auto login
             this.AutoLoginEmail = globalsElement.autoLoginEmail;

@@ -19,13 +19,12 @@ import { RouteComponentProps } from 'react-router';
 import { FormValidatorActions } from '../../store/actions/shared/formValidatorActions';
 import { UserFormData } from '../../models/users/userFormData';
 
-export interface UserEditProps extends PropsBase { 
+export interface UserEditProps extends PropsBase {
     readonly store: Store;
 }
 
 export interface UserEditActions {
-    readonly onAuthorize: (userId: string, isNewUser: boolean, onSuccess: (authContext: UserAuthContext) => void) => void;
-    readonly onAllowCachedData: (invalidateCaches: boolean) => boolean;
+    readonly onInit: (userId: string, isNewUser: boolean, onSuccess: (options: { authContext: UserAuthContext, initialLoadCached: boolean }) => void) => void;
     readonly onLoad: (allowCachedData: boolean, userId: string, isNewUser: boolean, isProfile: boolean, onSuccess: (data: UserFormData) => void) => void; 
     readonly onCancel: (user: User, isNewUser: boolean, isProfile: boolean) => void;
     readonly onSave: (user: User, isNewUser: boolean, isProfile: boolean) => void;
@@ -33,12 +32,12 @@ export interface UserEditActions {
 }
 
 class UserEditState {
-    public readonly data: UserFormData; 
-    public readonly userId: string; // id == userId or "new" or "profile" (own)
-    public readonly isNewUser: boolean;
-    public readonly isDirty: boolean;
-    public readonly authContext: UserAuthContext;
-    public readonly isInitialized: boolean;
+    readonly data: UserFormData; 
+    readonly userId: string; // id == userId or "new" or "profile" (own)
+    readonly isNewUser: boolean;
+    readonly isDirty: boolean;
+    readonly authContext: UserAuthContext;
+    readonly isInitialized: boolean;
 }
 
 type ThisProps = UserEditProps & UserEditActions;
@@ -52,33 +51,28 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var allowCachedData = this.props.onAllowCachedData(true);
-
         // set empty state for render()
         var userId = TypeHelper.notNullOrEmpty((this.props as any).match.params.userId, "profile");
+        var isNew = StringHelper.equals(userId, "new", true);
 
-        var empty: ThisState= {
-            data: new UserFormData(),
-            userId: userId,
-            isNewUser: StringHelper.equals(userId, "new", true),
-            isDirty: false,
-            authContext: new UserAuthContext(),
-            isInitialized: false
-        };
+        this.props.onInit(userId, isNew, options => {
 
-        // set empty state for render()
-        // invoke asynchronous load after successful authorization        
-        this.setState(empty,
-            () => {
-                this.props.onAuthorize(userId, this.state.isNewUser,
-                    authContext => {
-                        this.setState({ authContext: authContext },
-                            () => {
-                                if (authContext.canManage)
-                                    this.loadData(allowCachedData)
-                            });
-                    });
+            var empty: ThisState = {
+                data: new UserFormData(),
+                userId: userId,
+                isNewUser: isNew,
+                isDirty: false,
+                authContext: options.authContext,
+                isInitialized: false
+            };
+
+            // set empty state for render()
+            // invoke asynchronous load after successful authorization        
+            this.setState(empty, () => {
+                if (options.authContext.canManage)
+                    this.loadData(options.initialLoadCached)
             });
+        });
     }
 
     private loadData(allowCachedData: boolean) {

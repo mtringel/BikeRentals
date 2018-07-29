@@ -4,7 +4,7 @@
 /// </summary>
 export class LoginParamsState {
 
-    public readonly useReturnUrl: string = null;
+    public readonly param_ReturnUrl: string = null;
 
-    public readonly useDefaultEmail: string = null;
+    public readonly param_DefaultEmail: string = null;
 }

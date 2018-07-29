@@ -51,13 +51,15 @@ namespace Toptal.BikeRentals.Service.Api.Shared
                             AuthProvider.Authorize(Permission.AutoComplete_GetUsers);
 
                             // process
-                            var list = UserManager.GetList(null, filter, AppConfig.WebApplication.AutoCompleteMaxRows).ToArray();
+                            var maxRows = AppConfig.WebApplication.AutoCompleteMaxRows;
+                            var list = UserManager.GetList(null, filter, maxRows + 1).ToArray();
                             Helper.ValidateResult(list);
 
                             return scope.Complete(
                                 () => new AutoCompleteListData()
                                 {
-                                    List = list.Select(t => new AutoCompleteItem(t.UserId, t.FullName)).OrderBy(t => t.Value).ToArray()
+                                    List = list.Take(maxRows).Select(t => new AutoCompleteItem(t.UserId, t.FullName)).OrderBy(t => t.Value).ToArray(),
+                                    TooMuchData = list.Count() > maxRows
                                 },
                                 t => $"AutoComplete User list loaded {t.List.Length} items."
                                 );

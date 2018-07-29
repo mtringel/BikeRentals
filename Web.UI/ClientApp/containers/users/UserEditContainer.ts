@@ -17,7 +17,7 @@ import { User } from '../../models/users/user';
 import { RoleType } from '../../models/security/roleType';
 
 const mapStateToProps: (state: RootState) => UserEditProps = state => {    
-    var store = storeProvider();
+    var store = storeProvider();    
 
     return {
         store: store
@@ -29,15 +29,16 @@ const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserEditActions = d
     var redirectBack = (isProfile: boolean) => store.dispatch(ClientContextActions.redirect(isProfile ? routeUrls.home() : routeUrls.users.list()));
 
     return {
-        onAuthorize: (userId, isNewUser, onSuccess) => {
-            store.dispatch(UsersActions.authorizeEdit(userId, isNewUser, onSuccess))
-        },
+        onInit: (userId, isNewUser, onSuccess) => {
+            //store.dispatch(UsersActions.clearState()); - keep cached data
+            store.clearStateIfExpiredAll();
 
-        onAllowCachedData: (invalidateCaches: boolean) => {
-            if (store.getState().clientContext.lastScreen instanceof UserList) return true;
-
-            if (invalidateCaches) store.dispatch(UsersActions.invalidateRelevantCaches());
-            return false;
+            store.dispatch(UsersActions.authorizeEdit(userId, isNewUser,
+                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
+                authContext => onSuccess({
+                    authContext: authContext,
+                    initialLoadCached: true
+                })));
         },
 
         // we need to get the list of roles, so we need to call the server anyway

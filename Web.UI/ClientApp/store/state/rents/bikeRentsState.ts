@@ -4,6 +4,10 @@ import { BikeFormData } from "../../../models/bikes/bikeFormData";
 import { BikeRentListFilter } from "../../../models/rents/bikeRentListFilter";
 import { BikeRentListItem } from "../../../models/rents/bikeRentListItem";
 import { BikeRentFormData } from "../../../models/rents/bikeRentFormData";
+import { ReduxListDataCache, ReduxListDataCacheProps } from "../../../helpers/reduxListDataCache";
+import { ReduxFormDataCache, ReduxFormDataCacheProps } from "../../../helpers/reduxFormDataCache";
+import { BikeRentListData } from "../../../models/rents/bikeRentListData";
+import { BikeRent } from "../../../models/rents/bikeRent";
 
 /// <summary>
 /// DO NOT add instance properties and functions here.
@@ -18,16 +22,28 @@ export class BikeRentsState {
     public readonly listFilter: BikeRentListFilter | null | undefined = undefined;
     public readonly listPaging: PagingInfo | null | undefined = undefined;
 
-    /// <summary>
-    /// The filter we got the data for.
-    /// List of users is completed for this filter. 
-    /// Might contain holes (null), since we load pages and put items at absolute indexes here.
-    /// </summary>
-    public readonly listItems: (BikeRentListItem | null | undefined)[] = [];
+    public readonly timestamp: Date | null = null;
 
-    public readonly formData: { [bikeRentId: string]: BikeRentFormData } = {};
+    // the key is the union of filter and paging
+    public readonly listCache = new ReduxListDataCache<BikeRentListData, BikeRentListItem, string, BikeRentListFilter & PagingInfo>(
+        new ReduxListDataCacheProps<BikeRentListData, BikeRentListItem, string, BikeRentListFilter & PagingInfo>(
+            // getKey
+            t => t.BikeRentId,
+            // getItems
+            t => t.List,
+            // cloneData (Bike and BikeListData are immutable)
+            (data, items) => { return { List: items, TotalRowCount: items.length } }
+        ));
 
-    public readonly totalRowCount: number | null = null;
+    public readonly formCache = new ReduxFormDataCache<BikeRentFormData, BikeRent, string>(
+        new ReduxFormDataCacheProps<BikeRentFormData, BikeRent, string>(
+            // getKey
+            t => t.BikeRentId,
+            // getItem
+            t => t.BikeRent,
+            // cloneData (Bike and BikeListData are immutable)
+            (data, newItem) => { return { BikeRent: newItem } }
+        ));
 
-    public readonly useBikeId: number | null = null;
+    public readonly param_BikeId: number | null = null;
 }

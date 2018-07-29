@@ -21,8 +21,6 @@ export class BikeListItem extends BikeRef {
     /// </summary>
     public readonly AvailableFromUtc: string; // Date;
 
-    public readonly CurrentlyAvailable: boolean;
-
     public readonly RateAverage: number;
 
     public readonly DistanceMiles: number | null | undefined;

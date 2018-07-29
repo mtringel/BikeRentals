@@ -5,5 +5,7 @@ namespace Toptal.BikeRentals.Service.Models.Shared
     public sealed class AutoCompleteListData : Model
     {
         public AutoCompleteItem[] List { get; set; }
+
+        public bool TooMuchData { get; set; }
     }
 }

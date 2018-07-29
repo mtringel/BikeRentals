@@ -1,3 +1,8 @@
+/// <summary>
+/// Load indicator component for displaying spinning donut.
+/// Global list of instantiated components is maintained within ClientContext.
+/// </summary>
+
 import * as React from 'react';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { Store } from '../../store/store';

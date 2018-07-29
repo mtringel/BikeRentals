@@ -6,6 +6,7 @@ import { StoreActionThunk, StoreAction } from "../storeAction";
 import { StoreActionType } from "../storeActionType";
 import { WebApiServiceActions } from "../shared/webApiServiceActions";
 import { ArrayHelper } from "../../../helpers/arrayHelper";
+import { DateHelper } from "../../../helpers/dateHelper";
 
 const serviceUrl = {
     getList: (type: AutoCompleteType, filter: string) =>
@@ -28,45 +29,13 @@ export class AutoCompleteActions {
 
         return (dispatch, getState) => {
             var rootState = getState();
-            var context = rootState.clientContext;
+            var state = rootState.autoComplete;
+            var cache = state.cache[type.toString()];
+            var data = allowCachedData && !TypeHelper.isNullOrEmpty(cache) ? cache.getListData(filter) : null;
 
-            if (allowCachedData) {
-                var typeData = rootState.autoComplete.data[type.toString()];
-
-                if (!TypeHelper.isNullOrEmpty(typeData)) {
-                    var filterData = typeData[filter];
-
-                    if (!TypeHelper.isNullOrEmpty(filterData)) {
-                        // return from store (full match)
-                        onSuccess({
-                            List: filterData
-                        });
-                    }
-                    else {
-                        var partialMatch = ArrayHelper.firstOrDefault(
-                            ArrayHelper.whereMax(
-                                ArrayHelper.filterDict(typeData, (key, item) => StringHelper.contains(filter, key, true)),
-                                t => t.key.length
-                            ));
-
-                        // we can use already loaded sets only, if those are full sets (if truncated sets, then server reload is needed)
-                        if (partialMatch !== null && partialMatch.item.length < context.globals.AutoCompleteMaxRows) {
-                            // return from store (partial match)
-                            onSuccess({
-                                List: partialMatch.item.filter(t => StringHelper.contains(t.Value, filter, true))
-                            });
-                        }
-                        else {
-                            // no match
-                            // return from server (updates store)
-                            dispatch(AutoCompleteActions.getList(false, type, filter, onSuccess));
-                        }
-                    }
-                } else {
-                    // no data for type loaded
-                    // return from server (updates store)
-                    dispatch(AutoCompleteActions.getList(false, type, filter, onSuccess));
-                }
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from store 
+                onSuccess(data);
             } else {
                 // no cached data allowed
                 dispatch(WebApiServiceActions.get<AutoCompleteListData>(
@@ -91,19 +60,20 @@ export class AutoCompleteActions {
         };
     }
 
-    private static clearState(): StoreAction<AutoCompleteActionsPayload> {
+    public static clearState(): StoreAction<AutoCompleteActionsPayload> {
         return {
             type: StoreActionType.AutoComplete_ClearState,
             payload: null
         };
     }
 
-    public static invalidateRelevantCaches(): StoreActionThunk {
-        {
-            return (dispatch, getState) => {
-                dispatch(AutoCompleteActions.clearState());
-            };
-        }
-    }
+    public static clearStateIfExpired(): StoreActionThunk {
+        return (dispatch, getState) => {
+            var rootState = getState();
+            var state = rootState.autoComplete;
 
+            if (TypeHelper.isNullOrEmpty(state.timestamp) || DateHelper.dateDiffInDays(state.timestamp, DateHelper.now()) >= rootState.clientContext.globals.ClientCacheDurationInMinutes)
+                dispatch(AutoCompleteActions.clearState());
+        };
+    }
 }

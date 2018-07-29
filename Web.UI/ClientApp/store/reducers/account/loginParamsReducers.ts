@@ -11,13 +11,13 @@ export const LoginParamsReducers: (state: LoginParamsState, action: StoreAction<
             case StoreActionType.LoginParams_SetReturnUrl:
                 return {
                     ...state,
-                    useReturnUrl: action.payload.returnUrl
+                    param_ReturnUrl: action.payload.returnUrl
                 };
 
             case StoreActionType.LoginParams_SetDefaultEmail:
                 return {
                     ...state,
-                    useDefaultEmail: action.payload.defaultEmail
+                    param_DefaultEmail: action.payload.defaultEmail
                 };
 
             default:

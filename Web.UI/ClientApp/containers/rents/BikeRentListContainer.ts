@@ -22,13 +22,13 @@ import { BikeRentsActions } from '../../store/actions/rents/bikeRentsActions';
 const mapStateToProps: (state: RootState, myRentsOnly: boolean) => BikeRentListProps = (state, myRentsOnly) => {    
     var store = storeProvider();
     var rootState = store.getState();
-    var now = DateHelper.now();
+    var now = DateHelper.setDateParts(DateHelper.now(), { minutes: 0, seconds: 0, milliseconds: 0 }); // can't cache if filter changes every seconds
 
     return {
         store: store,
         defaultFilter: {
             ...new BikeRentListFilter(),
-            BikeId: rootState.bikeRents.useBikeId
+            BikeId: rootState.bikeRents.param_BikeId
         },
         defaultOrderBy: ["StartDateUtc", "EndDateUtc"],
         defaultOrderByDescending: false,
@@ -38,27 +38,30 @@ const mapStateToProps: (state: RootState, myRentsOnly: boolean) => BikeRentListP
 
 const mapDispatchToProps: (dispatch: StoreActionDispatch) => BikeRentListActions = dispatch => {
     var store = storeProvider();
-    var rootState = store.getState();
 
     return {
-        onAuthorize: (onSuccess) => store.dispatch(BikeRentsActions.authorizeList(
-            onSuccess,
-            error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
-        )),
+        onInit: (onSuccess) => {
+            let lastScreen = store.getState().clientContext.lastScreen;
 
-        onAllowCachedData: (invalidateCaches: boolean) => {
-            var lastScreen = store.getState().clientContext.lastScreen;
-            if (lastScreen instanceof BikeRentList) return true; // TODO || lastScreen instanceof UserList;
+            //store.dispatch(BikeRentsActions.clearState()); - keep cached data
+            store.clearStateIfExpiredAll();
 
-            if (invalidateCaches) store.dispatch(BikeRentsActions.invalidateRelevantCaches())
-            return false;
+            store.dispatch(BikeRentsActions.authorizeList(
+                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
+                authContext => onSuccess({
+                    authContext: authContext,
+                    initialLoadCached: true,
+                    keepNavigation: lastScreen instanceof BikeRentList, // TODO: || lastScreen instanceof BikeRentEdit,
+                }),
+                error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
+            ))
         },
 
         onLoad: (allowCachedData, filter, paging, onSuccess) => store.dispatch(BikeRentsActions.getList(allowCachedData, filter, paging, onSuccess)),
 
-        onLoadFilter: (allowCachedData, onSuccess) => {
-            store.dispatch(ColorsActions.getList(allowCachedData, colors => {
-                store.dispatch(BikeModelsActions.getList(allowCachedData, models => {
+        onLoadFilter: (onSuccess) => {
+            store.dispatch(ColorsActions.getList(true, colors => {
+                store.dispatch(BikeModelsActions.getList(true, models => {
                     onSuccess(colors.List, models.List);
                 }));
             }));

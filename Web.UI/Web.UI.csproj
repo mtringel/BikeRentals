@@ -11,15 +11,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\helpers\IModelListContainer.ts" />
     <None Remove="ClientApp\models\rents\bikeRent.ts" />
     <None Remove="ClientApp\models\rents\bikeRentFormData.ts" />
     <None Remove="ClientApp\models\rents\bikeRentListData.ts" />
     <None Remove="ClientApp\models\rents\bikeRentListFilter.ts" />
     <None Remove="ClientApp\models\rents\bikeRentListItem.ts" />
     <None Remove="ClientApp\models\rents\bikeRentState.tsx" />
-    <None Remove="ClientApp\models\shared\autoCompleteItem.ts" />
-    <None Remove="ClientApp\models\shared\autoCompleteListData.ts" />
-    <None Remove="ClientApp\models\shared\autoCompleteType.ts" />
+    <None Remove="ClientApp\models\shared\autoCompleteFilter.ts" />
   </ItemGroup>
 
   <ItemGroup>

@@ -19,10 +19,7 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         [Required]
         [StringLength(100)]
         public string CurrentLocationName { get; set; }
-
-        [Required]
-        public bool CurrentlyAvailable { get; set; }
-
+        
         /// <summary>
         /// Can be available and this is a past date.
         /// Can be unavailable and this is a forecasted future date.
@@ -43,7 +40,6 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
             this.CurrentLocation = bike.CurrentLocation;
             this.AvailableFromUtc = bike.AvailableFromUtc;
             this.RateAverage = bike.RateAverage;
-            this.CurrentlyAvailable = bike.CurrentlyAvailable;
             this.CurrentLocationName = bike.CurrentLocationName;
 
             if (currentLocation.HasValue)

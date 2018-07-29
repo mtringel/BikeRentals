@@ -10,5 +10,7 @@ export class BikeAuthContext {
 
     public readonly canRent: boolean;
 
-    public readonly canViewRents: boolean;
+    public readonly canViewAllRents: boolean;
+
+    public readonly canViewMyRents: boolean;
 }

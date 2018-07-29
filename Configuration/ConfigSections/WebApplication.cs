@@ -53,6 +53,8 @@ namespace Toptal.BikeRentals.Configuration.ConfigSections
 
         public bool ShowDetailedError { get { return HostingEnvironment.IsDevelopment(); } }
 
+        public int ClientCacheDurationInMinutes { get; set; }
+
 #if !DEBUG
         public bool ShowDeveloperConsoleInReleaseMode { get; set; }
 #endif

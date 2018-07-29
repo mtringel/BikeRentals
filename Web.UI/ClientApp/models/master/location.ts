@@ -27,10 +27,10 @@ export class Location extends Model {
     public static degSecParSecFormatted(value: number, posSuffix: string, negSuffix: string): string {
         var x = Math.abs(Math.round(value * Location.DegMultiplier));
         // format: {0}°{1:00}'{2:00}.{3:000}"{4}
-        return StringHelper.formatNumber(x / Location.DegMultiplier, 0, 0) + "°" +
-            StringHelper.formatNumber((x / Location.SecMultiplier) % 60, 2, 0) + "'" +
-            StringHelper.formatNumber((x / Location.ParSecMultiplier) % 60, 2, 0) + "." +
-            StringHelper.formatNumber(x % Location.ParSecMultiplier, 3, 0) + "\"" +
+        return StringHelper.formatNumber(x / Location.DegMultiplier, 0, 0, "°") +
+            StringHelper.formatNumber((x / Location.SecMultiplier) % 60, 2, 0, "'") +
+            StringHelper.formatNumber((x / Location.ParSecMultiplier) % 60, 2, 0, ".") +
+            StringHelper.formatNumber(x % Location.ParSecMultiplier, 3, 0, "\"") +
             (value >= 0 ? posSuffix : negSuffix);
     }
 

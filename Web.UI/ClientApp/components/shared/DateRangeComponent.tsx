@@ -1,10 +1,16 @@
+/// <summary>
+/// Date range component for date range selection (without time part).
+/// Wraps react-bootstrap-date-picker.
+/// https://www.npmjs.com/package/react-bootstrap-date-picker
+/// </summary>
+
 import * as React from 'react';
 import { ComponentBase } from '../../helpers/componentBase';
-import DatePicker from 'react-bootstrap-date-picker';
 import { Store } from '../../store/store';
 import { DateHelper } from '../../helpers/dateHelper';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { StringHelper } from '../../helpers/stringHelper';
+import { DateComponent } from './DateComponent';
 
 /// <summary>
 /// Mind the timezone, the Utc dates will be rendered.
@@ -18,9 +24,9 @@ export interface DateRangeComponentProps {
     readonly isReadOnly: boolean;
     readonly defaultEndDate: Date | null;
     readonly defaultStartDate: Date | null;
-    readonly glyphIcon: string | null;
-    readonly suffix: string | null;
-    readonly format: string | null;
+    readonly glyphIcon: string;
+    readonly suffix: string;
+    readonly format: string;
 }
 
 export interface DateRangeComponentActions {
@@ -81,25 +87,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     private onSelectionChange(startDate: Date | null, endDate: (start: Date | null) => Date | null) {
         if (!this.props.isReadOnly) {
             var from = TypeHelper.notNullOrEmpty(startDate, this.props.defaultStartDate);
-
-            // check min/max
-            if (!TypeHelper.isNullOrEmpty(from)) {
-                if (!TypeHelper.isNullOrEmpty(this.props.minDate) && from < this.props.minDate)
-                    from = this.props.minDate;
-
-                if (!TypeHelper.isNullOrEmpty(this.props.maxDate) && from > this.props.maxDate)
-                    from = this.props.maxDate;
-            }
-
             var to = TypeHelper.notNullOrEmpty(endDate(from), this.props.defaultEndDate);
-            
-            if (!TypeHelper.isNullOrEmpty(to)) {
-                if (!TypeHelper.isNullOrEmpty(this.props.minDate) && to < this.props.minDate)
-                    to = this.props.minDate;
-
-                if (!TypeHelper.isNullOrEmpty(this.props.maxDate) && to > this.props.maxDate)
-                    to = this.props.maxDate;
-            }
 
             this.setState({ startDate: from, endDate: to }, () => this.props.onChange(from, to));
         }
@@ -108,6 +96,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     private onStartChange(start: Date | null) {
         this.onSelectionChange(
             start,
+            // endDate?
             start => TypeHelper.isNullOrEmpty(start) || TypeHelper.isNullOrEmpty(this.state.endDate) ?
                 null :
                 DateHelper.addDays(this.state.endDate, DateHelper.dateDiffInDays(this.state.startDate, start))
@@ -115,7 +104,10 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     }
 
     private onEndChange(end: Date | null) {
-        this.onSelectionChange(DateHelper.min(end, this.state.startDate), start => end);
+        this.onSelectionChange(
+            DateHelper.min(end, this.state.startDate),
+            start => end
+        );
     }
 
     public render(): JSX.Element | null | false {
@@ -127,11 +119,15 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
                     {!StringHelper.isNullOrEmpty(this.props.glyphIcon) &&
                         < span className="input-group-addon" > <i className={"glyphicon glyphicon-" + this.props.glyphIcon}></i></span>
                     }
-                    <DatePicker
+                    <DateComponent
                         className="form-control"
-                        value={DateHelper.toISOString(this.state.startDate)}
-                        disable={this.props.isReadOnly}
-                        onChange={t => this.onStartChange(DateHelper.parseISOString(t, true))}
+                        value={this.state.startDate}
+                        isReadOnly={this.props.isReadOnly}
+                        defaultValue={this.props.defaultStartDate}
+                        minDate={this.props.minDate}
+                        maxDate={this.props.maxDate}
+                        format={this.props.format}
+                        onChange={t => this.onStartChange(t)}
                     />
                 </span>
             </span>
@@ -141,11 +137,15 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
             {/* To */}
             <span className="col-sm-5 form-group">
                 <span className="col-sm-12 input-group">
-                    <DatePicker
+                    <DateComponent
                         className="form-control"
-                        value={DateHelper.toISOString(this.state.endDate)}
-                        disable={this.props.isReadOnly}
-                        onChange={t => this.onEndChange(DateHelper.parseISOString(t, true))}
+                        value={this.state.endDate}
+                        isReadOnly={this.props.isReadOnly}
+                        defaultValue={this.props.defaultEndDate}
+                        minDate={this.props.minDate}
+                        maxDate={this.props.maxDate}
+                        format={this.props.format}
+                        onChange={t => this.onEndChange(t)}
                     />
                 </span>
             </span>

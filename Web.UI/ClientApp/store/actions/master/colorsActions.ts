@@ -10,30 +10,29 @@ import { ColorsState } from '../../state/master/colorsState';
 import { ColorListData } from '../../../models/master/colorListData';
 import { RootState } from '../../state/rootState';
 import { WebApiServiceActions } from '../../actions/shared/webApiServiceActions';
+import { TypeHelper } from '../../../helpers/typeHelper';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 const ServiceUrl = "api/colors";
 
 export class ColorsActionsPayload {
-    public readonly colors: Color[];
+    public readonly listData: ColorListData;
 }
 
 export class ColorsActions {
 
     public static getList(allowCachedData: boolean, onSuccess: (data: ColorListData) => void): StoreActionThunk {
-        
-        return (dispatch, getState) => {
-            if (allowCachedData) {
-                var data = getState().colors.colors;
 
-                if (!ArrayHelper.isNullOrEmpty(data)) {
-                    // return from store
-                    onSuccess({ List: data });
-                } else {
-                    // return from server (updates store)
-                    dispatch(ColorsActions.getList(false, onSuccess));
-                }
-            }
-            else {
+        return (dispatch, getState) => {
+            var rootState = getState();
+            var state = rootState.colors;
+            var data = allowCachedData ? state.cache.getListData(state.cache.EmptyFilter) : null;
+
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from store
+                onSuccess(data);
+            } else {
+                // load from server
                 dispatch(WebApiServiceActions.get<ColorListData>(
                     ServiceUrl,
                     result => {
@@ -48,22 +47,27 @@ export class ColorsActions {
         return {
             type: StoreActionType.Colors_SetListData,
             payload: {
-                colors: data.List
+                listData: data
             }
         };
     }
 
-    private static clearState(): StoreAction<ColorsActionsPayload> {
+    public static clearState(): StoreAction<ColorsActionsPayload> {
         return {
             type: StoreActionType.Colors_ClearState,
             payload: null
         };
     }
 
-    public static invalidateRelevantCaches(): StoreActionThunk {
+
+    public static clearStateIfExpired(): StoreActionThunk {
 
         return (dispatch, getState) => {
-            dispatch(ColorsActions.clearState());
+            var rootState = getState();
+            var state = rootState.colors;
+
+            if (TypeHelper.isNullOrEmpty(state.timestamp) || DateHelper.dateDiffInDays(state.timestamp, DateHelper.now()) >= rootState.clientContext.globals.ClientCacheDurationInMinutes)
+                dispatch(ColorsActions.clearState());
         };
     }
 }

@@ -30,9 +30,8 @@ export interface BikeRentListProps extends PropsBase {
 }
 
 export interface BikeRentListActions {
-    readonly onAuthorize: (onSuccess: (authContext: BikeRentAuthContext) => void) => void;
-    readonly onAllowCachedData: (invalidateCaches: boolean) => boolean;
-    readonly onLoadFilter: (allowCachedData: boolean, onSuccess: (colors: Color[], models: BikeModel[]) => void) => void;
+    readonly onInit: (onSuccess: (options: { authContext: BikeRentAuthContext, initialLoadCached: boolean, keepNavigation: boolean }) => void) => void;
+    readonly onLoadFilter: (onSuccess: (colors: Color[], models: BikeModel[]) => void) => void;
     readonly onLoad: (allowCachedData: boolean, filter: BikeRentListFilter, paging: PagingInfo, onSuccess: (data: BikeRentListData) => void) => void;
     //readonly onEdit: (filter: string, user: Bike) => void;
     //readonly onAddNew: (filter: string) => void;    
@@ -40,19 +39,19 @@ export interface BikeRentListActions {
 
 class BikeRentListState {
     // filter
-    public readonly filter: BikeRentListFilter;
-    public readonly allColors: Color[];
-    public readonly allBikeModels: BikeModel[];
-    public readonly defaultFilter: BikeRentListFilter;
+    readonly filter: BikeRentListFilter;
+    readonly allColors: Color[];
+    readonly allBikeModels: BikeModel[];
+    readonly defaultFilter: BikeRentListFilter;
 
     // grid
-    public readonly data: BikeRentListData;
-    public readonly paging: PagingInfo;
-    public readonly defaultPaging: PagingInfo;
+    readonly data: BikeRentListData;
+    readonly paging: PagingInfo;
+    readonly defaultPaging: PagingInfo;
 
     // other
-    public readonly authContext: BikeRentAuthContext;
-    public readonly isInitialized: boolean;
+    readonly authContext: BikeRentAuthContext;
+    readonly isInitialized: boolean;
 }
 
 type ThisProps = BikeRentListProps & BikeRentListActions;
@@ -65,58 +64,53 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var allowCachedData = this.props.onAllowCachedData(true);
+        this.props.onInit(options => {
+            var rootState = this.props.store.getState();
 
-        var rootState = this.props.store.getState();
+            var defaultPaging: PagingInfo = {
+                FirstRow: 0,
+                RowCount: rootState.clientContext.globals.GridPageSize,
+                OrderBy: this.props.defaultOrderBy,
+                OrderByDescending: this.props.defaultOrderByDescending,
+                ReturnTotalRowCount: true
+            };
 
-        var defaultPaging: PagingInfo = {
-            FirstRow: 0,
-            RowCount: rootState.clientContext.globals.GridPageSize,
-            OrderBy: this.props.defaultOrderBy,
-            OrderByDescending: this.props.defaultOrderByDescending,
-            ReturnTotalRowCount: true
-        };
+            var defaultFilter = options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikeRents.listFilter, this.props.defaultFilter) : this.props.defaultFilter;
 
-        var defaultFilter = TypeHelper.notNullOrEmpty(rootState.bikeRents.listFilter, this.props.defaultFilter);
+            // set empty state for render()
+            var empty: ThisState = {
+                authContext: options.authContext,
+                data: new BikeRentListData(),
+                filter: defaultFilter,
+                defaultFilter: defaultFilter,
+                isInitialized: false,
+                allColors: [],
+                allBikeModels: [],
+                defaultPaging: defaultPaging,
+                paging: options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikes.listPaging, defaultPaging) : defaultPaging
+            };
 
-        // set empty state for render()
-        var empty: ThisState = {
-            authContext: new BikeRentAuthContext(),
-            data: new BikeRentListData(),
-            filter: defaultFilter,
-            defaultFilter: defaultFilter,
-            isInitialized: false,
-            allColors: [],
-            allBikeModels: [],
-            defaultPaging: defaultPaging,
-            paging: TypeHelper.notNullOrEmpty(rootState.bikes.listPaging, defaultPaging)
-        };
+            // invoke asynchronous load after successful authorization
+            this.setState(empty,
+                () => {
+                    // load ref data
+                    this.props.onLoadFilter((colors, models) => {
 
-        // invoke asynchronous load after successful authorization
-        this.setState(empty,
-            () => {
-                // authorize
-                this.props.onAuthorize(
-                    authContext => {
-                        // load ref data
-                        this.props.onLoadFilter(allowCachedData, (colors, models) => {
+                        if (this.props.myRentsOnly)
+                            defaultFilter = { ...defaultFilter, Users: [options.authContext.currentUserId] };
 
-                            if (this.props.myRentsOnly)
-                                defaultFilter = { ...defaultFilter, Users: [authContext.currentUserId] };
-
-                            this.setState({
-                                authContext: authContext,
-                                allColors: colors,
-                                allBikeModels: models,
-                                filter: defaultFilter,
-                                defaultFilter: defaultFilter 
-                            },
-                                // load list
-                                () => this.loadData(allowCachedData)
-                            );
-                        });
+                        this.setState({
+                            authContext: options.authContext,
+                            allColors: colors,
+                            allBikeModels: models,
+                            filter: defaultFilter,
+                            defaultFilter: defaultFilter
+                        },
+                            () => this.loadData(options.initialLoadCached)
+                        );
                     });
-            });
+                });
+        });
     }
 
     private loadData(allowCachedData: boolean, onSuccess?: (() => void) | undefined | null) {

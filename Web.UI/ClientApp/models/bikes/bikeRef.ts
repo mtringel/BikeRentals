@@ -6,7 +6,7 @@ import { Color } from "../master/color";
 export class BikeRef extends Model {
 
     public readonly BikeId: number;
-    
+
     public readonly BikeModel: BikeModelRef;
 
     public readonly Color: Color;

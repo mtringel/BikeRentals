@@ -1,37 +1,33 @@
 ﻿import { StoreAction, IStoreAction, StoreActionThunk } from '../storeAction';
 import { StoreActionType } from '../storeActionType';
-import { KeyValuePair } from '../../../models/shared/keyValuePair';
-import { RoleType } from '../../../models/security/roleType';
-import { ArrayHelper } from '../../../helpers/arrayHelper';
 import { BikeModel } from '../../../models/bikes/bikeModel';
 import { BikeModelsState } from '../../state/bikes/bikeModelsState';
 import { BikeModelListData } from '../../../models/bikes/bikeModelListData';
 import { RootState } from '../../state/rootState';
 import { WebApiServiceActions } from '../../actions/shared/webApiServiceActions';
+import { TypeHelper } from '../../../helpers/typeHelper';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 const ServiceUrl = "api/bikeModels";
 
 export class BikeModelsActionsPayload {
-    public readonly bikeModels: BikeModel[];
+    public readonly listData: BikeModelListData;
 }
 
 export class BikeModelsActions {
 
     public static getList(allowCachedData: boolean, onSuccess: (data: BikeModelListData) => void): StoreActionThunk {
-        
-        return (dispatch, getState) => {
-            if (allowCachedData) {
-                var data = getState().bikeModels.bikeModels;
 
-                if (!ArrayHelper.isNullOrEmpty(data)) {
-                    // return from store
-                    onSuccess({ List: data });
-                } else {
-                    // return from server (updates store)
-                    dispatch(BikeModelsActions.getList(false, onSuccess));
-                }
-            }
-            else {
+        return (dispatch, getState) => {
+            var rootState = getState();
+            var state = rootState.bikeModels;
+            var data = allowCachedData ? state.cache.getListData(state.cache.EmptyFilter) : null;
+
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from store
+                onSuccess(data);
+            } else {
+                // return from server
                 dispatch(WebApiServiceActions.get<BikeModelListData>(
                     ServiceUrl,
                     result => {
@@ -46,22 +42,25 @@ export class BikeModelsActions {
         return {
             type: StoreActionType.BikeModels_SetListData,
             payload: {
-                bikeModels: data.List
+                listData: data
             }
         };
     }
 
-    private static clearState(): StoreAction<BikeModelsActionsPayload> {
+    public static clearState(): StoreAction<BikeModelsActionsPayload> {
         return {
             type: StoreActionType.BikeModels_ClearState,
             payload: null
         };
     }
 
-    public static invalidateRelevantCaches(): StoreActionThunk {
-
+    public static clearStateIfExpired(): StoreActionThunk {
         return (dispatch, getState) => {
-            dispatch(BikeModelsActions.clearState());
+            var rootState = getState();
+            var state = rootState.bikeModels;
+
+            if (TypeHelper.isNullOrEmpty(state.timestamp) || DateHelper.dateDiffInDays(state.timestamp, DateHelper.now()) >= rootState.clientContext.globals.ClientCacheDurationInMinutes)
+                dispatch(BikeModelsActions.clearState());
         };
     }
 }

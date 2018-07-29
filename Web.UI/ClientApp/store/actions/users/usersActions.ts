@@ -18,6 +18,7 @@ import { WebApiServiceActions } from '../../actions/shared/webApiServiceActions'
 import { RootState } from '../../state/rootState';
 import { AuthServiceActions } from '../../actions/security/authServiceActions';
 import { UserFormData } from '../../../models/users/userFormData';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 const serviceUrl = {
     getList: (filter: string) => "api/users?filter=" + encodeURI(StringHelper.notNullOrEmpty(filter, "")),
@@ -50,37 +51,15 @@ export class UsersActions {
 
         return (dispatch, getState) => {
             var rootState = getState();
-            var context = rootState.clientContext;
+            var state = rootState.users;
+            var data = allowCachedData ? state.cache.getListData(filter) : null;
 
-            if (allowCachedData) {
-                var data = rootState.users;
-
-                if (data.listFilter === filter && !TypeHelper.isNullOrEmpty(data.users)) {
-
-                    // return from store (full match)
-                    onSuccess({ List: data.users, TooMuchData: data.tooMuchData });
-                } else
-                    // we can use already loaded sets only, if those are full sets (if truncated sets, then server reload is needed)
-                    if (StringHelper.contains(filter, data.listFilter, true) && !TypeHelper.isNullOrEmpty(data.users) && !data.tooMuchData) {
-
-                        // return from store (partial match)
-                        onSuccess({
-                            List: data.users.filter(t =>
-                                StringHelper.contains(t.Email, filter, true) ||
-                                StringHelper.contains(t.FirstName, filter, true) ||
-                                StringHelper.contains(t.LastName, filter, true) ||
-                                StringHelper.contains(t.RoleTitle, filter, true) ||
-                                StringHelper.contains(t.UserName, filter, true)
-                            ),
-                            TooMuchData: false
-                        });
-                    }
-                    else {
-                        // return from server (updates store)
-                        dispatch(UsersActions.getList(false, filter, onSuccess));
-                    }
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from cache
+                onSuccess(data);
             }
             else {
+                // load from server
                 dispatch(WebApiServiceActions.get<UserListData>(
                     serviceUrl.getList(filter),
                     result => {
@@ -103,28 +82,26 @@ export class UsersActions {
     }
 
     public static getById(allowCachedData: boolean, userId: string, onSuccess: (data: UserFormData) => void): StoreActionThunk {
-        
+
         return (dispatch, getState) => {
             if (allowCachedData) {
-                var user = ArrayHelper.findByPredicate(getState().users.users, t => t.UserId === userId);
+                var user = getState().users.cache.getById(userId);
 
-                if (user !== null) {
-                    // return from store
+                if (!TypeHelper.isNullOrEmpty(user)) {
+                    // return from cache
                     onSuccess({ User: user });
-                } else {
-                    // return from server (updates store)
-                    dispatch(UsersActions.getById(false, userId, onSuccess));
+                    return;
                 }
             }
-            else {
-                dispatch(WebApiServiceActions.get<UserFormData>(
-                    serviceUrl.getById(userId),
-                    result => {
-                        dispatch(UsersActions.setFormData(result));
-                        onSuccess(result);
-                    }
-                ));
-            }
+
+            // load from server
+            dispatch(WebApiServiceActions.get<UserFormData>(
+                serviceUrl.getById(userId),
+                result => {
+                    dispatch(UsersActions.setFormData(result));
+                    onSuccess(result);
+                }
+            ));
         }
     }
 
@@ -138,19 +115,21 @@ export class UsersActions {
         };
     }
 
-    private static clearState(): StoreAction<UsersActionsPayload> {
+    public static clearState(): StoreAction<UsersActionsPayload> {
         return {
             type: StoreActionType.Users_ClearState,
             payload: null
         };
     }
 
-    public static invalidateRelevantCaches(): StoreActionThunk {
-        {
-            return (dispatch, getState) => {
+    public static clearStateIfExpired(): StoreActionThunk {
+        return (dispatch, getState) => {
+            var rootState = getState();
+            var state = rootState.users;
+
+            if (TypeHelper.isNullOrEmpty(state.timestamp) || DateHelper.dateDiffInDays(state.timestamp, DateHelper.now()) >= rootState.clientContext.globals.ClientCacheDurationInMinutes)
                 dispatch(UsersActions.clearState());
-            };
-        }
+        };
     }
 
     public static post(user: User, addLastAntiforgeryToken: boolean, onSuccess: () => void): StoreActionThunk {

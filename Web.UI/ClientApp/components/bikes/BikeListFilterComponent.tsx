@@ -10,7 +10,6 @@ import { TypeHelper } from '../../helpers/typeHelper';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { Color } from '../../models/master/color';
 import { BikeModel } from '../../models/bikes/bikeModel';
-import Select from 'react-select';
 import Button from 'react-bootstrap/lib/Button';
 import { MathHelper } from '../../helpers/mathHelper';
 import { Location } from '../../models/master/location';
@@ -20,6 +19,8 @@ import { DateHelper } from '../../helpers/dateHelper';
 import { BikeStateHelper, BikeState } from '../../models/bikes/bikeState';
 import { NumericRangeComponent } from '../shared/NumericRangeComponent';
 import { DateTimeRangeComponent } from '../shared/DateTimeRangeComponent';
+import { MultiSelectComponent } from '../shared/MultiSelectComponent';
+import { SelectComponent } from '../shared/SelectComponent';
 
 
 export interface BikeListFilterComponentProps  {
@@ -39,6 +40,10 @@ class BikeListFilterComponentState {
 export interface BikeListFilterComponentActions {
     readonly onSearch: (filter: BikeListFilter, resetFilter: boolean) => void;
 }
+
+class BikeStateSelect extends SelectComponent<BikeState>{ }
+class BikeModelSelect extends MultiSelectComponent<BikeModel, number>{ }
+class ColorSelect extends MultiSelectComponent<Color, string>{ }
 
 type ThisProps = BikeListFilterComponentProps & BikeListFilterComponentActions;
 type ThisState = BikeListFilterComponentState;
@@ -71,7 +76,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
         this.setState(initial);
     }
 
-    private changeFilter(changed: Partial<BikeListFilter>) {
+    private change(changed: Partial<BikeListFilter>) {
         this.setState({
             ...this.state,
             filter: { ...this.state.filter, ...changed }
@@ -97,13 +102,14 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <div className="form-group col-sm-6" >
                             <label className="col-sm-2 control-label text-nowrap">Status</label>
                             <div className="col-sm-4 input-group">
-                                <span className="input-group-addon"><i className="glyphicon glyphicon-calendar"></i></span>
-                                <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
-                                    value={this.state.filter.State}
-                                    onChange={e => this.changeFilter({ State: parseInt(e.target.value) })}
-                                >
-                                    {BikeStateHelper.allStates.map(t => BikeStateHelper.getOption(t))}
-                                </select>
+                                <span className="input-group-addon"><i className="glyphicon glyphicon-flash"></i></span>
+                                <BikeStateSelect id="state" name="state" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.filter.State}
+                                    placeholder="Fill to filter"
+                                    getItem={t => BikeStateHelper.allStates[parseInt(t.value)]}
+                                    getOption={t => { return { value: TypeHelper.toString(t), text: BikeStateHelper.allNames[t] }; }}
+                                    items={BikeStateHelper.allStates}
+                                    onChange={t => this.change({ State: t })}
+                                />
                             </div>
                         </div>
                     }
@@ -121,10 +127,11 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                     maxDate={null}
                                     startDate={this.state.filter.AvailableUtc.From}
                                     endDate={this.state.filter.AvailableUtc.To}
-                                    glyphIcon={"calendar"}
-                                    suffix={""}
-                                    format={"DD/MM hh:mm"}
-                                    onChange={(start, end) => this.changeFilter({ AvailableUtc: { From: start, To: end } })}
+                                    placeholder="Fill to filter"
+                                    glyphIcon="calendar"
+                                    suffix=""
+                                    format="DD/MM hh:mm"
+                                    onChange={(start, end) => this.change({ AvailableUtc: { From: start, To: end } })}
                                     isReadOnly={this.props.isReadOnly}
                                 />
                             </div>
@@ -138,14 +145,18 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <label className="col-sm-2 control-label text-nowrap ">Models</label>
                         <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
-                            <Select
-                                name={"models"}
-                                multi={true}
-                                valueKey={"BikeModelId"}
-                                labelKey={"BikeModelName"}
-                                options={this.props.allBikeModels}
-                                value={this.state.filter.BikeModels}
-                                onChange={(selectedOptions: BikeModel[]) => this.changeFilter({ BikeModels: ArrayHelper.select(selectedOptions, t => t.BikeModelId) })}
+                            <BikeModelSelect
+                                id="models"
+                                name="models"
+                                className=""
+                                disabled={this.props.isReadOnly}
+                                allowMultiple={true}
+                                placeholder="Fill to filter"
+                                valueKey="BikeModelId"
+                                labelKey="BikeModelName"
+                                items={this.props.allBikeModels}
+                                values={this.state.filter.BikeModels}
+                                onChange={(keys, items) => this.change({ BikeModels: keys })}
                             />
                         </div>
                     </div>
@@ -155,14 +166,18 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <label className="col-sm-2 control-label text-nowrap">Colors</label>
                         <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-tint"></i></span>
-                            <Select
-                                name={"colors"}
-                                multi={true}
-                                valueKey={"ColorId"}
-                                labelKey={"ColorName"}
-                                options={this.props.allColors}
-                                value={this.state.filter.Colors}
-                                onChange={(selectedOptions: Color[]) => this.changeFilter({ Colors: ArrayHelper.select(selectedOptions, t => t.ColorId) })}
+                            <ColorSelect
+                                id="colors"
+                                name="colors"
+                                className=""
+                                disabled={this.props.isReadOnly}
+                                allowMultiple={true}
+                                placeholder="Fill to filter"
+                                valueKey="ColorId"
+                                labelKey="ColorName"
+                                items={this.props.allColors}
+                                values={this.state.filter.Colors}
+                                onChange={(keys, items) => this.change({ Colors: keys })}
                             />
                         </div>
                     </div>
@@ -184,10 +199,10 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 step={0.1}
                                 precision={1}
                                 isReadOnly={this.props.isReadOnly}
-                                glyphIcon={"dashboard"}
-                                suffix={"lbs"}
-                                inputSuffix={""}
-                                onChange={(start, end) => this.changeFilter({ WeightLbs: { From: start, To: end } })}
+                                glyphIcon="dashboard"
+                                suffix="lbs"
+                                inputSuffix=""
+                                onChange={(start, end) => this.change({ WeightLbs: { From: start, To: end } })}
                             />
                         </div>
                     </div>
@@ -206,10 +221,10 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 step={1}
                                 precision={0}
                                 isReadOnly={this.props.isReadOnly}
-                                glyphIcon={"star"}
-                                suffix={""}
-                                inputSuffix={"*"}
-                                onChange={(start, end) => this.changeFilter({ RateAverage: { From: start, To: end } })}
+                                glyphIcon="star"
+                                suffix=""
+                                inputSuffix="*"
+                                onChange={(start, end) => this.change({ RateAverage: { From: start, To: end } })}
                             />
                         </div>
                     </div>
@@ -223,7 +238,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-record"></i></span>
                             <NumericInput className="form-control text-right" step={0.1} precision={1} value={this.state.filter.MaxDistanceMiles} min={0} max={9999} disabled={this.props.isReadOnly} snap
-                                onChange={(value: number) => this.changeFilter({ MaxDistanceMiles: value })}
+                                onChange={(value: number) => this.change({ MaxDistanceMiles: value })}
                                 format={t => t + " mi"}
                                 parse={t => StringHelper.removeSuffix(t, "mi", true)}
                             />
@@ -236,7 +251,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-barcode"></i></span>
                             <NumericInput className="form-control" value={this.state.filter.BikeId} min={0} max={999999999} disabled={this.props.isReadOnly} snap
-                                onChange={(value: number) => this.changeFilter({ BikeId: value })} />
+                                onChange={(value: number) => this.change({ BikeId: value })} />
                         </div>
                     </div>
                 </div>
@@ -244,7 +259,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                 <div className="row" >
                     {/* Buttons */}
                     <div className="col-sm-6 text-left">
-                        <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Go</Button>
+                        <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Refresh</Button>
                         &nbsp;&nbsp;
                         <Button bsStyle="danger" onClick={e => this.search(true)} ><i className="glyphicon glyphicon-asterisk"></i> Show all</Button>
                     </div>

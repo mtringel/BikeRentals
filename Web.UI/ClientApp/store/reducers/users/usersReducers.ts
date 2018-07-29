@@ -5,6 +5,7 @@ import { ArrayHelper } from '../../../helpers/arrayHelper';
 import { UsersState } from '../../state/users/usersState';
 import { UsersActionsPayload, UsersActionsPayload_SetListData, UsersActionsPayload_SetFormData, UsersActionsPayload_PostPutDelete } from '../../actions/users/usersActions';
 import { TypeHelper } from '../../../helpers/typeHelper';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 export const UsersReducers: (state: UsersState, action: StoreAction<UsersActionsPayload>) => UsersState =
     (state = new UsersState(), action) => {
@@ -14,22 +15,22 @@ export const UsersReducers: (state: UsersState, action: StoreAction<UsersActions
                 let payload = action.payload as UsersActionsPayload_SetListData;
 
                 return {
-                    users: payload.listData.List,
+                    ...state,
                     listFilter: payload.listFilter,
-                    tooMuchData: payload.listData.TooMuchData
+                    cache: state.cache.setListData(payload.listFilter, payload.listData),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 
             case StoreActionType.Users_SetFormData: {
                 let payload = action.payload as UsersActionsPayload_SetFormData;
 
-                if (TypeHelper.isNullOrEmpty(payload.userId)) return state;
-
                 return {
                     ...state,
-                    users: ArrayHelper.update(state.users, payload.formData.User, t => t.UserId === payload.userId),
+                    cache: state.cache.setFormData(payload.formData.User),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
-        }
+            }
 
             case StoreActionType.Users_ClearState:
                 return new UsersState();
@@ -39,7 +40,8 @@ export const UsersReducers: (state: UsersState, action: StoreAction<UsersActions
 
                 return {
                     ...state,
-                    users: ArrayHelper.add(state.users, payload.user),
+                    cache: state.cache.postSuccess(payload.user, state.listFilter),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 
@@ -48,7 +50,8 @@ export const UsersReducers: (state: UsersState, action: StoreAction<UsersActions
 
                 return {
                     ...state,
-                    users: ArrayHelper.remove(state.users, t => t.UserId === payload.userId),
+                    cache: state.cache.deleteSuccess(payload.userId),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 
@@ -57,7 +60,8 @@ export const UsersReducers: (state: UsersState, action: StoreAction<UsersActions
 
                 return {
                     ...state,
-                    users: ArrayHelper.update(state.users, payload.user, t => t.UserId === payload.userId),
+                    cache: state.cache.putSuccess(payload.user),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 

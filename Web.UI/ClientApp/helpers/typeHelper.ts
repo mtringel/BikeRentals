@@ -48,6 +48,9 @@ export class TypeHelper {
                 else
                     return 0;
             }
+            else if (objA instanceof Array && objB instanceof Array) {
+                return ArrayHelper.compare(objA as any[], objB as any[], resultIfNonComparable, caseInsensitiveStringComparison);
+            }
             else {
                 if (objA < objB)
                     return -1;
@@ -74,5 +77,13 @@ export class TypeHelper {
                 return false;
 
         return true;
+    }
+
+
+    public static isNullOrAllItemsAreEmpty(obj: any | undefined | null): boolean {
+        if (obj instanceof Array)
+            return ArrayHelper.isNullOrAllItemsAreEmpty(obj as any[]);
+        else
+            return TypeHelper.isNullOrEmpty(obj);
     }
 }

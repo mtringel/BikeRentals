@@ -115,9 +115,9 @@ export class StringHelper {
             var whole = Math.floor(Math.abs(value)).toString();
 
             if (whole.length >= leadingZeros)
-                return value.toFixed(digits) + (StringHelper.isNullOrEmpty(suffix) ? "" : (" " + suffix));
+                return value.toFixed(digits) + StringHelper.notNullOrEmpty(suffix, "");
             else
-                return "00000000000000000000000000000000000".substr(0, leadingZeros - whole.length) + value.toFixed(digits) + (StringHelper.isNullOrEmpty(suffix) ? "" : (" " + suffix));
+                return "00000000000000000000000000000000000".substr(0, leadingZeros - whole.length) + value.toFixed(digits) + StringHelper.notNullOrEmpty(suffix, "");
         }
     }
 

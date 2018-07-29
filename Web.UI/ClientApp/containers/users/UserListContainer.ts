@@ -21,6 +21,8 @@ import { ClientContextActions } from '../../store/actions/shared/clientContextAc
 
 const mapStateToProps: (state: RootState) => UserListProps = state => {    
     var store = storeProvider();
+    var rootState = store.getState();
+    var lastScreen = rootState.clientContext.lastScreen;
 
     return {
         store: store
@@ -31,20 +33,23 @@ const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserListActions = d
     var store = storeProvider();
 
     return {
-        onAuthorize: (onSuccess) => store.dispatch(UsersActions.authorizeList(
-            onSuccess,
-            error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
-        )),
+        onInit: (onSuccess) => {
+            let lastScreen = store.getState().clientContext.lastScreen;
 
-        onAllowCachedData: (invalidateCaches: boolean) => {
-            var lastScreen = store.getState().clientContext.lastScreen;
-            if (lastScreen instanceof UserEdit || lastScreen instanceof UserList) return true;
+            // store.dispatch(UsersActions.clearState()); - keep cached data
+            store.clearStateIfExpiredAll();
 
-            if (invalidateCaches) store.dispatch(UsersActions.invalidateRelevantCaches());
-            return false;
+            // get auth.info
+            store.dispatch(UsersActions.authorizeList(
+                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
+                authContext => onSuccess({
+                    authContext: authContext,
+                    initialLoadCached: true,
+                    keepNavigation: lastScreen instanceof UserEdit || lastScreen instanceof UserList
+                }),
+                error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
+            ))
         },
-
-        onInvalidateCaches: () => store.dispatch(UsersActions.invalidateRelevantCaches()),
 
         onLoad: (allowCachedData, filter, onSuccess) => {
             store.dispatch(UsersActions.getList(

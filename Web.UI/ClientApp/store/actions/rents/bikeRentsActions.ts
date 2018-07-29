@@ -21,6 +21,7 @@ import { ColorsActions } from '../master/colorsActions';
 import { BikesActions } from '../../actions/bikes/bikesActions';
 import { AppUser } from '../../../models/security/appUser';
 import { AutoCompleteActions } from '../shared/autoCompleteActions';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 const serviceUrl = {
     getList: (filter: BikeRentListFilter, paging: PagingInfo) =>
@@ -68,32 +69,16 @@ export class BikeRentsActions {
         paging: PagingInfo,
         onSuccess: (data: BikeRentListData) => void
     ): StoreActionThunk {
-        
-        return (dispatch, getState) => {
-            if (allowCachedData) {
-                var data = getState().bikeRents;
 
-                if (// filter is matching?
-                    PagingInfo.CompareOrdering(data.listPaging, paging) &&
-                    JSON.stringify(data.listFilter) === JSON.stringify(filter) 
-                    &&
-                    // page is already loaded?
-                    !TypeHelper.isNullOrEmpty(data.listItems) &&
-                    !TypeHelper.isNullOrEmpty(paging.RowCount) &&
-                    data.listItems.length >= paging.FirstRow + paging.RowCount &&
-                    ArrayHelper.all(data.listItems, t => !TypeHelper.isNullOrEmpty(t), paging.FirstRow, paging.FirstRow + paging.RowCount - 1)
-                ) {
-                    // return from store (full match)                   
-                    onSuccess({
-                        List: data.listItems.slice(paging.FirstRow, paging.FirstRow + paging.RowCount - 1),
-                        TotalRowCount: data.totalRowCount
-                    });
-                } else {
-                    // return from server (updates store) -- no partial match here now 
-                    dispatch(BikeRentsActions.getList(false, filter, paging, onSuccess));
-                }
-            }
-            else {
+        return (dispatch, getState) => {
+            var rootState = getState();
+            var state = rootState.bikeRents;
+            var data = allowCachedData ? state.listCache.getListData({ ...filter, ...paging }) : null;
+
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from store 
+                onSuccess(data);
+            } else {
                 dispatch(WebApiServiceActions.get<BikeRentListData>(
                     serviceUrl.getList(filter, paging),
                     result => {
@@ -117,20 +102,16 @@ export class BikeRentsActions {
     }
 
     public static getById(allowCachedData: boolean, bikeRentId: string, onSuccess: (data: BikeRentFormData) => void): StoreActionThunk {
-        
-        return (dispatch, getState) => {
-            if (allowCachedData) {
-                var data = getState().bikeRents.formData[bikeRentId];
 
-                if (!TypeHelper.isNullOrEmpty(data)) {
-                    // return from store
-                    onSuccess(data);
-                } else {
-                    // return from server (updates store)
-                    dispatch(BikeRentsActions.getById(false, bikeRentId, onSuccess));
-                }
-            }
-            else {
+        return (dispatch, getState) => {
+            var rootState = getState();
+            var state = rootState.bikeRents;
+            var data = allowCachedData ? state.formCache.getFormData(bikeRentId) : null;
+
+            if (!TypeHelper.isNullOrEmpty(data)) {
+                // return from store
+                onSuccess(data);
+            } else {
                 dispatch(WebApiServiceActions.get<BikeRentFormData>(
                     serviceUrl.getById(bikeRentId),
                     result => {
@@ -152,19 +133,20 @@ export class BikeRentsActions {
         };
     }
 
-    private static clearState(): StoreAction<BikeRentsActionsPayload> {
+    public static clearState(): StoreAction<BikeRentsActionsPayload> {
         return {
             type: StoreActionType.BikeRents_ClearState,
             payload: null
         };
     }
 
-    public static invalidateRelevantCaches(): StoreActionThunk {
-
+    public static clearStateIfExpired(): StoreActionThunk {
         return (dispatch, getState) => {
-            dispatch(BikeRentsActions.clearState());
-            dispatch(BikesActions.invalidateRelevantCaches()); //-> will clear Colors and BikeModels
-            dispatch(AutoCompleteActions.invalidateRelevantCaches());
+            var rootState = getState();
+            var state = rootState.bikeRents;
+
+            if (TypeHelper.isNullOrEmpty(state.timestamp) || DateHelper.dateDiffInDays(state.timestamp, DateHelper.now()) >= rootState.clientContext.globals.ClientCacheDurationInMinutes)
+                dispatch(BikeRentsActions.clearState());
         };
     }
 

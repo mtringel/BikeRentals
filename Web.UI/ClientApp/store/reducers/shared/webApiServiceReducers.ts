@@ -18,7 +18,7 @@ export const WebApiServiceReducers: (state: WebApiServiceState, action: StoreAct
             case StoreActionType.WebApiService_SubscribeRequest:
                 return {
                     ...state,
-                    activeRequests: ArrayHelper.addToDict(
+                    activeRequests: ArrayHelper.addOrUpdateDict(
                         state.activeRequests,
                         action.payload.requestKey,
                         t => ArrayHelper.add(t, { onSuccess: action.payload.onSuccess, onError: action.payload.onError })

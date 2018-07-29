@@ -1,7 +1,8 @@
 ﻿import { Model } from "./model";
 import { AutoCompleteItem } from "./autoCompleteItem";
 
-export class AutoCompleteListData extends Model
-{
+export class AutoCompleteListData extends Model {
     public readonly List: AutoCompleteItem[];
-    }
+
+    public readonly TooMuchData: boolean;
+}

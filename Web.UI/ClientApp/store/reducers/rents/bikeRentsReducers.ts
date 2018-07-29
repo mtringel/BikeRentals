@@ -1,12 +1,12 @@
 ﻿import { StoreActionType } from '../../actions/storeActionType';
 import { StoreAction } from '../../actions/storeAction';
 import { RootState } from '../../state/rootState';
-import { ArrayHelper } from '../../../helpers/arrayHelper';
 import { BikeRentsState } from '../../state/rents/bikeRentsState';
 import { BikeRentsActionsPayload, BikeRentsActionsPayload_SetListData, BikeRentsActionsPayload_SetFormData, BikeRentsActionsPayload_PostPutDelete, BikeRentsActionsPayload_UseBikeId } from '../../actions/rents/bikeRentsActions';
-import { TypeHelper } from '../../../helpers/typeHelper';
 import { BikeRentListFilter } from '../../../models/rents/bikeRentListFilter';
 import { PagingInfo } from '../../../models/shared/pagingInfo';
+import { TypeHelper } from '../../../helpers/typeHelper';
+import { DateHelper } from '../../../helpers/dateHelper';
 
 export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<BikeRentsActionsPayload>) => BikeRentsState =
     (state = new BikeRentsState(), action) => {
@@ -15,38 +15,13 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
             case StoreActionType.BikeRents_SetListData: {
                 let payload = action.payload as BikeRentsActionsPayload_SetListData;
 
-                // same ordering and filter?
-                // pages can be cached
-                if (PagingInfo.CompareOrdering(payload.listPaging, state.listPaging) &&
-                    JSON.stringify(payload.listFilter) === JSON.stringify(state.listFilter) 
-                )
-                    return {
-                        ...state,
-                        listPaging: payload.listPaging, // store paging, we need the page for navigating back and forth
-                        listItems: ArrayHelper.copyTo(
-                            state.listItems, // keep cached bikeRents, copy new page
-                            TypeHelper.notNullOrEmpty(payload.listPaging.FirstRow, 0),
-                            payload.listData.List,
-                            0,
-                            payload.listData.List.length
-                        )
-                    };
-                else
-                    // reload everything, invalidate whole cache
-                    return {
-                        ...state,
-                        listFilter: payload.listFilter,
-                        listPaging: payload.listPaging,
-                        totalRowCount: payload.listData.TotalRowCount,
-                        // start from empty array, copy new page
-                        listItems: ArrayHelper.copyTo(
-                            [],
-                            TypeHelper.notNullOrEmpty(payload.listPaging.FirstRow, 0),
-                            payload.listData.List,
-                            0,
-                            payload.listData.List.length
-                        )
-                    };
+                return {
+                    ...state,
+                    listFilter: payload.listFilter,
+                    listPaging: payload.listPaging,
+                    listCache: state.listCache.setListData({ ...payload.listFilter, ...payload.listPaging }, payload.listData), // the key is the union of filter and paging
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
+                };
             }
 
             case StoreActionType.BikeRents_SetFormData: {
@@ -54,47 +29,45 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
 
                 return {
                     ...state,
-                    formData: ArrayHelper.addToDict(state.formData, payload.bikeRentId, t => payload.formData),
-                    listItems: ArrayHelper.update(state.listItems, payload.formData.BikeRent, t => t.BikeRentId === payload.bikeRentId)
+                    listCache: state.listCache.setFormData(payload.formData.BikeRent),
+                    formCache: state.formCache.setFormData(payload.formData),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 
             case StoreActionType.BikeRents_ClearState:
                 return new BikeRentsState();
 
-            case StoreActionType.BikeRents_PostSuccess: {
-                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+            case StoreActionType.Bikes_PostSuccess: {
+                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
-                    listItems: ArrayHelper.add(state.listItems, payload.bikeRent)
+                    listCache: state.listCache.postSuccess(payload.bikeRent, { ...state.listFilter, ...state.listPaging }),
+                    formCache: state.formCache.postSuccess(payload.bikeRent),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 
             case StoreActionType.BikeRents_DeleteSuccess: {
-                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
-                    listItems: ArrayHelper.remove(state.listItems, t => t.BikeRentId === payload.bikeRentId)
+                    listCache: state.listCache.deleteSuccess(payload.bikeRentId),
+                    formCache: state.formCache.deleteSuccess(payload.bikeRentId),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 
             case StoreActionType.BikeRents_PutSuccess: {
-                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
-                    listItems: ArrayHelper.update(state.listItems, payload.bikeRent, t => t.BikeRentId === payload.bikeRentId)
-                };
-            }
-
-            case StoreActionType.BikeRents_SetUseBikeId: {
-                let payload = action.payload as BikeRentsActionsPayload_UseBikeId;
-
-                return {
-                    ...state,
-                    useBikeId: payload.bikeId
+                    listCache: state.listCache.putSuccess(payload.bikeRent),
+                    formCache: state.formCache.putSuccess(payload.bikeRent),
+                    timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
             }
 

@@ -1,3 +1,9 @@
+/// <summary>
+/// Page selection for tables, displays numbered buttons.
+/// Uses react-bootstrap Button component.
+/// https://react-bootstrap.github.io/components/buttons/
+/// </summary>
+
 import * as React from 'react';
 import { ComponentBase } from '../../helpers/componentBase';
 import { TypeHelper } from '../../helpers/typeHelper';
