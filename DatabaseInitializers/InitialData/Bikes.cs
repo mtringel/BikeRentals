@@ -82,10 +82,10 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
                         "Melbourne","Sydney","Rio","Amsterdam","Gant","Brussels","Moscow","Delhi","Genova","Ottawa","Mexico City","Los Angeles","Las Vegas"
                     }),
                     DateTime.Now.AddMinutes(available ? ThreadSafeRandom.Next(-30 * 24 * 60, 0) : ThreadSafeRandom.Next(1, 5 * 24 * 60)),
-                    available,
                     (float)ThreadSafeRandom.NextDouble(0d, 5d),
                     DateTime.Now,
-                    user
+                    user,
+                    false
                 ));
             }
         }

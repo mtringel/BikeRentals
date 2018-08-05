@@ -18,7 +18,7 @@ export interface RegisterActions {
 }
 
 class RegisterState {
-    public readonly data: RegisterData;
+    public readonly data = new RegisterData();
 }
 
 type ThisProps = RegisterProps & RegisterActions;
@@ -32,10 +32,7 @@ export class Register extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var empty: ThisState = {
-            data: new RegisterData()
-        };
-        this.setState(empty);
+        this.setState(new RegisterState());
     }
 
     private submit() {

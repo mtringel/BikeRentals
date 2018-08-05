@@ -75,6 +75,10 @@ export class BikeRentsActions {
             var state = rootState.bikeRents;
             var data = allowCachedData ? state.listCache.getListData({ ...filter, ...paging }) : null;
 
+            // ReturnTotalRowCount can ruin our caching logic
+            if (allowCachedData && data === null && !paging.ReturnTotalRowCount)
+                data = state.listCache.getListData({ ...filter, ...paging, ReturnTotalRowCount: true }); // this will be also good for us
+
             if (!TypeHelper.isNullOrEmpty(data)) {
                 // return from store 
                 onSuccess(data);

@@ -41,7 +41,7 @@ namespace Toptal.BikeRentals.Service.Api.Shared
         /// </summary>
         public AutoCompleteListData GetList(AutoCompleteType type, string filter)
         {
-            using (var scope = Scope("Get"))
+            using (var scope = Scope("GetList"))
             {
                 switch (type)
                 {

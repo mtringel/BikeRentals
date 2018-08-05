@@ -64,15 +64,18 @@ namespace Toptal.BikeRentals.Service.Models.Users
         public User(BusinessEntities.Users.User user)
             : base(user)
         {
-            this.UserName = user.UserName;
-            // this.Password = entity.Password; - not loaded, only saved
-            this.Email = user.Email;
-            this.Role = user.Role;
+            if (user != null)
+            {
+                this.UserName = user.UserName;
+                // this.Password = entity.Password; - not loaded, only saved
+                this.Email = user.Email;
+                this.Role = user.Role;
+            }
         }
 
         public BusinessEntities.Users.User ToEntity()
         {
-            return new BusinessEntities.Users.User(UserId, FirstName, LastName, UserName, Email, Password, Role);
+            return new BusinessEntities.Users.User(UserId, FirstName, LastName, UserName, Email, Password, Role, false);
         }
 
         #endregion

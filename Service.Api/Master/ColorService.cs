@@ -38,9 +38,9 @@ namespace Toptal.BikeRentals.Service.Api.Master
         /// <summary>
         /// Get entity collection
         /// </summary>
-        public ColorListData Get()
+        public ColorListData GetList()
         {
-            using (var scope = Scope("Get"))
+            using (var scope = Scope("GetList"))
             {
                 // authorize
                 AuthProvider.Authorize(Permission.Bike_ViewAll);

@@ -7,7 +7,7 @@ import { ArrayHelper } from '../../helpers/arrayHelper';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
 import { ClientContextState } from '../../store/state/shared/clientContextState';
-import { StoreActionDispatch } from '../../store/actions/storeAction';
+import { StoreDispatch } from '../../store/actions/storeAction';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { BikeRentListProps, BikeRentListActions, BikeRentList } from '../../screens/rents/BikeRentList';
 import { BikeRentListFilter } from '../../models/rents/bikeRentListFilter';
@@ -17,6 +17,8 @@ import { BikesActions } from '../../store/actions/bikes/bikesActions';
 import { BikeModelsActions } from '../../store/actions/bikes/bikeModelsActions';
 import { ColorsActions } from '../../store/actions/master/colorsActions';
 import { BikeRentsActions } from '../../store/actions/rents/bikeRentsActions';
+import { StoreActions } from '../../store/actions/storeActions';
+import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
 
 
 const mapStateToProps: (state: RootState, myRentsOnly: boolean) => BikeRentListProps = (state, myRentsOnly) => {    
@@ -36,40 +38,37 @@ const mapStateToProps: (state: RootState, myRentsOnly: boolean) => BikeRentListP
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => BikeRentListActions = dispatch => {
-    var store = storeProvider();
+const mapDispatchToProps: (dispatch: StoreDispatch) => BikeRentListActions = dispatch => {
 
     return {
         onInit: (onSuccess) => {
-            let lastScreen = store.getState().clientContext.lastScreen;
+            let lastScreen = storeProvider().getState().clientContext.lastScreen;
 
             //store.dispatch(BikeRentsActions.clearState()); - keep cached data
-            store.clearStateIfExpiredAll();
+            StoreActions.clearStateIfExpiredAll(dispatch);
 
-            store.dispatch(BikeRentsActions.authorizeList(
-                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
-                authContext => onSuccess({
-                    authContext: authContext,
-                    initialLoadCached: true,
-                    keepNavigation: lastScreen instanceof BikeRentList, // TODO: || lastScreen instanceof BikeRentEdit,
-                }),
-                error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
+            dispatch(BikeRentsActions.authorizeList(
+                // Grid operations are always cached (order by, paging). Refresh buttons are never cached.
+                authContext => dispatch(ColorsActions.getList(true,
+                    colors => dispatch(BikeModelsActions.getList(true,
+                        bikeModels => onSuccess({
+                            authContext: authContext,
+                            initialLoadCached: true,
+                            keepNavigation: lastScreen instanceof BikeRentList, // TODO: || lastScreen instanceof BikeRentEdit,
+                            colors: colors.List,
+                            bikeModels: bikeModels.List
+                        })
+                    ))
+                )),
+                error => dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
             ))
         },
 
-        onLoad: (allowCachedData, filter, paging, onSuccess) => store.dispatch(BikeRentsActions.getList(allowCachedData, filter, paging, onSuccess)),
+        onLoad: (allowCachedData, filter, paging, onSuccess) => dispatch(BikeRentsActions.getList(allowCachedData, filter, paging, onSuccess)),
 
-        onLoadFilter: (onSuccess) => {
-            store.dispatch(ColorsActions.getList(true, colors => {
-                store.dispatch(BikeModelsActions.getList(true, models => {
-                    onSuccess(colors.List, models.List);
-                }));
-            }));
-        }
+        onEdit: (rent) => dispatch(ClientContextActions.redirect(routeUrls.rents.edit(rent.BikeRentId))),
 
-        //onEdit: (filter, user) => store.redirect(routeUrls.users.edit(user.BikeId)),
-
-        //onAddNew: (filter) => store.redirect(routeUrls.users.new())
+        onAddNew: () => dispatch(ClientContextActions.redirect(routeUrls.rents.new()))
     };
 };
 

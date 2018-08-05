@@ -8,15 +8,13 @@ export interface IStoreAction {
 }
 
 export class StoreAction<TPayLoad> implements IStoreAction {
-
     public readonly type: StoreActionType;
-
     public readonly payload: TPayLoad;
 }
 
-export type StoreActionDispatch = (action: IStoreAction | StoreActionThunk) => void;
+export type StoreDispatch = (action: IStoreAction | StoreActionThunk) => void;
 
 export type StoreActionThunk = (
-    dispatch: StoreActionDispatch,
+    dispatch: StoreDispatch,
     getState: () => RootState
 ) => void;

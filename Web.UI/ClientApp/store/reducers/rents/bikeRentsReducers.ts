@@ -39,7 +39,7 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
                 return new BikeRentsState();
 
             case StoreActionType.Bikes_PostSuccess: {
-                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -50,7 +50,7 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
             }
 
             case StoreActionType.BikeRents_DeleteSuccess: {
-                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -61,7 +61,7 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
             }
 
             case StoreActionType.BikeRents_PutSuccess: {
-                var payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
+                let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -69,6 +69,15 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
                     formCache: state.formCache.putSuccess(payload.bikeRent),
                     timestamp: TypeHelper.notNullOrEmpty(state.timestamp, DateHelper.now())
                 };
+            }
+
+            case StoreActionType.BikeRents_SetUseBikeId: {
+                let payload = action.payload as BikeRentsActionsPayload_UseBikeId;
+
+                return {
+                    ...state,
+                    param_BikeId: payload.bikeId
+                }
             }
 
             default:

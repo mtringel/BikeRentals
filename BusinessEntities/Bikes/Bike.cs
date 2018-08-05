@@ -78,6 +78,13 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
         /// </summary>
         public ICollection<BikeRent> Rents { get; set; }
 
+        [NotMapped]
+        /// <summary>
+        /// Entity is created from UI data, not loaded from db. Usually, only the key fields are set, the rest are set to default.
+        /// Used when constructing referred entities, like BikeRent.Bike.
+        /// </summary>
+        public bool IsPartial { get; set; }
+
         public Bike()
         {
             CreatedUtc = DateTime.Now;
@@ -91,10 +98,10 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             Location currentLocation,
             string currentLocationName,
             DateTime availableFrom,
-            bool currentlyAvailable,
             float rateAverage,
             DateTime created,
-            User createdBy
+            User createdBy,
+            bool isPartial
             )
         {
             this.BikeId = bikeId;
@@ -108,6 +115,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             this.CreatedUtc = created;
             this.CreatedBy = createdBy;
             this.IsActive = true;
+            this.IsPartial = isPartial;
         }
 
         public override object[] Keys()

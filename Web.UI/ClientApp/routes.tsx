@@ -12,6 +12,7 @@ import { QueryParamsHelper } from './helpers/queryParamsHelper';
 import { storeProvider } from './boot';
 import BikeListContainer from './containers/bikes/BikeListContainer';
 import BikeRentListContainer from './containers/rents/BikeRentListContainer';
+import BikeEditContainer from './containers/bikes/BikeEditContainer';
 
 export const routeUrls = {
     home: () => "/",
@@ -60,6 +61,7 @@ export const routes = <Layout>
 
     {/* Bikes */}
     <Route path={routeUrls.bikes.list()} exact component={BikeListContainer} />
+    <Route path={routeUrls.bikes.edit(":bikeId")} exact component={BikeEditContainer} />
 
     {/* Rents */}
     <Route path={routeUrls.rents.listMy()} exact component={BikeRentListContainer.MyRents} />

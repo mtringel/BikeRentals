@@ -36,9 +36,20 @@ namespace Toptal.BikeRentals.Service.Models.Users
 
         public UserRef(BusinessEntities.Users.User user)
         {
-            this.FirstName = user.FirstName;
-            this.LastName = user.LastName;
-            this.UserId = user.UserId;
+            if (user != null)
+            {
+                this.FirstName = user.FirstName;
+                this.LastName = user.LastName;
+                this.UserId = user.UserId;
+            }
+        }
+
+        /// <summary>
+        /// Returns partial entity.
+        /// </summary>
+        public BusinessEntities.Users.User ToEntityPartial()
+        {
+            return new BusinessEntities.Users.User(UserId, FirstName, LastName, null, null, null, RoleType.User, true);
         }
     }
 }

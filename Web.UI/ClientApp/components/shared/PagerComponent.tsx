@@ -53,7 +53,7 @@ export class PagerComponent extends ComponentBase<ThisProps, ThisState> {
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: ThisProps) {
+    private initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState = {
@@ -64,7 +64,7 @@ export class PagerComponent extends ComponentBase<ThisProps, ThisState> {
         this.setState(initial);
     }
 
-    private onPageChanged(page: number) {
+    private onChange(page: number) {
         if (!this.props.isReadOnly)
             this.props.onPageChange(page);
     }
@@ -84,7 +84,7 @@ export class PagerComponent extends ComponentBase<ThisProps, ThisState> {
                     {/* Separator */}
                     {i !== last + 1 && <span>...</span>}
                     {/* Button */}
-                    <Button bsSize="small" bsStyle={i === this.state.currentPage ? "danger" : "info"} disabled={this.props.isReadOnly} onClick={this.onPageChanged.bind(this, i)}>{i}</Button>
+                    <Button bsSize="small" bsStyle={i === this.state.currentPage ? "danger" : "info"} disabled={this.props.isReadOnly} onClick={this.onChange.bind(this, i)}>{i}</Button>
                     &nbsp;
                 </span>
                 );

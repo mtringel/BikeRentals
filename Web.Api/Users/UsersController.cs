@@ -103,10 +103,11 @@ namespace Toptal.BikeRentals.Web.Api.Users
         /// Update single entity
         /// </summary>
         [HttpPut("{id}")]
-        public WebApiResult Put([FromBody]User user)
+        public WebApiResult Put([FromRoute]string id, [FromBody]User user)
         {
             try
             {
+                Helper.Expect(user, id, t => t.UserId);
                 CallContext.AntiforgeryTokenValidate(true);
                 return Helper.OK(() => UserService.Put(user));
             }

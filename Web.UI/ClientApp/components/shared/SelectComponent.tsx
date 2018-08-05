@@ -18,7 +18,7 @@ export interface SelectComponentProps<TItem> {
     readonly name: string;
     readonly className: string;
     readonly required: boolean;
-    readonly disabled: boolean;
+    readonly isReadOnly: boolean;
     readonly value: TItem;
     readonly placeholder: string;
     readonly items: TItem[];
@@ -63,31 +63,31 @@ export class SelectComponent<TItem> extends ComponentBase<ThisProps<TItem>, This
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>+
-    public initialize(props: ThisProps<TItem>) {
+    private initialize(props: ThisProps<TItem>) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState<TItem> = {
-            items: this.props.items,
-            value: this.props.value
+            items: props.items,
+            value: props.value
         };
 
         this.setState(initial);
     }
 
     private onChange(value: TItem) {
-        if (!this.props.disabled)
+        if (!this.props.isReadOnly)
             this.setState({ value: value }, () => this.props.onChange(value));
     }
 
     public render(): JSX.Element | null | false {
-        var currentOption = this.props.getOption(this.state.value);
+        var currentOption = TypeHelper.isNullOrEmpty(this.state.value) ? { value: "", text: "" } : this.props.getOption(this.state.value);
 
         return <select
             id={this.props.id}
             name={this.props.name}
             className={this.props.className}
             required={this.props.required}
-            disabled={this.props.disabled}
+            disabled={this.props.isReadOnly}
             value={TypeHelper.toString(this.state.value)}
             placeholder={this.props.placeholder}
             onChange={e => {
@@ -95,10 +95,10 @@ export class SelectComponent<TItem> extends ComponentBase<ThisProps<TItem>, This
                 this.onChange(this.props.getItem(item));
             }}
         >
-            {this.props.disabled &&
+            {this.props.isReadOnly &&
                 <option key={currentOption.value} value={currentOption.value}>{currentOption.text}</option>
             }
-            {!this.props.disabled && this.state.items.map(item => {
+            {!this.props.isReadOnly && this.state.items.map(item => {
                 var option = this.props.getOption(item); 
                 return <option key={option.value} value={option.value}>{option.text}</option>;
             })}

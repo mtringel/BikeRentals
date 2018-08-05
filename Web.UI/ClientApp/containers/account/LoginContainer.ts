@@ -8,7 +8,7 @@ import { TypeHelper } from '../../helpers/typeHelper';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
 import { ClientContextState } from '../../store/state/shared/clientContextState';
-import { StoreActionDispatch } from '../../store/actions/storeAction';
+import { StoreDispatch } from '../../store/actions/storeAction';
 import { AuthServiceActions } from '../../store/actions/security/authServiceActions';
 import { LoginParamsActions } from '../../store/actions/account/loginParamsActions';
 
@@ -22,7 +22,7 @@ const mapStateToProps: (state: RootState) => LoginProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => LoginActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreDispatch) => LoginActions = dispatch => {
     var store = storeProvider();
     var rootState = store.getState();
 

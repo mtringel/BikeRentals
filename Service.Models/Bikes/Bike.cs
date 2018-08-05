@@ -13,11 +13,36 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         [Required]
         public UserRef CreatedBy { get; set; }
 
+        public Bike(Location? currentLocation)
+            : base(new BusinessEntities.Bikes.Bike(), currentLocation)
+        {
+        }
+
         public Bike(BusinessEntities.Bikes.Bike bike, Location? currentLocation)
             : base(bike, currentLocation)
         {
-            this.Created = bike.CreatedUtc;
-            this.CreatedBy = new UserRef(bike.CreatedBy);
+            if (bike != null)
+            {
+                this.Created = bike.CreatedUtc;
+                this.CreatedBy = new UserRef(bike.CreatedBy);
+            }
+        }
+
+        public BusinessEntities.Bikes.Bike ToEntity()
+        {
+            return new BusinessEntities.Bikes.Bike(
+                BikeId,
+                BikeState,
+                BikeModel.ToEntityPartial(),
+                Color,
+                CurrentLocation,
+                CurrentLocationName,
+                AvailableFromUtc,
+                RateAverage,
+                Created,
+                CreatedBy.ToEntityPartial(),
+                false
+                );
         }
     }
 }

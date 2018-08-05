@@ -12,6 +12,7 @@ using System.Linq;
 using Toptal.BikeRentals.BusinessLogic.Master;
 using Toptal.BikeRentals.BusinessEntities.Helpers;
 using Toptal.BikeRentals.BusinessEntities.Master;
+using Toptal.BikeRentals.Exceptions.Validation;
 // don't refer to BusinessEntities namespaces here (to avoid confusion with Service.Models)
 
 namespace Toptal.BikeRentals.Service.Api.Bikes
@@ -45,7 +46,7 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
         /// </summary>
         public BikeListData GetList(BikeListFilter filter, PagingInfo paging, Location? currentLocation)
         {
-            using (var scope = Scope("Get"))
+            using (var scope = Scope("GetList"))
             {
                 // authorize
                 AuthProvider.Authorize(Permission.Bike_ViewAll, Permission.Bike_Management);
@@ -70,149 +71,111 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
 
         #endregion
 
-        //#region Get (single entity)
+        #region Get (single entity)
 
-        ///// <summary>
-        ///// Get single entity
-        ///// id == bikeId or "new" 
-        ///// </summary>
-        //public BikeFormData Get(int bikeId)
-        //{
-        //    using (var scope = Scope("Get", new BikeFormData()))
-        //    {
-        //        AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
+        /// <summary>
+        /// Get single entity
+        /// id == bikeId or "new" 
+        /// </summary>
+        public BikeFormData GetById(int bikeId, Location? currentLocation)
+        {
+            using (var scope = Scope("GetById"))
+            {
+                AuthProvider.Authenticate(); // throws UnauthorizedException or we have CurrentUser after this
 
-        //        // prepare
-        //        var isNew = string.Compare(bikeId, "new", true) == 0;
+                // prepare
+                Helper.Expect(typeof(Models.Bikes.Bike), bikeId);
+                var isNew = bikeId <= 0;
 
-        //        // authorize
-        //        AuthProvider.Authorize(Permission.Bike_ViewAll);
+                // authorize
+                AuthProvider.Authorize(Permission.Bike_ViewAll);
 
-        //        // process
-        //        scope.Result.Entity = isNew ? new Bike() : BikeManager.Get(bikeId);
-        //        scope.Result.Colors = ColorManager.GetList().ToArray();
-        //        scope.Result.Bik
+                // process
+                return scope.Complete(
+                    () => new BikeFormData() { Bike = isNew ? new Models.Bikes.Bike(currentLocation) : new Models.Bikes.Bike(BikeManager.GetById(bikeId), currentLocation) },
+                    t => $"Bike loaded with Id={t.Bike.BikeId}."
+                    );
+            }
+        }
 
-        //        return scope.Complete(() => scope.Result, t => $"User loaded with Id={t.Entity.UserId}.");
-        //    }
-        //}
+        #endregion
 
-        //#endregion
+        #region Post (create single)
 
-        //#region Post (create single)
+        /// <summary>
+        /// Create new entity
+        /// </summary>
+        public void Post(Models.Bikes.Bike bike)
+        {
+            using (var scope = Scope("Post"))
+            {
+                // authorize
+                AuthProvider.Authorize(Permission.Bike_Management); // throws UnauthorizedException or we have CurrentUser after this
 
-        ///// <summary>
-        ///// Create new entity
-        ///// </summary>
-        //public void Post(User user)
-        //{
-        //    using (var scope = Scope("Post"))
-        //    {
-        //        AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
+                // prepare
+                Helper.Expect(bike);
 
-        //        // prepare
-        //        Helper.Expect(user);
-        //        user.UserName = user.Email;
+                // validate
+                Helper.ValidateModel(bike, true);
 
-        //        // authorize
-        //        AuthProvider.Authorize(Permission.User_Management);
+                // process
+                BikeManager.Add(bike.ToEntity());
 
-        //        // only Admin can set roles other than User
-        //        if (!AuthProvider.HasPermission(Permission.User_Management_SetRole) && user.Role != RoleType.User)
-        //            throw new ValidationException("Role cannot be set.", false);
+                scope.Complete(() => $"User has been created with Id={bike.BikeId}.");
+            }
+        }
 
-        //        // validate
-        //        Helper.ValidateModel(user, true);
+        #endregion
 
-        //        // process
-        //        UserManager.Add(user.ToEntity());
+        #region Put (update single entity)
 
-        //        scope.Complete(() => $"User has been created with Id={user.UserId}.");
-        //    }
-        //}
+        /// <summary>
+        /// Update single entity
+        /// </summary>
+        public void Put(Models.Bikes.Bike bike)
+        {
+            using (var scope = Scope("Put"))
+            {
+                // authorize
+                AuthProvider.Authorize(Permission.Bike_Management); // throws UnauthorizedException or we have CurrentUser after this
 
-        //#endregion
+                // prepare
+                Helper.Expect(bike, bike.BikeId);
 
-        //#region Put (update single entity)
+                // validate
+                Helper.ValidateModel(bike, true);
 
-        ///// <summary>
-        ///// Update single entity
-        ///// </summary>
-        //public void Put(User user)
-        //{
-        //    using (var scope = Scope("Put"))
-        //    {
-        //        AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
+                // process
+                BikeManager.Update(bike.ToEntity());
 
-        //        // prepare
-        //        Helper.Expect(user, user.UserId);
+                scope.Complete(() => $"User has been updated with Id={bike.BikeId}.");
+            }
+        }
 
-        //        user.UserName = user.Email;
+        #endregion
 
-        //        if (user.UserId != null)
-        //            user.UserId = user.UserId.ToLower();
+        #region Delete (single entity)
 
-        //        var ownProfile = string.Compare(user.UserId, AuthProvider.CurrentUser.UserId, true) == 0;
-        //        var oldUser = UserManager.Get(user.UserId); // throws EntityNotFoundException
+        /// <summary>
+        /// Delete single entity
+        /// </summary>
+        public void Delete(int bikeId)
+        {
+            using (var scope = Scope("Delete"))
+            {
+                // authorize
+                AuthProvider.Authorize(Permission.Bike_Management); // throws UnauthorizedException or we have CurrentUser after this
 
-        //        // authorize
-        //        if (ownProfile)
-        //            AuthProvider.Authorize(Permission.User_EditProfile);
-        //        else if (oldUser.Role != RoleType.User)
-        //            AuthProvider.Authorize(Permission.User_Management_EditAdmins); // only Admin can edit Admin 
-        //        else
-        //            AuthProvider.Authorize(Permission.User_Management);
+                // prepare
+                Helper.Expect(typeof(Models.Bikes.Bike), bikeId);
 
-        //        // only Admin can set roles other than User
-        //        if (!AuthProvider.HasPermission(Permission.User_Management_SetRole) && oldUser.Role != user.Role)
-        //            throw new ValidationException("Role cannot be set.", false);
+                // process
+                BikeManager.Delete(bikeId);
 
-        //        // validate
-        //        Helper.ValidateModel(user, true);
+                scope.Complete(() => $"User has been deleted with Id={bikeId}.");
+            }
+        }
 
-        //        // process
-        //        UserManager.Update(user.ToEntity());
-
-        //        scope.Complete(() => $"User has been updated with Id={user.UserId}.");
-        //    }
-        //}
-
-        //#endregion
-
-        //#region Delete (single entity)
-
-        ///// <summary>
-        ///// Delete single entity
-        ///// </summary>
-        //public void Delete(string id)
-        //{
-        //    using (var scope = Scope("Delete"))
-        //    {
-        //        AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
-
-        //        // prepare
-        //        Helper.Expect(typeof(User), id);
-
-        //        id = id.ToLower();
-
-        //        var ownProfile = string.Compare(id, AuthProvider.CurrentUser.UserId, true) == 0;
-        //        var oldUser = UserManager.Get(id);
-
-        //        // authorize
-        //        if (ownProfile)
-        //            AuthProvider.Authorize(Permission.User_EditProfile);
-        //        else if (oldUser.Role == RoleType.Admin)
-        //            AuthProvider.Authorize(Permission.User_Management_EditAdmins); // only Admin can edit Admin
-        //        else
-        //            AuthProvider.Authorize(Permission.User_Management);
-
-        //        // process
-        //        UserManager.Delete(id);
-
-        //        scope.Complete(() => $"User has been deleted with Id={id}.");
-        //    }
-        //}
-
-        //#endregion
+        #endregion
     }
 }

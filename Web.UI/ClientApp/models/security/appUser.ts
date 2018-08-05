@@ -38,9 +38,11 @@ export class AppUser extends Model {
     ) {
         var res: boolean;
 
-        if (user.Role === RoleType.Admin)
+        if (TypeHelper.isNullOrEmpty(user) || user.Role === RoleType.Disabled)
+            res = false;
+        else if (user.Role === RoleType.Admin)
             res = true;
-        else if (TypeHelper.isNullOrEmpty(user) || user.Role === RoleType.Disabled || user.Permissions === null)
+        else if (user.Permissions === null)
             res = false;
         else if (permission instanceof Array) {
 

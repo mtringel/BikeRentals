@@ -258,10 +258,7 @@ export class UsersActions {
                         var perm = userId === "profile" || user.UserId === userId ? Permission.User_EditProfile : Permission.User_Management;
                         dispatch(UsersActions.authorizeAny(true, perm, false, onSuccess, onError));
                     },
-                    error => {
-                        if (!TypeHelper.isNullOrEmpty(onError))
-                            onError(error);
-                    }
+                    onError
                 ));
             }
         };

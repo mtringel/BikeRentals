@@ -20,6 +20,8 @@ import { Color } from '../../models/master/color';
 import { BikeModel } from '../../models/bikes/bikeModel';
 import { Location } from '../../models/master/location';
 import { BikeRentState } from '../../models/rents/bikeRentState';
+import { BikeRef } from '../../models/bikes/bikeRef';
+import { BikeRent } from '../../models/rents/bikeRent';
 
 export interface BikeRentListProps extends PropsBase {
     readonly store: Store;
@@ -30,27 +32,33 @@ export interface BikeRentListProps extends PropsBase {
 }
 
 export interface BikeRentListActions {
-    readonly onInit: (onSuccess: (options: { authContext: BikeRentAuthContext, initialLoadCached: boolean, keepNavigation: boolean }) => void) => void;
-    readonly onLoadFilter: (onSuccess: (colors: Color[], models: BikeModel[]) => void) => void;
+    readonly onInit: (onSuccess: (options: {
+        authContext: BikeRentAuthContext,
+        initialLoadCached: boolean,
+        keepNavigation: boolean,
+        colors: Color[],
+        bikeModels: BikeModel[]
+    }) => void) => void;
+    
     readonly onLoad: (allowCachedData: boolean, filter: BikeRentListFilter, paging: PagingInfo, onSuccess: (data: BikeRentListData) => void) => void;
-    //readonly onEdit: (filter: string, user: Bike) => void;
-    //readonly onAddNew: (filter: string) => void;    
+    readonly onEdit: (rent: BikeRent) => void;
+    readonly onAddNew: () => void;    
 }
 
 class BikeRentListState {
     // filter
-    readonly filter: BikeRentListFilter;
-    readonly allColors: Color[];
-    readonly allBikeModels: BikeModel[];
-    readonly defaultFilter: BikeRentListFilter;
+    readonly filter = new BikeRentListFilter();
+    readonly allColors: Color[] = [];
+    readonly allBikeModels: BikeModel[] = [];
+    readonly defaultFilter = new BikeRentListFilter();
 
     // grid
-    readonly data: BikeRentListData;
-    readonly paging: PagingInfo;
-    readonly defaultPaging: PagingInfo;
+    readonly data = new BikeRentListData();
+    readonly paging = new PagingInfo();
+    readonly defaultPaging = new PagingInfo();
 
     // other
-    readonly authContext: BikeRentAuthContext;
+    readonly authContext = new BikeRentAuthContext();
     readonly isInitialized: boolean;
 }
 
@@ -64,52 +72,40 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        this.props.onInit(options => {
-            var rootState = this.props.store.getState();
+        // set empty state for render()
+        this.setState(new BikeRentListState(), () => {
+            this.props.onInit(options => {
+                var rootState = this.props.store.getState();
 
-            var defaultPaging: PagingInfo = {
-                FirstRow: 0,
-                RowCount: rootState.clientContext.globals.GridPageSize,
-                OrderBy: this.props.defaultOrderBy,
-                OrderByDescending: this.props.defaultOrderByDescending,
-                ReturnTotalRowCount: true
-            };
+                var defaultPaging: PagingInfo = {
+                    FirstRow: 0,
+                    RowCount: rootState.clientContext.globals.GridPageSize,
+                    OrderBy: this.props.defaultOrderBy,
+                    OrderByDescending: this.props.defaultOrderByDescending,
+                    ReturnTotalRowCount: true
+                };
 
-            var defaultFilter = options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikeRents.listFilter, this.props.defaultFilter) : this.props.defaultFilter;
+                var defaultFilter = options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikeRents.listFilter, this.props.defaultFilter) : this.props.defaultFilter;
 
-            // set empty state for render()
-            var empty: ThisState = {
-                authContext: options.authContext,
-                data: new BikeRentListData(),
-                filter: defaultFilter,
-                defaultFilter: defaultFilter,
-                isInitialized: false,
-                allColors: [],
-                allBikeModels: [],
-                defaultPaging: defaultPaging,
-                paging: options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikes.listPaging, defaultPaging) : defaultPaging
-            };
+                // can list only own?
+                if (this.props.myRentsOnly)
+                    defaultFilter = { ...defaultFilter, Users: [options.authContext.currentUserId] };
 
-            // invoke asynchronous load after successful authorization
-            this.setState(empty,
-                () => {
-                    // load ref data
-                    this.props.onLoadFilter((colors, models) => {
-
-                        if (this.props.myRentsOnly)
-                            defaultFilter = { ...defaultFilter, Users: [options.authContext.currentUserId] };
-
-                        this.setState({
-                            authContext: options.authContext,
-                            allColors: colors,
-                            allBikeModels: models,
-                            filter: defaultFilter,
-                            defaultFilter: defaultFilter
-                        },
-                            () => this.loadData(options.initialLoadCached)
-                        );
-                    });
-                });
+                this.setState({
+                    authContext: options.authContext,
+                    data: new BikeRentListData(),
+                    filter: defaultFilter,
+                    defaultFilter: defaultFilter,
+                    isInitialized: false,
+                    allColors: options.colors,
+                    allBikeModels: options.bikeModels,
+                    defaultPaging: defaultPaging,
+                    paging: options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikes.listPaging, defaultPaging) : defaultPaging
+                },
+                    // invoke asynchronous load after successful authorization
+                    () => this.loadData(options.initialLoadCached)
+                );
+            });
         });
     }
 
@@ -122,28 +118,29 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
         );
     }
 
-    //private addNew() {
-    //    if (this.state.isInitialized)
-    //        this.props.onAddNew(this.state.filter);
-    //}
-
-    private search(filter: BikeRentListFilter, resetFilter: boolean) {
-        // go to first page when Search button is clicked
-        // no cached data here
-        this.setState({
-            filter: resetFilter ? this.props.defaultFilter : filter,
-            paging: resetFilter ? this.state.defaultPaging : { ...this.state.paging, FirstRow: 0 }
-        },
-            () => this.loadData(false)
-        );
+    private onAddNew() {
+        if (this.state.isInitialized)
+            this.props.onAddNew();
     }
 
-    //private edit(user: Bike) {
-    //    if (this.state.isInitialized)
-    //        this.props.onEdit(this.state.filter, user);
-    //}
+    private onSearch(filter: BikeRentListFilter, resetFilter: boolean) {
+        // go to first page when Search button is clicked
+        // no cached data here
+        if (this.state.isInitialized)
+            this.setState({
+                filter: resetFilter ? this.props.defaultFilter : filter,
+                paging: resetFilter ? this.state.defaultPaging : { ...this.state.paging, FirstRow: 0 }
+            },
+                () => this.loadData(false)
+            );
+    }
 
-    private pageChanged(page: number) {
+    private onEdit(rent: BikeRent) {
+        if (this.state.isInitialized)
+            this.props.onEdit(rent);
+    }
+
+    private onPageChange(page: number) {
         this.setState({
             paging: {
                 ...this.state.paging,
@@ -154,7 +151,7 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
         );
     }
 
-    private orderByChanged(orderBy: string[], orderByDescending: boolean
+    private onOrderByChange(orderBy: string[], orderByDescending: boolean
     ) {
         this.setState({
             paging: {
@@ -188,7 +185,7 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
                             isReadOnly={!this.state.isInitialized}
                             allColors={this.state.allColors}
                             allBikeModels={this.state.allBikeModels}
-                            onSearch={(filter, resetFilter) => this.search(filter, resetFilter)}
+                            onSearch={(filter, resetFilter) => this.onSearch(filter, resetFilter)}
                         />
                     </div>
 
@@ -205,7 +202,7 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
                                 isReadOnly={!this.state.isInitialized}
                                 pageSize={this.state.paging.RowCount}
                                 totalRowCount={this.state.data.TotalRowCount}
-                                onPageChange={page => this.pageChanged(page)}
+                                onPageChange={page => this.onPageChange(page)}
                             />
                         </div>
                     </div>
@@ -221,7 +218,7 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
                             orderByDescending={this.state.paging.OrderByDescending}
                             defaultOrderBy={this.props.defaultOrderBy}
                             defaultOrderByDescending={this.props.defaultOrderByDescending}
-                            onOrderByChange={(orderBy, orderByDescending) => this.orderByChanged(orderBy, orderByDescending)}
+                            onOrderByChange={(orderBy, orderByDescending) => this.onOrderByChange(orderBy, orderByDescending)}
                         />
                     </div>
                 </div>

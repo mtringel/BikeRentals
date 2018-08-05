@@ -73,7 +73,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
 
         // set empty state for render()
         var initial: ThisState = {
-            filter: this.props.filter,
+            filter: props.filter,
             dateFormat: state.clientContext.globals.ShortDateFormat,
             users: []
         };
@@ -107,7 +107,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <label className="col-sm-2 control-label text-nowrap">Status</label>
                         <div className="col-sm-10 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-flash"></i></span>
-                            <BikeRentStateSelect id="state" name="state" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.filter.State}
+                            <BikeRentStateSelect id="state" name="state" className="form-control" required={true} isReadOnly={this.props.isReadOnly} value={this.state.filter.State}
                                 placeholder="Fill to filter"
                                 getItem={t => BikeRentStateHelper.allStates[parseInt(t.value)]}
                                 getOption={t => { return { value: TypeHelper.toString(t), text: BikeRentStateHelper.allNames[t] }; }}
@@ -152,7 +152,6 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 endDate={this.state.filter.StartDateUtc.To}
                                 placeholder="Fill to filter"
                                 glyphIcon="calendar"
-                                suffix=""
                                 format="DD/MM hh:mm"
                                 onChange={(start, end) => this.change({ StartDateUtc: { From: start, To: end } })}
                                 isReadOnly={this.props.isReadOnly}
@@ -174,7 +173,6 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 endDate={this.state.filter.EndDateUtc.To}
                                 placeholder="Fill to filter"
                                 glyphIcon="calendar"
-                                suffix=""
                                 format="DD/MM hh:mm"
                                 onChange={(start, end) => this.change({ EndDateUtc: { From: start, To: end } })}
                                 isReadOnly={this.props.isReadOnly}
@@ -193,8 +191,8 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                             <BikeModelSelect
                                 id="models"
                                 name="models"
-                                className="form-control"
-                                disabled={this.props.isReadOnly}
+                                className=""
+                                isReadOnly={this.props.isReadOnly}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="BikeModelId"
@@ -214,8 +212,8 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                             <ColorSelect
                                 id="colors"
                                 name="colors"
-                                className="form-control"
-                                disabled={this.props.isReadOnly}
+                                className=""
+                                isReadOnly={this.props.isReadOnly}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="ColorId"
@@ -274,9 +272,9 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                 {/* Buttons */}
                 <div className="row">
                     <div className="col-sm-12 text-left">
-                        <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Go</Button>
+                        <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Refresh</Button>
                         &nbsp;&nbsp;
-                    <Button bsStyle="danger" onClick={e => this.search(true)} ><i className="glyphicon glyphicon-asterisk"></i> Show all</Button>
+                    <Button bsStyle="danger" onClick={e => this.search(true)} ><i className="glyphicon glyphicon-asterisk"></i> Reset</Button>
                     </div>
                 </div>
             </div>

@@ -20,7 +20,7 @@ export interface UserFormComponentProps  {
 
 class UserFormComponentState {
     readonly user: User;
-    isDirty: boolean;
+    readonly isDirty: boolean;
 }
 
 export interface UserFormComponentActions {

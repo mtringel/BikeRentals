@@ -12,11 +12,12 @@ import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
 import { ClientContextState } from '../../store/state/shared/clientContextState';
 import { UserEdit } from '../../screens/users/UserEdit';
-import { StoreActionDispatch } from '../../store/actions/storeAction';
+import { StoreDispatch } from '../../store/actions/storeAction';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { AuthServiceActions } from '../../store/actions/security/authServiceActions';
 import { UsersActions } from '../../store/actions/users/usersActions';
 import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
+import { StoreActions } from '../../store/actions/storeActions';
 
 
 const mapStateToProps: (state: RootState) => UserListProps = state => {    
@@ -29,30 +30,29 @@ const mapStateToProps: (state: RootState) => UserListProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserListActions = dispatch => {
-    var store = storeProvider();
+const mapDispatchToProps: (dispatch: StoreDispatch) => UserListActions = dispatch => {
 
     return {
         onInit: (onSuccess) => {
-            let lastScreen = store.getState().clientContext.lastScreen;
+            let lastScreen = storeProvider().getState().clientContext.lastScreen;
 
             // store.dispatch(UsersActions.clearState()); - keep cached data
-            store.clearStateIfExpiredAll();
+            StoreActions.clearStateIfExpiredAll(dispatch);
 
             // get auth.info
-            store.dispatch(UsersActions.authorizeList(
-                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
+            dispatch(UsersActions.authorizeList(
+                // Grid operations are always cached (order by, paging). Refresh buttons are never cached.
                 authContext => onSuccess({
                     authContext: authContext,
                     initialLoadCached: true,
                     keepNavigation: lastScreen instanceof UserEdit || lastScreen instanceof UserList
                 }),
-                error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
+                error => dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
             ))
         },
 
         onLoad: (allowCachedData, filter, onSuccess) => {
-            store.dispatch(UsersActions.getList(
+            dispatch(UsersActions.getList(
                 allowCachedData,
                 filter,
                 result => {
@@ -61,9 +61,9 @@ const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserListActions = d
                 }))
         },
 
-        onEdit: (filter, user) => store.dispatch(ClientContextActions.redirect(routeUrls.users.edit(user.UserId))),
+        onEdit: (user) => dispatch(ClientContextActions.redirect(routeUrls.users.edit(user.UserId))),
 
-        onAddNew: (filter) => store.dispatch(ClientContextActions.redirect(routeUrls.users.new()))
+        onAddNew: () => dispatch(ClientContextActions.redirect(routeUrls.users.new()))
     };
 };
 

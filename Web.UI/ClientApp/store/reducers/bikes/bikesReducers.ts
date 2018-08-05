@@ -41,7 +41,7 @@ export const BikesReducers: (state: BikesState, action: StoreAction<BikesActions
                 return new BikesState();
 
             case StoreActionType.Bikes_PostSuccess: {
-                var payload = action.payload as BikesActionsPayload_PostPutDelete;
+                let payload = action.payload as BikesActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -52,7 +52,7 @@ export const BikesReducers: (state: BikesState, action: StoreAction<BikesActions
             }
 
             case StoreActionType.Bikes_DeleteSuccess: {
-                var payload = action.payload as BikesActionsPayload_PostPutDelete;
+                let payload = action.payload as BikesActionsPayload_PostPutDelete;
 
                 return {
                     ...state,
@@ -63,7 +63,7 @@ export const BikesReducers: (state: BikesState, action: StoreAction<BikesActions
             }
 
             case StoreActionType.Bikes_PutSuccess: {
-                var payload = action.payload as BikesActionsPayload_PostPutDelete;
+                let payload = action.payload as BikesActionsPayload_PostPutDelete;
 
                 return {
                     ...state,

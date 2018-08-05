@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { RootState } from '../store/state/rootState';
 import { Home, HomeProps, HomeActions } from '../screens/Home';
 import { storeProvider } from '../boot';
-import { StoreActionDispatch } from '../store/actions/storeAction';
+import { StoreDispatch } from '../store/actions/storeAction';
 import { Router } from 'react-router';
 import { AuthServiceActions } from '../store/actions/security/authServiceActions';
 
@@ -16,7 +16,7 @@ const mapStateToProps: (state: RootState) => HomeProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => HomeActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreDispatch) => HomeActions = dispatch => {
     var store = storeProvider();
     
     return {

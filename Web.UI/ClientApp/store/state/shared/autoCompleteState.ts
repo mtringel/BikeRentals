@@ -31,7 +31,9 @@ export class AutoCompleteState {
                     // getItems
                     t => t.List,
                     // setItems
-                    (data, items) => { return { List: items, TooMuchData: data.TooMuchData } },
+                    (data, items) => { return { ...data, List: items } },
+                    // newData
+                    () => new AutoCompleteListData(),
                     // getMatch
                     (item, filter) => StringHelper.contains(item.Value, filter, true),
                     // isSubSet

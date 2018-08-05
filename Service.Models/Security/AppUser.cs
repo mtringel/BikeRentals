@@ -37,15 +37,18 @@ namespace Toptal.BikeRentals.Service.Models.Security
 
         public AppUser(Toptal.BikeRentals.Security.Principals.AppUser user)
         {
-            this.Email = user.Email;
-            this.FirstName = user.FirstName;
-            this.LastName = user.LastName;
-            this.UserId = user.UserId;
-            this.UserName = user.UserName;
-            this.Role = user.Role;
+            if (user != null)
+            {
+                this.Email = user.Email;
+                this.FirstName = user.FirstName;
+                this.LastName = user.LastName;
+                this.UserId = user.UserId;
+                this.UserName = user.UserName;
+                this.Role = user.Role;
 
-            if (user.Permissions != null)
-                this.Permissions = user.Permissions.ToArray();
+                if (user.Permissions != null)
+                    this.Permissions = user.Permissions.ToArray();
+            }
         }
 
 

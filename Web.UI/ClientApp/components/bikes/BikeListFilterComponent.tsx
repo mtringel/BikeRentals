@@ -83,7 +83,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
         });
     }
 
-    private search(clearFilter: boolean) {
+    private onSearch(clearFilter: boolean) {
         this.props.onSearch(this.state.filter, clearFilter)
     }
 
@@ -92,7 +92,6 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
 
             <div className="panel-heading">Filter</div>
             <div className="panel-body form-horizontal">
-
 
                 {/* Filters */}
 
@@ -103,7 +102,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                             <label className="col-sm-2 control-label text-nowrap">Status</label>
                             <div className="col-sm-4 input-group">
                                 <span className="input-group-addon"><i className="glyphicon glyphicon-flash"></i></span>
-                                <BikeStateSelect id="state" name="state" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.filter.State}
+                                <BikeStateSelect id="state" name="state" className="form-control" required={true} isReadOnly={this.props.isReadOnly} value={this.state.filter.State}
                                     placeholder="Fill to filter"
                                     getItem={t => BikeStateHelper.allStates[parseInt(t.value)]}
                                     getOption={t => { return { value: TypeHelper.toString(t), text: BikeStateHelper.allNames[t] }; }}
@@ -129,7 +128,6 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                     endDate={this.state.filter.AvailableUtc.To}
                                     placeholder="Fill to filter"
                                     glyphIcon="calendar"
-                                    suffix=""
                                     format="DD/MM hh:mm"
                                     onChange={(start, end) => this.change({ AvailableUtc: { From: start, To: end } })}
                                     isReadOnly={this.props.isReadOnly}
@@ -149,7 +147,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 id="models"
                                 name="models"
                                 className=""
-                                disabled={this.props.isReadOnly}
+                                isReadOnly={this.props.isReadOnly}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="BikeModelId"
@@ -170,7 +168,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 id="colors"
                                 name="colors"
                                 className=""
-                                disabled={this.props.isReadOnly}
+                                isReadOnly={this.props.isReadOnly}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="ColorId"
@@ -232,7 +230,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                 </div>
 
                 <div className="row" >
-                    <div className="form-group col-sm-6 form-horizontal" >
+                    <div className="form-group col-sm-6" >
                         {/* MaxDistance */}
                         <label className="col-sm-2 control-label text-nowrap ">Distance</label>
                         <div className="col-sm-4 input-group">
@@ -259,9 +257,9 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                 <div className="row" >
                     {/* Buttons */}
                     <div className="col-sm-6 text-left">
-                        <Button bsStyle="success" onClick={e => this.search(false)}><i className="glyphicon glyphicon-play-circle"></i> Refresh</Button>
+                        <Button bsStyle="success" onClick={e => this.onSearch(false)}><i className="glyphicon glyphicon-play-circle"></i> Refresh</Button>
                         &nbsp;&nbsp;
-                        <Button bsStyle="danger" onClick={e => this.search(true)} ><i className="glyphicon glyphicon-asterisk"></i> Show all</Button>
+                        <Button bsStyle="danger" onClick={e => this.onSearch(true)} ><i className="glyphicon glyphicon-asterisk"></i> Reset</Button>
                     </div>
                 </div>
             </div>

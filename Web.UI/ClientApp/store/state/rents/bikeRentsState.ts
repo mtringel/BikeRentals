@@ -31,8 +31,10 @@ export class BikeRentsState {
             t => t.BikeRentId,
             // getItems
             t => t.List,
-            // cloneData (Bike and BikeListData are immutable)
-            (data, items) => { return { List: items, TotalRowCount: items.length } }
+            // setItems (Bike and BikeListData are immutable)
+            (data, items) => { return { ...data, List: items } },
+            // newData
+            () => new BikeRentListData()
         ));
 
     public readonly formCache = new ReduxFormDataCache<BikeRentFormData, BikeRent, string>(
@@ -41,7 +43,7 @@ export class BikeRentsState {
             t => t.BikeRentId,
             // getItem
             t => t.BikeRent,
-            // cloneData (Bike and BikeListData are immutable)
+            // setItems (Bike and BikeListData are immutable)
             (data, newItem) => { return { BikeRent: newItem } }
         ));
 

@@ -32,7 +32,7 @@ namespace Toptal.BikeRentals.Web.Api.Master
         {
             try
             {
-                return Helper.OK(ColorService.Get);
+                return Helper.OK(ColorService.GetList);
             }
             catch (Exception ex)
             {

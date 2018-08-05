@@ -147,5 +147,26 @@ namespace Toptal.BikeRentals.Web.Api.Helpers
         }
 
         #endregion
+
+        #region Input Validation
+
+        public void Expect<T>(T entity, object id, Func<T, object> getKey) where T : BusinessEntities.Helpers.IDataObject
+        {
+            if (entity == null)
+                throw new Exceptions.Validation.InputDataMissingException(CallContext.ResourceUri, typeof(T));
+
+            if (id == null || (id is string && string.IsNullOrEmpty((string)id)))
+                throw new Exceptions.Entities.InvalidEntityKeyException(CallContext.ResourceUri, typeof(T), new[] { id }, Microsoft.Extensions.Logging.LogLevel.Warning);
+
+            var key = getKey(entity);
+
+            if (key == null || (key is string && string.IsNullOrEmpty((string)key)) ||
+                (id is string && String.Compare((string)id, key.ToString(), true) != 0) ||
+                (!(id is string) && !Object.Equals(id, key))
+                )
+                throw new Exceptions.Entities.InvalidEntityKeyException(CallContext.ResourceUri, typeof(T), new[] { key }, Microsoft.Extensions.Logging.LogLevel.Warning);
+        }
+
+        #endregion
     }
 }

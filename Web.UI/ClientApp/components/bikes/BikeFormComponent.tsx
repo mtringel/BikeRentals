@@ -19,6 +19,7 @@ import { StringHelper } from '../../helpers/stringHelper';
 import { Color } from '../../models/master/color';
 import { BikeStateHelper, BikeState } from '../../models/bikes/bikeState';
 import { SelectComponent } from '../../components/shared/SelectComponent';
+import { LocationComponent } from '../shared/LocationComponent';
 
 export interface BikeFormComponentProps  {
     readonly bike: Bike;
@@ -30,7 +31,7 @@ export interface BikeFormComponentProps  {
 
 class BikeFormComponentState {
     readonly bike: Bike;
-    isDirty: boolean;
+    readonly isDirty: boolean;
 }
 
 export interface BikeFormComponentActions {
@@ -70,14 +71,13 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
     }
 
     private change(changed: Partial<Bike>) {
-        // TODO
-        //this.setState(
-        //    {
-        //        bike: { ...this.state.bike, ...changed },
-        //        isDirty: true
-        //    },
-        //    () => this.props.onChange(changed, this.state.bike)
-        //);
+        this.setState(
+            {
+                bike: { ...this.state.bike, ...changed },
+                isDirty: true
+            },
+            () => this.props.onChange(changed, this.state.bike)
+        );
     }
 
     public render(): JSX.Element | null | false {
@@ -86,8 +86,8 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
             <div className="form-group">
                 <label htmlFor="state" className="col-sm-3 control-label">Current state</label>
                 <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-info-flash"></i></span>
-                    <BikeStateSelect id="state" name="state" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.bike.BikeState}
+                    <span className="input-group-addon"><i className="glyphicon glyphicon-flash"></i></span>
+                    <BikeStateSelect id="state" name="state" className="form-control" required={true} isReadOnly={this.props.isReadOnly} value={this.state.bike.BikeState}
                         placeholder="Please fill mandatory field"
                         getItem={t => BikeStateHelper.allStates[parseInt(t.value)]}
                         getOption={t => { return { value: TypeHelper.toString(t), text: BikeStateHelper.allNames[t] }; }}
@@ -101,8 +101,8 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
             <div className="form-group">
                 <label htmlFor="model" className="col-sm-3 control-label">Model</label>
                 <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-info-cog"></i></span>
-                    <BikeModelSelect id="model" name="model" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.bike.BikeModel}
+                    <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
+                    <BikeModelSelect id="model" name="model" className="form-control" required={true} isReadOnly={this.props.isReadOnly} value={this.state.bike.BikeModel}
                         placeholder="Please fill mandatory field"
                         getItem={t => { return { ...new BikeModel(), BikeModelId: StringHelper.parseNumber(t.value, true), BikeModelName: t.text }; }}
                         getOption={t => { return { value: TypeHelper.toString(t.BikeModelId), text: t.BikeModelName + " (" + StringHelper.formatNumber(t.WeightLbs, 0, 1, " lbs") + ")" }; }}
@@ -116,8 +116,8 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
             <div className="form-group">
                 <label htmlFor="color" className="col-sm-3 control-label">Color</label>
                 <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-info-tint"></i></span>
-                    <ColorSelect id="color" name="color" className="form-control" required={true} disabled={this.props.isReadOnly} value={this.state.bike.Color}
+                    <span className="input-group-addon"><i className="glyphicon glyphicon-tint"></i></span>
+                    <ColorSelect id="color" name="color" className="form-control" required={true} isReadOnly={this.props.isReadOnly} value={this.state.bike.Color}
                         placeholder="Please fill mandatory field"
                         getItem={t => { return { ...new Color(), ColorId: t.value, ColorName: t.text }; }}
                         getOption={t => { return { value: t.ColorId, text: t.ColorName }; }}
@@ -142,39 +142,23 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
             {/* CurrentLocationLat/Lng */}
             <div className="form-group">
                 <label className="col-sm-3 control-label">Current location</label>
-                <div className="col-sm-9 input-group form-horizontal">
-                    {/* Lat */}
-                    <span className="col-sm-1 form-group">
-                        <label className="col-sm-1 control-label">Lat</label>
-                    </span>
-                    <span className="col-sm-5 form-group">
-                        <span className="input-group-addon"><i className="glyphicon glyphicon-vertical"></i></span>
-                        <NumericInput
-                            className="form-control text-right"
-                            value={this.state.bike.CurrentLocation.Lat}
-                            disable={this.props.isReadOnly}
-                            precision={10}
-                            onChange={t => this.change({ CurrentLocation: { Lat: t, Lng: this.state.bike.CurrentLocation.Lng } })}
-                            format={t => t + "°"}
-                            parse={t => StringHelper.removeSuffix(t, "°", true)}
-                        />
-                    </span>
-                    {/* Lng */}
-                    <span className="col-sm-1 form-group">
-                        <label className="col-sm-1 control-label">Lng</label>
-                    </span>
-                    <span className="col-sm-5 form-group">
-                        <span className="input-group-addon"><i className="glyphicon glyphicon-horizontal"></i></span>
-                        <NumericInput
-                            className="form-control text-right"
-                            value={this.state.bike.CurrentLocation.Lng}
-                            disable={this.props.isReadOnly}
-                            precision={10}
-                            onChange={t => this.change({ CurrentLocation: { Lat: this.state.bike.CurrentLocation.Lat, Lng: t } })}
-                            format={t => t + "°"}
-                            parse={t => StringHelper.removeSuffix(t, "°", true)}
-                        />
-                    </span>
+                <div className="col-sm-9 input-group">
+                    <LocationComponent
+                        isReadOnly={this.props.isReadOnly}
+                        value={this.state.bike.CurrentLocation}
+                        onChange={loc => this.change({ CurrentLocation: loc })}
+                    />
+                </div>
+            </div>
+
+            {/* Distance (read-only */}
+            <div className="form-group">
+                <label className="col-sm-3 control-label">Distance</label>
+                <div className="col-sm-3 input-group">
+                    <span className="input-group-addon"><i className="glyphicon glyphicon-record"></i></span>
+                    <NumericInput className="form-control text-right" precision={1} value={this.state.bike.DistanceMiles} readOnly={true} snap
+                        format={t => t + " mi"}
+                    />
                 </div>
             </div>
         </div>;

@@ -7,6 +7,7 @@ import { BikeListItem } from "../../../models/bikes/bikeListItem";
 import { BikeFormData } from "../../../models/bikes/bikeFormData";
 import { ReduxListDataCache, ReduxListDataCacheProps } from "../../../helpers/reduxListDataCache";
 import { ReduxFormDataCache, ReduxFormDataCacheProps } from "../../../helpers/reduxFormDataCache";
+import { TypeHelper } from "../../../helpers/typeHelper";
 
 /// <summary>
 /// DO NOT add instance properties and functions here.
@@ -32,7 +33,9 @@ export class BikesState {
             // getItems
             t => t.List,
             // setItems (Bike and BikeListData are immutable)
-            (data, items) => { return { List: items, TotalRowCount: items.length } }
+            (data, items) => { return { ...data, List: items } },
+            // newData
+            () => new BikeListData()
         ));
 
     public readonly formCache = new ReduxFormDataCache<BikeFormData, Bike, number>(

@@ -17,8 +17,11 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
 
         public BikeModelRef(BusinessEntities.Bikes.BikeModel model)
         {
-            this.BikeModelId = model.BikeModelId;
-            this.BikeModelName = model.BikeModelName;
+            if (model != null)
+            {
+                this.BikeModelId = model.BikeModelId;
+                this.BikeModelName = model.BikeModelName;
+            }
         }
     }
 }

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { RootState } from '../../store/state/rootState';
 import { storeProvider } from '../../boot';
-import { StoreActionDispatch } from '../../store/actions/storeAction';
+import { StoreDispatch } from '../../store/actions/storeAction';
 import { NavMenuProps, NavMenuActions, NavMenu } from '../../components/NavMenu';
 import { routeUrls } from '../../routes';
 import { NavMenuActions as NavMenuStoreActions } from '../../store/actions/shared/navMenuActions';
@@ -17,7 +17,7 @@ const mapStateToProps: (state: RootState) => Partial<NavMenuProps> = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => NavMenuActions = dispatch => {
+const mapDispatchToProps: (dispatch: StoreDispatch) => NavMenuActions = dispatch => {
     var store = storeProvider();
 
     return {

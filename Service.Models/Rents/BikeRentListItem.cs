@@ -52,16 +52,19 @@ namespace Toptal.BikeRentals.Service.Models.Rents
 
         public BikeRentListItem(BusinessEntities.Rents.BikeRent item)
         {
-            this.BikeRentId = item.BikeRentId;
-            this.BikeRentState = item.BikeRentState;
-            this.Bike = new BikeRef(item.Bike);
-            this.User = new UserRef(item.User);
-            this.StartDateUtc = item.StartDateUtc;
-            this.EndDateUtc = item.EndDateUtc;
-            this.PickUpLocation = item.PickUpLocation;
-            this.PickUpLocationName = item.PickUpLocationName;
-            this.ReturnLocation = item.ReturnLocation;
-            this.ReturnLocationName = item.ReturnLocationName;
+            if (item != null)
+            {
+                this.BikeRentId = item.BikeRentId;
+                this.BikeRentState = item.BikeRentState;
+                this.Bike = new BikeRef(item.Bike);
+                this.User = new UserRef(item.User);
+                this.StartDateUtc = item.StartDateUtc;
+                this.EndDateUtc = item.EndDateUtc;
+                this.PickUpLocation = item.PickUpLocation;
+                this.PickUpLocationName = item.PickUpLocationName;
+                this.ReturnLocation = item.ReturnLocation;
+                this.ReturnLocationName = item.ReturnLocationName;
+            }
         }
     }
 }

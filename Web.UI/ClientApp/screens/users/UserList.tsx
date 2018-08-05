@@ -1,5 +1,4 @@
 ﻿import * as React from 'react';
-import { FormEvent } from 'react';
 import { ErrorIndicatorComponent } from '../../components/shared/errorIndicatorComponent';
 import { LoaderIndicatorComponent } from '../../components/shared/loaderIndicatorComponent';
 import { StringHelper } from '../../helpers/stringHelper';
@@ -9,7 +8,6 @@ import { AppUser } from '../../models/security/appUser';
 import { RoleType } from '../../models/security/roleType';
 import { UserAuthContext } from '../../models/users/userAuthContext';
 import Button from 'react-bootstrap/lib/Button';
-import { IScreen } from '../../helpers/IScreen';
 import { Store } from '../../store/store';
 import { ScreenBase, PropsBase } from '../../helpers/screenBase';
 
@@ -20,15 +18,15 @@ export interface UserListProps extends PropsBase {
 export interface UserListActions {    
     readonly onInit: (onSuccess: (options: { authContext: UserAuthContext, initialLoadCached: boolean, keepNavigation: boolean }) => void) => void;
     readonly onLoad: (allowCachedData: boolean, filter: string, onSuccess: (data: UserListData) => void) => void;
-    readonly onEdit: (filter: string, user: User) => void;
-    readonly onAddNew: (filter: string) => void;    
+    readonly onEdit: (user: User) => void;
+    readonly onAddNew: () => void;    
 }
 
 class UserListState {
     readonly filter: string;
-    readonly data: UserListData;
-    readonly authContext: UserAuthContext;
-    readonly isInitialized: boolean;    
+    readonly data = new UserListData();
+    readonly authContext = new UserAuthContext();
+    readonly isInitialized: boolean;
 }
 
 export class UserList extends ScreenBase<UserListProps & UserListActions, UserListState>
@@ -38,20 +36,21 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        this.props.onInit(options => {
+        // set empty state for render()
+        this.setState(new UserListState(), () => {
+            this.props.onInit(options => {
+                var storeState = this.props.store.getState().users;
 
-            var storeState = this.props.store.getState().users;
-
-            // set empty state for render()
-            var empty: UserListState = {
-                filter: options.keepNavigation ? StringHelper.notNullOrEmpty(storeState.listFilter, "") : "",
-                data: new UserListData(),
-                authContext: options.authContext,
-                isInitialized: false,
-            };
-
-            // invoke asynchronous load after successful authorization
-            this.setState(empty, () => this.loadData(options.initialLoadCached));
+                this.setState({
+                    filter: options.keepNavigation ? StringHelper.notNullOrEmpty(storeState.listFilter, "") : "",
+                    data: new UserListData(),
+                    authContext: options.authContext,
+                    isInitialized: false,
+                },
+                    // invoke asynchronous load after successful authorization
+                    () => this.loadData(options.initialLoadCached)
+                );
+            });
         });
     }
 
@@ -59,18 +58,18 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
         this.props.onLoad(allowCachedData, this.state.filter, t => this.setState({ data: t, isInitialized: true }));
     }
 
-    private addNew() {
+    private onAddNew() {
         if (this.state.isInitialized)
-            this.props.onAddNew(this.state.filter);
+            this.props.onAddNew();
     }
 
-    private search() {
+    private onSearch() {
         this.loadData(false);
     }
 
-    private edit(user: User) {
+    private onEdit(user: User) {
         if (this.state.isInitialized)
-            this.props.onEdit(this.state.filter, user);
+            this.props.onEdit(user);
     }
 
     private canEdit(user: User): boolean {
@@ -98,7 +97,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                     <div className="row">
                         {/* New button */}
                         <div className="col-md-4 text-left">
-                            {this.canAddNew() && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.addNew()}>
+                            {this.canAddNew() && <Button bsStyle="primary" disabled={!this.state.isInitialized} onClick={e => this.onAddNew()}>
                                 <i className="glyphicon glyphicon-file"></i> New
                             </Button>}
                         </div>
@@ -115,7 +114,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                                 <input type="text" id="searchText" className="form-control pull-right" disabled={!this.state.isInitialized} value={StringHelper.notNullOrEmpty(this.state.filter, "")}
                                     placeholder="Search for..." onChange={e => this.setState({ filter: e.target.value })} />
                                 <span className="input-group-btn">
-                                    <Button type="submit" bsStyle="default" disabled={!this.state.isInitialized} onClick={e => this.search()}>
+                                    <Button type="submit" bsStyle="default" disabled={!this.state.isInitialized} onClick={e => this.onSearch()}>
                                         <i className="text-muted glyphicon glyphicon-search"></i>
                                     </Button>
                                 </span>
@@ -143,7 +142,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                                         <td>{item.Email}</td>
                                         <td>{item.RoleTitle}</td>
                                         <td>
-                                            {this.canEdit(item) && <Button bsStyle="primary" bsSize="xsmall" onClick={e => this.edit(item)} >
+                                            {this.canEdit(item) && <Button bsStyle="primary" bsSize="xsmall" onClick={e => this.onEdit(item)} >
                                                 <i className="glyphicon glyphicon-edit"></i>
                                             </Button>
                                             }

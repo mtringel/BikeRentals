@@ -4,6 +4,6 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
 {
     public sealed class BikeFormData : Model
     {
-        public Bike[] Bike { get; set; }
+        public Bike Bike { get; set; }
     }
 }

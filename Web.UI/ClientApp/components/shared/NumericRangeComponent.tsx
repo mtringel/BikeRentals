@@ -63,7 +63,7 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: ThisProps) {
+    private initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState = {
@@ -74,7 +74,7 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
         this.setState(initial);
     }
 
-    private onSelectionChanged(start: number | null, end: number | null) {
+    private onChange(start: number | null, end: number | null) {
         if (!this.props.isReadOnly) {
             var from = TypeHelper.notNullOrEmpty(start, this.props.defaultStart);
             var to = TypeHelper.notNullOrEmpty(end, this.props.defaultEnd);
@@ -103,7 +103,7 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
     public render(): JSX.Element | null | false {
         return <div className="text-nowrap form-horizontal">
             {/* From */}
-            <span className="col-sm-6 form-group">
+            <span className="col-sm-5 form-group no-margins-top-bottom">
                 <span className="col-sm-12 input-group">
                     {!StringHelper.isNullOrEmpty(this.props.glyphIcon) &&
                         < span className="input-group-addon" > <i className={"glyphicon glyphicon-" + this.props.glyphIcon}></i></span>
@@ -111,10 +111,10 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
                     <NumericInput
                         className="form-control text-right"
                         value={this.state.start}
-                        disable={this.props.isReadOnly}
+                        readOnly={this.props.isReadOnly}
                         step={TypeHelper.notNullOrEmpty(this.props.step, 1)}
                         precision={TypeHelper.notNullOrEmpty(this.props.precision, 0)}
-                        onChange={t => this.onSelectionChanged(t, this.state.end)}
+                        onChange={t => this.onChange(t, this.state.end)}
                         format={t => t + StringHelper.notNullOrEmpty(this.props.inputSuffix, "")}
                         parse={t => StringHelper.removeSuffix(t, this.props.inputSuffix, true)}
                     />
@@ -124,15 +124,15 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
                 <label className="control-label text-nowrap">-</label>
             </span>
             {/* To */}
-            <span className="col-sm-5 form-group">
+            <span className="col-sm-4 form-group no-margins-top-bottom">
                 <span className="col-sm-12 input-group">
                     <NumericInput
                         className="form-control text-right"
                         value={this.state.end}
-                        disable={this.props.isReadOnly}
+                        readOnly={this.props.isReadOnly}
                         step={TypeHelper.notNullOrEmpty(this.props.step, 1)}
                         precision={TypeHelper.notNullOrEmpty(this.props.precision, 0)}
-                        onChange={t => this.onSelectionChanged(this.state.start, t)}
+                        onChange={t => this.onChange(this.state.start, t)}
                         format={t => t + StringHelper.notNullOrEmpty(this.props.inputSuffix, "")}
                         parse={t => StringHelper.removeSuffix(t, this.props.inputSuffix, true)}
                     />

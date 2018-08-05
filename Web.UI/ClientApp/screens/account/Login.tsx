@@ -25,7 +25,7 @@ export interface LoginActions {
 }
 
 class LoginState {
-    public readonly data: LoginData;
+    public readonly data = new LoginData();
 }
 
 type ThisProps = LoginProps & LoginActions;
@@ -39,11 +39,7 @@ export class Login extends ScreenBase<ThisProps, ThisState> {
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        var empty: ThisState = {
-            data: new LoginData()
-        };
-
-        this.setState(empty);
+        this.setState(new LoginState());
     }
 
     public componentDidMount() {

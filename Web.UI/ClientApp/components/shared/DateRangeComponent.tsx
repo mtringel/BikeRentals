@@ -25,7 +25,6 @@ export interface DateRangeComponentProps {
     readonly defaultEndDate: Date | null;
     readonly defaultStartDate: Date | null;
     readonly glyphIcon: string;
-    readonly suffix: string;
     readonly format: string;
 }
 
@@ -70,7 +69,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: ThisProps) {
+    private initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
         var rootState = props.store.getState();
@@ -78,13 +77,13 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
         var initial: ThisState = {
             startDate: props.startDate,
             endDate: props.endDate,
-            format: StringHelper.notNullOrEmpty(this.props.format, "")
+            format: StringHelper.notNullOrEmpty(props.format, "")
         };
 
         this.setState(initial);
     }
 
-    private onSelectionChange(startDate: Date | null, endDate: (start: Date | null) => Date | null) {
+    private change(startDate: Date | null, endDate: (start: Date | null) => Date | null) {
         if (!this.props.isReadOnly) {
             var from = TypeHelper.notNullOrEmpty(startDate, this.props.defaultStartDate);
             var to = TypeHelper.notNullOrEmpty(endDate(from), this.props.defaultEndDate);
@@ -94,7 +93,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     }
 
     private onStartChange(start: Date | null) {
-        this.onSelectionChange(
+        this.change(
             start,
             // endDate?
             start => TypeHelper.isNullOrEmpty(start) || TypeHelper.isNullOrEmpty(this.state.endDate) ?
@@ -104,7 +103,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
     }
 
     private onEndChange(end: Date | null) {
-        this.onSelectionChange(
+        this.change(
             DateHelper.min(end, this.state.startDate),
             start => end
         );
@@ -112,7 +111,7 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
 
     public render(): JSX.Element | null | false {
         {/* DatePicker.defaultValue, minDate and maxDate don't work */ }
-        return <div className="text-nowrap form-horizontal">
+        return <div className="text-nowrap form-inline">
             {/* From */}
             <span className="col-sm-6 form-group">
                 <span className="col-sm-12 input-group">
@@ -149,9 +148,6 @@ export class DateRangeComponent extends ComponentBase<ThisProps, ThisState> {
                     />
                 </span>
             </span>
-            {!StringHelper.isNullOrEmpty(this.props.suffix) &&
-                <span className="col-sm-1" ><label className="control-label text-nowrap">{this.props.suffix}</label></span>
-            }
         </div>;
     }
 }

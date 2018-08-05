@@ -19,6 +19,8 @@ export class BikeModelsState {
             // getItems
             t => t.List,
             // setItems
-            (data, items) => { return { List: items } }
+            (data, items) => { return { List: items } },
+            // newData
+            () => new BikeModelListData()
         ));
 }

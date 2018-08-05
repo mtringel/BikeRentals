@@ -22,11 +22,14 @@ namespace Toptal.BikeRentals.Service.Models.Helpers
 
         public GridPagingInfo(BusinessEntities.Helpers.PagingInfo  paging)
         {
-            this.FirstRow = paging.FirstRow;
-            this.RowCount = paging.RowCount;
-            this.OrderBy = paging.OrderBy;
-            this.OrderByDescending = paging.OrderByDescending;
-            this.ReturnTotalRowCount = paging.ReturnTotalRowCount;
+            if (paging != null)
+            {
+                this.FirstRow = paging.FirstRow;
+                this.RowCount = paging.RowCount;
+                this.OrderBy = paging.OrderBy;
+                this.OrderByDescending = paging.OrderByDescending;
+                this.ReturnTotalRowCount = paging.ReturnTotalRowCount;
+            }
         }
 
         public BusinessEntities.Helpers.PagingInfo ToEntity() 

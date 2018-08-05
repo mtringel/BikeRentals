@@ -15,7 +15,7 @@ export interface MultiSelectComponentProps<TItem, TKey> {
     readonly id: string;
     readonly name: string;
     readonly className: string;
-    readonly disabled: boolean;
+    readonly isReadOnly: boolean;
     readonly allowMultiple: boolean;
     readonly values: TKey[];
     readonly placeholder: string;
@@ -61,19 +61,19 @@ export class MultiSelectComponent<TItem, TKey> extends ComponentBase<ThisProps<T
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>+
-    public initialize(props: ThisProps<TItem, TKey>) {
+    private initialize(props: ThisProps<TItem, TKey>) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState<TItem, TKey> = {
-            items: this.props.items,
-            values: this.props.values
+            items: props.items,
+            values: props.values
         };
 
         this.setState(initial);
     }
 
     private onChange(values: TItem[]) {
-        if (!this.props.disabled) {
+        if (!this.props.isReadOnly) {
             var keys = ArrayHelper.select(values, t => t[this.props.valueKey]);
             this.setState({ values: keys }, () => this.props.onChange(keys, values));
         }
@@ -84,7 +84,7 @@ export class MultiSelectComponent<TItem, TKey> extends ComponentBase<ThisProps<T
             id={this.props.id}
             name={this.props.name}
             className={this.props.className}
-            isDisabled={this.props.disabled}
+            isDisabled={this.props.isReadOnly}
             value={this.state.values}
             placeholder={this.props.placeholder}
             valueKey={this.props.valueKey}

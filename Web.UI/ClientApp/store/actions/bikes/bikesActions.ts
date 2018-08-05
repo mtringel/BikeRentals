@@ -28,7 +28,11 @@ const serviceUrl = {
         "&paging=" + encodeURI(JSON.stringify(paging)) +
         (TypeHelper.isNullOrEmpty(currentLocation) ? "" : ("&currentLocation=" + encodeURI(JSON.stringify(currentLocation))))
     ,
-    getById: (bikeId: number) => "api/bikes/" + encodeURI(bikeId.toString()),
+    getById: (bikeId: number, currentLocation: Location | null) =>
+        "api/bikes/" +
+        encodeURI(bikeId.toString()) +
+        (TypeHelper.isNullOrEmpty(currentLocation) ? "" : ("?currentLocation=" + encodeURI(JSON.stringify(currentLocation))))
+    ,
     post: () => "api/bikes",
     put: (bikeId: number) => "api/bikes/" + encodeURI(bikeId.toString()),
     delete: (bikeId: number) => "api/bikes/" + encodeURI(bikeId.toString())
@@ -67,6 +71,10 @@ export class BikesActions {
             var rootState = getState();
             var state = rootState.bikes;
             var data = allowCachedData ? state.listCache.getListData({ ...filter, ...paging }) : null;
+
+            // ReturnTotalRowCount can ruin our caching logic
+            if (allowCachedData && data === null && !paging.ReturnTotalRowCount)
+                data = state.listCache.getListData({ ...filter, ...paging, ReturnTotalRowCount: true }); // this will be also good for us
 
             if (!TypeHelper.isNullOrEmpty(data)) {
                 // return from store 
@@ -110,7 +118,7 @@ export class BikesActions {
                 } else {
                     // return from server
                     dispatch(WebApiServiceActions.get<BikeFormData>(
-                        serviceUrl.getById(bikeId),
+                        serviceUrl.getById(bikeId, rootState.clientContext.currentLocation),
                         result => {
                             dispatch(BikesActions.setFormData(result));
                             onSuccess(result);
@@ -262,29 +270,15 @@ export class BikesActions {
         };
     }
 
-    //public authorizeEdit(
-    //    bikeId: string,
-    //    isNewBike: boolean,
-    //    onSuccess?: ((authContext: BikeAuthContext) => void) | undefined | null,
-    //    onError?: (error: WebApiResult<ErrorDetails>) => void
-    //): (dispatch: (action: IStoreAction | ((action: any) => void)) => void) => void {
-    //    var self = this;
-    //    return (dispatch, getState) => {
-    //        if (isNewBike) {
-    //            dispatch(self.authorizeAny(true, Permission.Bike_Management, false, onSuccess, onError));
-    //        } else {
-    //            dispatch(self.store.actions.authService.authorize(true, [Permission.Bike_EditProfile, Permission.Bike_Management], false,
-    //                bike => {
-    //                    // own profile? 
-    //                    var perm = bike.BikeId === bikeId ? Permission.BikeRents_ManageOwn : Permission.Bike_Management;
-    //                    dispatch(self.authorizeAny(true, perm, false, onSuccess, onError));
-    //                },
-    //                error => {
-    //                    if (!TypeHelper.isNullOrEmpty(onError))
-    //                        onError(error);
-    //                }
-    //            ));
-    //        }
-    //    };
-    //}
+    public static authorizeEdit(
+        bikeId: number,
+        isNewBike: boolean,
+        onSuccess?: ((authContext: BikeAuthContext) => void) | undefined | null,
+        onError?: (error: WebApiResult<ErrorDetails>) => void
+    ): StoreActionThunk {
+
+        return (dispatch, getState) => {
+            dispatch(BikesActions.authorizeAny(true, Permission.Bike_Management, false, onSuccess, onError));
+        }
+    }
 }

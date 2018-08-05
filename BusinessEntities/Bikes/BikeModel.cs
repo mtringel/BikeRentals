@@ -26,6 +26,14 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             IsActive = true;
         }
 
+        public BikeModel(int bikeModelId, string bikeModelName, float weightLbs, bool isActive)
+        {
+            this.BikeModelId = bikeModelId;
+            this.BikeModelName = bikeModelName;
+            this.WeightLbs = weightLbs;
+            this.IsActive = isActive;
+        }
+
         public override object[] Keys()
         {
             return new object[] { BikeModelId };

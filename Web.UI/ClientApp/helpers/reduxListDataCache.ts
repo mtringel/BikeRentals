@@ -12,6 +12,7 @@ export class ReduxListDataCacheProps<TData, TItem, TKey, TFilter> {
 
     // For direct maching:
     public readonly getKey: (item: TItem) => TKey;
+    public readonly newData: () => TData;
     public readonly getItems: (data: TData) => TItem[];
     public readonly setItems: (data: TData | null, newItems: TItem[]) => TData;
 
@@ -41,11 +42,13 @@ export class ReduxListDataCacheProps<TData, TItem, TKey, TFilter> {
         getKey: (item: TItem) => TKey,
         getItems: (data: TData) => TItem[],
         setItems: (data: TData | null, newItems: TItem[]) => TData,
+        newData: () => TData,
         getMatch?: ((item: TItem, filter: TFilter) => boolean) | undefined | null,
         isSubSet?: (parentFilter: TFilter, parentData: TData, subFilter: TFilter) => boolean | undefined | null,
         getSubSet?: ((parentFilter: TFilter, parentData: TData, subFilter: TFilter, getMatch: ((item: TItem, filter: TFilter) => boolean) | null) => TData) | undefined | null
     ) {
         this.getKey = getKey;
+        this.newData = newData;
         this.getItems = getItems;
         this.setItems = setItems;
         this.isSubSet = isSubSet;
@@ -196,7 +199,7 @@ export class ReduxListDataCache<TData, TItem, TKey, TFilter> {
                         // entities are immutable, clone the list
                         {
                             filter: lastFilter,
-                            data: this.props.setItems(null, [newItem])
+                            data: this.props.setItems(this.props.newData(), [newItem])
                         }
                     ));
             }

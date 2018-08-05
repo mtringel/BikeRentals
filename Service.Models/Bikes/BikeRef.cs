@@ -28,9 +28,12 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
 
         public BikeRef(BusinessEntities.Bikes.Bike bike)
         {
-            this.BikeId = bike.BikeId;
-            this.BikeModel = new BikeModelRef(bike.BikeModel);
-            this.Color = bike.Color;
+            if (bike != null)
+            {
+                this.BikeId = bike.BikeId;
+                this.BikeModel = new BikeModelRef(bike.BikeModel);
+                this.Color = bike.Color;
+            }
         }
     }
 }

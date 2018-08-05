@@ -35,15 +35,18 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         public BikeListItem(BusinessEntities.Bikes.Bike bike, Location? currentLocation)
             : base(bike)
         {
-            this.BikeModel = new BikeModel(bike.BikeModel);
-            this.BikeState = bike.BikeState;
-            this.CurrentLocation = bike.CurrentLocation;
-            this.AvailableFromUtc = bike.AvailableFromUtc;
-            this.RateAverage = bike.RateAverage;
-            this.CurrentLocationName = bike.CurrentLocationName;
+            if (bike != null)
+            {
+                this.BikeModel = new BikeModel(bike.BikeModel);
+                this.BikeState = bike.BikeState;
+                this.CurrentLocation = bike.CurrentLocation;
+                this.AvailableFromUtc = bike.AvailableFromUtc;
+                this.RateAverage = bike.RateAverage;
+                this.CurrentLocationName = bike.CurrentLocationName;
 
-            if (currentLocation.HasValue)
-                this.DistanceMiles = Location.DistanceMiles(bike.CurrentLocation, currentLocation.Value);
+                if (currentLocation.HasValue)
+                    this.DistanceMiles = Location.DistanceMiles(bike.CurrentLocation, currentLocation.Value);
+            }
         }
     }
 }

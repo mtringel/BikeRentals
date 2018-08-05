@@ -43,7 +43,7 @@ namespace Toptal.BikeRentals.Service.Api.Rents
         /// </summary>
         public BikeRentListData GetList(BikeRentListFilter filter, PagingInfo paging)
         {
-            using (var scope = Scope("Get"))
+            using (var scope = Scope("GetList"))
             {
                 // authorize
                 AuthProvider.Authorize(Permission.BikeRents_ViewAll, Permission.BikeRents_ManageAll, Permission.BikeRents_ManageOwn);
@@ -74,7 +74,7 @@ namespace Toptal.BikeRentals.Service.Api.Rents
         ///// Get single entity
         ///// id == bikeId or "new" 
         ///// </summary>
-        //public BikeFormData Get(int bikeId)
+        //public BikeFormData GetById(int bikeId)
         //{
         //    using (var scope = Scope("Get", new BikeFormData()))
         //    {

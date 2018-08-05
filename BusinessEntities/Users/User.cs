@@ -80,11 +80,18 @@ namespace Toptal.BikeRentals.BusinessEntities.Users
 
         public bool IsActive { get { return Role != RoleType.Disabled; } }
 
+        [NotMapped]
+        /// <summary>
+        /// Entity is created from UI data, not loaded from db. Usually, only the key fields are set, the rest are set to default.
+        /// Used when constructing referred entities, like CreatedBy.
+        /// </summary>
+        public bool IsPartial { get; set; }
+
         public User()
         {
         }
 
-        public User(string userId, string firstName, string lastName, string userName, string email, string password, RoleType role)
+        public User(string userId, string firstName, string lastName, string userName, string email, string password, RoleType role, bool isPartial)
         {
             this.UserId = userId;
             this.FirstName = firstName;
@@ -93,6 +100,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Users
             this.Email = email;
             this.Password = password;
             this.Role = role;
+            this.IsPartial = isPartial;
         }
        
     }

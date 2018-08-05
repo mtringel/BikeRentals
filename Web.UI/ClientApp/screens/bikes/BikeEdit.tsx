@@ -2,69 +2,76 @@
 import { ErrorIndicatorComponent } from '../../components/shared/errorIndicatorComponent';
 import { LoaderIndicatorComponent } from '../../components/shared/loaderIndicatorComponent';
 import { StringHelper } from '../../helpers/stringHelper';
-import { User } from '../../models/users/user';
-import { RoleType } from '../../models/security/roleType';
-import { UserFormComponent } from '../../components/users/UserFormComponent';
-import { UserAuthContext } from '../../models/users/userAuthContext';
-import { UserDeleteModalComponent } from '../../components/users/UserDeleteModalComponent';
 import Button from 'react-bootstrap/lib/Button';
 import { Store } from '../../store/store';
 import { ScreenBase, PropsBase } from '../../helpers/screenBase';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { FormValidatorActions } from '../../store/actions/shared/formValidatorActions';
-import { UserFormData } from '../../models/users/userFormData';
+import { BikeAuthContext } from '../../models/bikes/bikeAuthContext';
+import { BikeFormData } from '../../models/bikes/bikeFormData';
+import { Bike } from '../../models/bikes/bike';
+import { BikeFormComponent } from '../../components/bikes/BikeFormComponent';
+import { Color } from '../../models/master/color';
+import { BikeModel } from '../../models/bikes/bikeModel';
 
-export interface UserEditProps extends PropsBase {
+export interface BikeEditProps extends PropsBase {
     readonly store: Store;
 }
 
-export interface UserEditActions {
-    readonly onInit: (userId: string, isNewUser: boolean, onSuccess: (options: { authContext: UserAuthContext, initialLoadCached: boolean }) => void) => void;
-    readonly onLoad: (allowCachedData: boolean, userId: string, isNewUser: boolean, isProfile: boolean, onSuccess: (data: UserFormData) => void) => void; 
-    readonly onCancel: (user: User, isNewUser: boolean, isProfile: boolean) => void;
-    readonly onSave: (user: User, isNewUser: boolean, isProfile: boolean) => void;
-    readonly onDelete: (user: User, isNewUser: boolean, isProfile: boolean) => void;
+export interface BikeEditActions {
+    readonly onInit: (bikeId: number, isNewBike: boolean, onSuccess: (options: {
+        authContext: BikeAuthContext,
+        initialLoadCached: boolean,
+        colors: Color[],
+        bikeModels: BikeModel[]
+    }) => void) => void;
+
+    readonly onLoad: (allowCachedData: boolean, bikeId: number, isNewBike: boolean, onSuccess: (data: BikeFormData) => void) => void;
+    readonly onCancel: (bike: Bike, isNewBike: boolean) => void;
+    readonly onSave: (bike: Bike, isNewBike: boolean) => void;
+    readonly onDelete: (bike: Bike, isNewBike: boolean) => void;
 }
 
-class UserEditState {
-    readonly data = new UserFormData();
-    readonly userId: string; // id == userId or "new" or "profile" (own)
-    readonly isNewUser: boolean;
-    readonly isProfile: boolean;
+class BikeEditState {
+    readonly data = new BikeFormData();
+    readonly bikeId: number; // id == bikeId or 0 for new
+    readonly isNewBike: boolean;
     readonly isDirty: boolean;
-    readonly authContext = new UserAuthContext();
+    readonly authContext = new BikeAuthContext();
     readonly isInitialized: boolean;
+    readonly colors: Color[] = [];
+    readonly bikeModels: BikeModel[] = [];
 }
 
-type ThisProps = UserEditProps & UserEditActions;
-type ThisState = UserEditState;
+type ThisProps = BikeEditProps & BikeEditActions;
+type ThisState = BikeEditState;
 
-export class UserEdit extends ScreenBase<ThisProps, ThisState> 
+export class BikeEdit extends ScreenBase<ThisProps, ThisState>
 {
     private form: HTMLFormElement;
-    private userDeleteModal: UserDeleteModalComponent;
 
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
         // set empty state for render()
-        var userId = TypeHelper.notNullOrEmpty((this.props as any).match.params.userId, "profile");
-        var isNew = StringHelper.equals(userId, "new", true);
+        var bikeId = StringHelper.parseNumber((this.props as any).match.params.bikeId, true);
+        var isNew = (bikeId <= 0);
 
         // set empty state for render()
-        this.setState(new UserEditState(), () => {
-            this.props.onInit(userId, isNew, options => {
+        this.setState(new BikeEditState(), () => {
+            this.props.onInit(bikeId, isNew, options => {
 
+                // invoke asynchronous load after successful authorization        
                 this.setState({
-                    data: new UserFormData(),
-                    userId: userId,
-                    isNewUser: isNew,
-                    isProfile: StringHelper.equals(userId, "profile", true),
+                    data: new BikeFormData(),
+                    bikeId: bikeId,
+                    isNewBike: isNew,
                     isDirty: false,
                     authContext: options.authContext,
-                    isInitialized: false
+                    isInitialized: false,
+                    colors: options.colors,
+                    bikeModels: options.bikeModels
                 },
-                    // invoke asynchronous load after successful authorization        
                     () => {
                         if (options.authContext.canManage)
                             this.loadData(options.initialLoadCached)
@@ -77,15 +84,14 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
     private loadData(allowCachedData: boolean) {
         this.props.onLoad(
             allowCachedData,
-            this.state.userId,
-            this.state.isNewUser,
-            this.state.isProfile,
+            this.state.bikeId,
+            this.state.isNewBike,
             data => this.setState({ data: data, isInitialized: true })
         );
     }
 
     private onCancel() {
-        this.props.onCancel(this.state.data.User, this.state.isNewUser, this.state.isProfile);
+        this.props.onCancel(this.state.data.Bike, this.state.isNewBike);
     }
 
     private onSubmit() {
@@ -94,7 +100,7 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
                 this.form,
                 (isValid, errors) => {
                     if (isValid)
-                        this.props.onSave(this.state.data.User, this.state.isNewUser, this.state.isProfile);
+                        this.props.onSave(this.state.data.Bike, this.state.isNewBike);
                     else
                         this.props.store.dispatch(FormValidatorActions.showValidationErrors());
                 }
@@ -103,39 +109,40 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
     }
 
     private onConfirmDelete() {
-        if (this.state.isInitialized && !this.state.isNewUser)
-            this.userDeleteModal.show();
+        // TODO
+        //if (this.state.isInitialized && !this.state.isNewBike)
+        //    this.userDeleteModal.show();
     }
 
     private onDelete() {
-        if (this.state.isInitialized && !this.state.isNewUser)
-            this.props.onDelete(this.state.data.User, this.state.isNewUser, this.state.isProfile);
+        if (this.state.isInitialized && !this.state.isNewBike)
+            this.props.onDelete(this.state.data.Bike, this.state.isNewBike);
     }
 
-    private change(changed: Partial<User>) {
-        this.setState({ data: { ...this.state.data, User: { ...this.state.data.User, ...changed } }, isDirty: true });
+    private change(changed: Partial<Bike>) {
+        this.setState({ data: { ...this.state.data, Bike: { ...this.state.data.Bike, ...changed } }, isDirty: true });
     }
 
     public render(): JSX.Element | null | false {
         return <div>
-            <h2>{this.state.isNewUser ? "New user" : this.state.isProfile ? "Edit profile" : "Modify user"}</h2>
+            <h2>{this.state.isNewBike ? "New bike" : "Modify bike"}</h2>
             <h3></h3>
             <ErrorIndicatorComponent store={this.props.store} />
             <LoaderIndicatorComponent store={this.props.store} />
 
             <div id="panelPrimary" className="panel panel-primary">
 
-                <div className="panel-heading">User Form</div>
+                <div className="panel-heading">Bike Form</div>
                 <div className="panel-body">
 
                     <form className="form-horizontal" role="form" id="form" name="form" ref={form => this.form = form} onSubmit={e => { e.preventDefault(); this.onSubmit(); }}>
 
-                        <UserFormComponent
-                            user={this.state.data.User}
+                        <BikeFormComponent
+                            bike={this.state.data.Bike}
                             authContext={this.state.authContext}
-                            requirePassword={this.state.isNewUser}
-                            showPassword={true}
                             isReadOnly={!this.state.isInitialized}
+                            bikeModels={this.state.bikeModels}
+                            colors={this.state.colors}
                             onChange={(changed, data) => this.change(changed)}
                         />
 
@@ -162,7 +169,7 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
                                 </span>
 
                                 {/* Delete */}
-                                {!this.state.isNewUser && <span>
+                                {!this.state.isNewBike && <span>
                                     &nbsp;
                                     <Button bsStyle="danger" disabled={!this.state.isInitialized} onClick={e => this.onConfirmDelete()} >
                                         <i className="glyphicon glyphicon-trash"></i> Delete
@@ -177,14 +184,6 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
 
                 </div>
             </div>
-
-            <UserDeleteModalComponent
-                ref={el => this.userDeleteModal = el}
-                authContext={this.state.authContext}
-                user={this.state.data.User}
-                onCancel={(props, modal) => modal.hide()}
-                onConfirm={(props, modal) => { modal.hide(); this.onDelete(); }}
-            />
         </div>;
     }
 }

@@ -61,7 +61,7 @@ export class AutoCompleteComponent extends ComponentBase<ThisProps, ThisState> {
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: ThisProps) {
+    private initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState = {

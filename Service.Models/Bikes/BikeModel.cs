@@ -10,7 +10,18 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         public BikeModel(BusinessEntities.Bikes.BikeModel model)
             : base(model)
         {
-            this.WeightLbs = model.WeightLbs;
+            if (model != null)
+            {
+                this.WeightLbs = model.WeightLbs;
+            }
+        }
+
+        /// <summary>
+        /// Returns partial entity.
+        /// </summary>
+        public BusinessEntities.Bikes.BikeModel ToEntityPartial()
+        {
+            return new BusinessEntities.Bikes.BikeModel(BikeModelId, BikeModelName, WeightLbs, true);
         }
     }
 }

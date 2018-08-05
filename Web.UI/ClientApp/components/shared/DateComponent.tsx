@@ -66,12 +66,12 @@ export class DateComponent extends ComponentBase<ThisProps, ThisState> {
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: ThisProps) {
+    private initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState = {
             value: props.value,
-            format: StringHelper.notNullOrEmpty(this.props.format, "")
+            format: StringHelper.notNullOrEmpty(props.format, "")
         };
 
         this.setState(initial);
@@ -99,7 +99,7 @@ export class DateComponent extends ComponentBase<ThisProps, ThisState> {
         return <Date
             className={this.props.className}
             value={DateHelper.toISOString(this.state.value)}
-            disable={this.props.isReadOnly}
+            disabled={this.props.isReadOnly}
             format={this.state.format}
             onChange={t => this.onChange(DateHelper.parseISOString(t, true))}
         />;

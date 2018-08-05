@@ -81,6 +81,7 @@ namespace Toptal.BikeRentals.Service.Api.Users
                 AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
 
                 // prepare
+                Helper.Expect(typeof(User), userId);
                 var isNew = string.Compare(userId, "new", true) == 0;
                 var ownProfile = !isNew && (userId == "profile" || string.Compare(userId, AuthProvider.CurrentUser.UserId, true) == 0);
 
@@ -109,14 +110,12 @@ namespace Toptal.BikeRentals.Service.Api.Users
         {
             using (var scope = Scope("Post"))
             {
-                AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
+                // authorize
+                AuthProvider.Authorize(Permission.User_Management); // throws UnauthenticatedException or we have CurrentUser after this
 
                 // prepare
                 Helper.Expect(user);
                 user.UserName = user.Email;
-
-                // authorize
-                AuthProvider.Authorize(Permission.User_Management);
 
                 // only Admin can set roles other than User
                 if (!AuthProvider.HasPermission(Permission.User_Management_SetRole) && user.Role != RoleType.User)
@@ -193,17 +192,17 @@ namespace Toptal.BikeRentals.Service.Api.Users
         /// <summary>
         /// Delete single entity
         /// </summary>
-        public void Delete(string id)
+        public void Delete(string userId)
         {
             using (var scope = Scope("Delete"))
             {
                 AuthProvider.Authenticate(); // throws UnauthenticatedException or we have CurrentUser after this
 
                 // prepare
-                Helper.Expect(typeof(User), id);
+                Helper.Expect(typeof(User), userId);
 
-                var ownProfile = string.Compare(id, AuthProvider.CurrentUser.UserId, true) == 0;
-                var oldUser = UserManager.GetById(id);
+                var ownProfile = string.Compare(userId, AuthProvider.CurrentUser.UserId, true) == 0;
+                var oldUser = UserManager.GetById(userId);
 
                 // authorize
                 if (ownProfile)
@@ -217,9 +216,9 @@ namespace Toptal.BikeRentals.Service.Api.Users
 
                 // process
                 // UserManager.Delete(id);
-                UserManager.Disable(id);
+                UserManager.Disable(userId);
 
-                scope.Complete(() => $"User has been deleted with Id={id}.");
+                scope.Complete(() => $"User has been deleted with Id={userId}.");
             }
         }
 

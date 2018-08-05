@@ -66,12 +66,12 @@ export class DateTimeComponent extends ComponentBase<ThisProps, ThisState> {
     /// Mandatory and must call super.
     /// DO NOT use this.props here, always user props parameter!
     /// </summary>
-    public initialize(props: ThisProps) {
+    private initialize(props: ThisProps) {
         if (super.componentWillMount) super.componentWillMount();
 
         var initial: ThisState = {
             value: props.value,
-            format: StringHelper.notNullOrEmpty(this.props.format, "")
+            format: StringHelper.notNullOrEmpty(props.format, "")
         };
 
         this.setState(initial);

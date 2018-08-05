@@ -17,7 +17,7 @@ export class HomeActions {
     public readonly onAutoLogin: () => void;
 }
 
-export class Home extends ScreenBase<HomeProps & HomeActions, {}> 
+export class Home extends ScreenBase<HomeProps & HomeActions, any> 
 {
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();

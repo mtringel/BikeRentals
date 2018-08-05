@@ -21,7 +21,9 @@ export class UsersState {
             // getItems
             t => t.List,
             // setItems (User and UserListData are immutable)
-            (data, items) => { return { List: items, TooMuchData: data.TooMuchData } },
+            (data, items) => { return { ...data, List: items } },
+            // newData
+            () => new UserListData(),
             // getMatch
             (item, filter) => {
                 return StringHelper.contains(item.Email, filter, true) ||

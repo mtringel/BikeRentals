@@ -6,7 +6,7 @@ import { Permission } from '../../models/security/permission';
 import { ArrayHelper } from '../../helpers/arrayHelper';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
-import { StoreActionDispatch } from '../../store/actions/storeAction';
+import { StoreDispatch } from '../../store/actions/storeAction';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { BikeListProps, BikeListActions, BikeList } from '../../screens/bikes/BikeList';
 import { BikeListFilter } from '../../models/bikes/bikeListFilter';
@@ -17,6 +17,8 @@ import { BikeModelsActions } from '../../store/actions/bikes/bikeModelsActions';
 import { ColorsActions } from '../../store/actions/master/colorsActions';
 import { BikeRentsActions } from '../../store/actions/rents/bikeRentsActions';
 import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
+import { StoreActions } from '../../store/actions/storeActions';
+import { BikeEdit } from '../../screens/bikes/BikeEdit';
 
 
 const mapStateToProps: (state: RootState) => BikeListProps = state => {
@@ -36,56 +38,57 @@ const mapStateToProps: (state: RootState) => BikeListProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => BikeListActions = dispatch => {
-    var store = storeProvider();
-
+const mapDispatchToProps: (dispatch: StoreDispatch) => BikeListActions = dispatch => {
     return {
         onInit: (onSuccess) => {
-            var lastScreen = store.getState().clientContext.lastScreen;
+            var lastScreen = storeProvider().getState().clientContext.lastScreen;
 
             // store.dispatch(BikesActions.clearState()) - keep cached data
-            store.clearStateIfExpiredAll();
+            // Grid operations are always cached (order by, paging). Refresh buttons are never cached.
+            StoreActions.clearStateIfExpiredAll(dispatch);
 
-            store.dispatch(BikesActions.authorizeList(
-                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
-                authContext => onSuccess({
-                    authContext: authContext,
-                    initialLoadCached: true,
-                    keepNavigation: lastScreen instanceof BikeList, // TODO: || lastScreen instanceof BikeEdit
-                }),
-                error => store.dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
+            dispatch(BikesActions.authorizeList(
+                authContext => dispatch(ColorsActions.getList(true,
+                    colors => dispatch(BikeModelsActions.getList(true,
+                        bikeModels => onSuccess({
+                            authContext: authContext,
+                            initialLoadCached: true,
+                            keepNavigation: lastScreen instanceof BikeList || lastScreen instanceof BikeEdit,
+                            colors: colors.List,
+                            bikeModels: bikeModels.List
+                        })
+                    ))
+                )),
+                error => dispatch(AuthServiceActions.redirectToLoginPageIfNeeded())
             ))
         },
 
-        onLoad: (allowCachedData, filter, paging, onSuccess) => store.dispatch(
-            BikesActions.getList(
-                allowCachedData,
-                filter,
-                paging,
-                store.getState().clientContext.currentLocation,
-                onSuccess
-            )),
+        onLoad: (allowCachedData, filter, paging, onSuccess) => {
+            if (!allowCachedData)
+                dispatch(BikesActions.clearState());
 
-        onLoadFilter: (onSuccess) => {
-            store.dispatch(ColorsActions.getList(true, colors => {
-                store.dispatch(BikeModelsActions.getList(true, models => {
-                    onSuccess(colors.List, models.List);
-                }));
-            }));
+            dispatch(
+                BikesActions.getList(
+                    allowCachedData,
+                    filter,
+                    paging,
+                    storeProvider().getState().clientContext.currentLocation,
+                    onSuccess
+                ));
         },
 
         onViewRents: (bikeId, authContext) => {
-            store.dispatch(BikeRentsActions.useBikeId(bikeId));
+            dispatch(BikeRentsActions.useBikeId(bikeId));
 
             if (authContext.canViewAllRents)
-                store.dispatch(ClientContextActions.redirect(routeUrls.rents.listAll()));
+                dispatch(ClientContextActions.redirect(routeUrls.rents.listAll()));
             else if (authContext.canViewMyRents)
-                store.dispatch(ClientContextActions.redirect(routeUrls.rents.listMy()));
+                dispatch(ClientContextActions.redirect(routeUrls.rents.listMy()));
         },
 
-        //onEdit: (filter, user) => store.redirect(routeUrls.users.edit(user.BikeId)),
+        onEdit: (bike) => dispatch(ClientContextActions.redirect(routeUrls.bikes.edit(bike.BikeId.toString()))),
 
-        //onAddNew: (filter) => store.redirect(routeUrls.users.new())
+        onAddNew: () => dispatch(ClientContextActions.redirect(routeUrls.users.new()))
     };
 };
 

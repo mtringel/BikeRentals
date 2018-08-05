@@ -8,13 +8,14 @@ import { ArrayHelper } from '../../helpers/arrayHelper';
 import { routeUrls } from '../../routes';
 import { storeProvider } from '../../boot';
 import { ClientContextState } from '../../store/state/shared/clientContextState';
-import { StoreActionDispatch } from '../../store/actions/storeAction';
+import { StoreDispatch } from '../../store/actions/storeAction';
 import { UserList } from '../../screens/users/UserList';
 import { UsersActions } from '../../store/actions/users/usersActions';
 import { ClientContextActions } from '../../store/actions/shared/clientContextActions';
 import { AuthServiceActions } from '../../store/actions/security/authServiceActions';
 import { User } from '../../models/users/user';
 import { RoleType } from '../../models/security/roleType';
+import { StoreActions } from '../../store/actions/storeActions';
 
 const mapStateToProps: (state: RootState) => UserEditProps = state => {    
     var store = storeProvider();    
@@ -24,17 +25,16 @@ const mapStateToProps: (state: RootState) => UserEditProps = state => {
     };
 };
 
-const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserEditActions = dispatch => {
-    var store = storeProvider();
-    var redirectBack = (isProfile: boolean) => store.dispatch(ClientContextActions.redirect(isProfile ? routeUrls.home() : routeUrls.users.list()));
+const mapDispatchToProps: (dispatch: StoreDispatch) => UserEditActions = dispatch => {
+    var redirectBack = (isProfile: boolean) => dispatch(ClientContextActions.redirect(isProfile ? routeUrls.home() : routeUrls.users.list()));
 
     return {
         onInit: (userId, isNewUser, onSuccess) => {
             //store.dispatch(UsersActions.clearState()); - keep cached data
-            store.clearStateIfExpiredAll();
+            StoreActions.clearStateIfExpiredAll(dispatch);
 
-            store.dispatch(UsersActions.authorizeEdit(userId, isNewUser,
-                // Grid operations are always cached (order by, paging), this controls initial load. Refresh buttons are never cached.
+            dispatch(UsersActions.authorizeEdit(userId, isNewUser,
+                // Grid operations are always cached (order by, paging). Refresh buttons are never cached.
                 authContext => onSuccess({
                     authContext: authContext,
                     initialLoadCached: true
@@ -47,24 +47,18 @@ const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserEditActions = d
             if (isNewUser)
                 onSuccess({ User: { ...new User(), Role: RoleType.User } });
             else
-                store.dispatch(UsersActions.getById(
-                    allowCachedData,
-                    userId,
-                    data => {
-                        // ref.data is always cached, the list screen invalidates the cache at the beginning
-                        onSuccess(data);
-                    }));
+                dispatch(UsersActions.getById(allowCachedData, userId, onSuccess));
         },
 
         onCancel: (user, isNewUser, isProfile) => redirectBack(isProfile),
 
         onSave: (user, isNewUser, isProfile) => {
             if (isNewUser)
-                store.dispatch(UsersActions.post(user, true, () => redirectBack(isProfile)));
+                dispatch(UsersActions.post(user, true, () => redirectBack(isProfile)));
             else {
-                store.dispatch(UsersActions.put(user, true, () => {
+                dispatch(UsersActions.put(user, true, () => {
                     if (isProfile)
-                        store.dispatch(AuthServiceActions.authorize(true, null, false, true)); // re-authenticate (name could have changed)
+                        dispatch(AuthServiceActions.authorize(true, null, false, true)); // re-authenticate (name could have changed)
 
                     redirectBack(isProfile);
                 }));
@@ -72,9 +66,9 @@ const mapDispatchToProps: (dispatch: StoreActionDispatch) => UserEditActions = d
         },
 
         onDelete: (user, isNewUser, isProfile) => {
-            store.dispatch(UsersActions.delete(user.UserId, true, () => {
+            dispatch(UsersActions.delete(user.UserId, true, () => {
                 if (isProfile)
-                    store.dispatch(AuthServiceActions.logoff(() => store.dispatch(ClientContextActions.redirect(routeUrls.home()))));
+                    dispatch(AuthServiceActions.logoff(() => dispatch(ClientContextActions.redirect(routeUrls.home()))));
                 else
                     redirectBack(false);
             }));

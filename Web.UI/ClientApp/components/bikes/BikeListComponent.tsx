@@ -16,6 +16,7 @@ import { Store } from '../../store/store';
 import { BikeStateHelper, BikeState } from '../../models/bikes/bikeState';
 import { BikeListItem } from '../../models/bikes/bikeListItem';
 import Button from 'react-bootstrap/lib/Button';
+import { Bike } from '../../models/bikes/bike';
 
 export interface BikeListComponentProps  {
     readonly store: Store;
@@ -38,6 +39,7 @@ class BikeListComponentState {
 export interface BikeListComponentActions {
     readonly onOrderByChange: (orderBy: string[], orderByDescending: boolean) => void;
     readonly onViewRents: (bikeId: number, authContext: BikeAuthContext) => void;
+    readonly onEdit: (bike: BikeListItem) => void;
 }
 
 type ThisProps = BikeListComponentProps & BikeListComponentActions;
@@ -83,7 +85,7 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
     }
 
 
-    private orderByChanged(fieldName: string) {
+    private onOrderByChange(fieldName: string) {
         var contains = StringHelper.arrayContains(this.state.orderBy, fieldName, true);
 
         this.props.onOrderByChange(
@@ -104,16 +106,17 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
         return this.props.authContext.canRent;
     }
 
-    private edit(bike: BikeListItem) {
-        // TODO
+    private onEdit(bike: BikeListItem) {
+        if (!this.props.isReadOnly)
+            this.props.onEdit(bike);
     }
 
-    private viewRents(bike: BikeListItem) {
+    private onViewRents(bike: BikeListItem) {
         if (!this.props.isReadOnly)
             this.props.onViewRents(bike.BikeId, this.props.authContext);
     }
 
-    private rent(bike: BikeListItem) {
+    private onRent(bike: BikeListItem) {
         // TODO
     }
 
@@ -137,7 +140,7 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
                         ],
                             this.state.orderBy,
                             this.state.orderByDescending,
-                            fieldName => this.orderByChanged(fieldName)
+                            fieldName => this.onOrderByChange(fieldName)
                         )}
                     </tr>
                 </thead>
@@ -157,13 +160,13 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
                             <td>{StringHelper.formatDate(new Date(item.AvailableFromUtc), this.state.shortDateTimeFormat) + (item.BikeState === BikeState.Available ? " (now)" : " (forecasted)")}</td>
                             <td>#{item.BikeId}</td>
                             <td>
-                                {this.canRent(item) && <div style={{ marginBottom: "4px" }}><Button bsStyle="success" bsSize="small" onClick={e => this.rent(item)} >
+                                {this.canRent(item) && <div style={{ marginBottom: "4px" }}><Button bsStyle="success" bsSize="small" onClick={e => this.onRent(item)} >
                                     <i className="glyphicon glyphicon-tag"></i> Rent
                                 </Button></div>
                                 }
-                                {this.canViewRents(item) && <Button bsStyle="primary" bsSize="small" title="View rents" onClick={e => this.viewRents(item)} ><i className="glyphicon glyphicon-tags"></i></Button>}
+                                {this.canViewRents(item) && <Button bsStyle="primary" bsSize="small" title="View rents" onClick={e => this.onViewRents(item)} ><i className="glyphicon glyphicon-tags"></i></Button>}
                                 &nbsp;
-                                {this.canEdit(item) && <Button bsStyle="primary" bsSize="small" title="Edit" onClick={e => this.edit(item)} ><i className="glyphicon glyphicon-edit"></i></Button>}                                
+                                {this.canEdit(item) && <Button bsStyle="primary" bsSize="small" title="Edit" onClick={e => this.onEdit(item)} ><i className="glyphicon glyphicon-edit"></i></Button>}                                
                             </td>
                         </tr>
                         , this)}
