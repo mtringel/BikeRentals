@@ -88,7 +88,7 @@ const mapDispatchToProps: (dispatch: StoreDispatch) => BikeListActions = dispatc
 
         onEdit: (bike) => dispatch(ClientContextActions.redirect(routeUrls.bikes.edit(bike.BikeId.toString()))),
 
-        onAddNew: () => dispatch(ClientContextActions.redirect(routeUrls.users.new()))
+        onAddNew: () => dispatch(ClientContextActions.redirect(routeUrls.bikes.new()))
     };
 };
 

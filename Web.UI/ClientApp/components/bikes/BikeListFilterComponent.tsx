@@ -66,7 +66,6 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
     private initialize(props: Readonly<ThisProps>) {
         var state = props.store.getState();
 
-        // set empty state for render()
         var initial: ThisState = {
             filter: props.filter,
             dateFormat: state.clientContext.globals.ShortDateFormat

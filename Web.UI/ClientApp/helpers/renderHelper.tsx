@@ -10,11 +10,11 @@ export class RenderHelper {
     /// <summary>
     /// Renders clickable, sortable headers. If fieldname is not specified, renders normal header.
     /// </summary>
-    public static renderSortableHeader(title: string, fieldName: string, orderBy: string[], orderByDescending: boolean, onClick: (fieldName: string) => void): JSX.Element {
+    public static renderSortableHeader(index: number, title: string, fieldName: string, orderBy: string[], orderByDescending: boolean, onClick: (fieldName: string) => void): JSX.Element {
         if (StringHelper.isNullOrEmpty(fieldName))
-            return <td>{title}</td>;
+            return <td key={index.toString() + "_" + title}>{title}</td>;
         else
-            return <td key={StringHelper.notNullOrEmpty(fieldName, title)} className="pointer" onClick={e => onClick(fieldName)} >
+            return <td key={index.toString() + "_" + fieldName} className="pointer" onClick={e => onClick(fieldName)} >
                 {title}
                 {StringHelper.arrayContains(orderBy, fieldName, true) &&
                     <span>&nbsp;<i className={"glyphicon glyphicon-triangle-" + (orderByDescending ? "bottom" : "top")} ></i></span>
@@ -33,7 +33,7 @@ export class RenderHelper {
             var header = headers[i];
 
             if (header !== null)
-                res.push(RenderHelper.renderSortableHeader(header.title, header.fieldName, orderBy, orderByDescending, onClick));
+                res.push(RenderHelper.renderSortableHeader(i, header.title, header.fieldName, orderBy, orderByDescending, onClick));
         }
 
         return res;

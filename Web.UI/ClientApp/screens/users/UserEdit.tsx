@@ -47,11 +47,10 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        // set empty state for render()
         var userId = TypeHelper.notNullOrEmpty((this.props as any).match.params.userId, "profile");
         var isNew = StringHelper.equals(userId, "new", true);
 
-        // set empty state for render()
+        // set empty state so the form renderes for the user promptly without data
         this.setState(new UserEditState(), () => {
             this.props.onInit(userId, isNew, options => {
 
@@ -173,18 +172,18 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
 
                             </div>
                         </div>
-                    </form>
 
+                        <UserDeleteModalComponent
+                            ref={el => this.userDeleteModal = el}
+                            authContext={this.state.authContext}
+                            user={this.state.data.User}
+                            onCancel={(props, modal) => modal.hide()}
+                            onConfirm={(props, modal) => { modal.hide(); this.onDelete(); }}
+                        />
+
+                    </form>
                 </div>
             </div>
-
-            <UserDeleteModalComponent
-                ref={el => this.userDeleteModal = el}
-                authContext={this.state.authContext}
-                user={this.state.data.User}
-                onCancel={(props, modal) => modal.hide()}
-                onConfirm={(props, modal) => { modal.hide(); this.onDelete(); }}
-            />
         </div>;
     }
 }

@@ -57,7 +57,6 @@ export class BikeRentListComponent extends ComponentBase<ThisProps, ThisState>
     private initialize(props: Readonly<ThisProps>) {
         var rootState = props.store.getState();
 
-        // set empty state for render()
         var initial: ThisState = {
             data: props.data,
             orderBy: props.orderBy,
@@ -92,7 +91,7 @@ export class BikeRentListComponent extends ComponentBase<ThisProps, ThisState>
         return <div className="table table-responsive">
             <table className="table table-striped">
                 <thead>
-                    <tr>
+                    <tr key="Header">
                         {RenderHelper.renderSortableHeaders([
                             { title: "Photo", fieldName: "" },
                             { title: "Status", fieldName: "BikeRentState" },
@@ -112,20 +111,20 @@ export class BikeRentListComponent extends ComponentBase<ThisProps, ThisState>
                         )}
                     </tr>
                 </thead>
-                <tbody>
+                <tbody key="Body">
                     {this.state.data.List.map(item =>
                         <tr key={item.BikeRentId} >
-                            <td><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.Bike.BikeId.toString()} width="100" height="60" /></td>
-                            <td>{BikeRentStateHelper.allNames[item.BikeRentState]}</td>
-                            <td>{item.Bike.BikeModel.BikeModelName}</td>
-                            <td><span style={{ background: "#" + item.Bike.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Bike.Color.ColorName}</td>
-                            <td>{item.User.LastName.toUpperCase()}, {item.User.FirstName}</td>
-                            <td className="text-right">{StringHelper.formatDate(item.StartDateUtc, this.state.shortDateTimeFormat)}</td>
-                            <td className="text-right">{StringHelper.formatDate(item.EndDateUtc, this.state.shortDateTimeFormat)}</td>
-                            <td>{item.PickUpLocationName}</td>
-                            <td>{item.ReturnLocationName}</td>
-                            <td>#{item.BikeRentId}</td>
-                            <td>
+                            <td key="Image"><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.Bike.BikeId.toString()} width="100" height="60" /></td>
+                            <td key="State">{BikeRentStateHelper.allNames[item.BikeRentState]}</td>
+                            <td key="Model">{item.Bike.BikeModel.BikeModelName}</td>
+                            <td key="Color"><span style={{ background: "#" + item.Bike.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Bike.Color.ColorName}</td>
+                            <td key="UserName">{item.User.LastName.toUpperCase()}, {item.User.FirstName}</td>
+                            <td key="StartDate" className="text-right">{StringHelper.formatDate(item.StartDateUtc, this.state.shortDateTimeFormat)}</td>
+                            <td key="EndDate" className="text-right">{StringHelper.formatDate(item.EndDateUtc, this.state.shortDateTimeFormat)}</td>
+                            <td key="PickUpLocName">{item.PickUpLocationName}</td>
+                            <td key="ReturnLocName">{item.ReturnLocationName}</td>
+                            <td key="RentId">#{item.BikeRentId}</td>
+                            <td key="Actions">
                                 {/*
                                             {this.userIsEditable(item) && <Button bsStyle="primary" bsSize="xsmall" onClick={e => this.edit(item)} >
                                                 <i className="glyphicon glyphicon-edit"></i>

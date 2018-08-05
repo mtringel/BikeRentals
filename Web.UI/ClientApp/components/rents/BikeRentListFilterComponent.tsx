@@ -71,7 +71,6 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
     private initialize(props: Readonly<ThisProps>) {
         var state = props.store.getState();
 
-        // set empty state for render()
         var initial: ThisState = {
             filter: props.filter,
             dateFormat: state.clientContext.globals.ShortDateFormat,
@@ -227,7 +226,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
 
                 </div>
 
-                <div className="row" >
+                {this.props.authContext.canManageAll && <div className="row" >
                     {/* UserId */}
                     <div className="form-group col-sm-6" >
                         <label className="col-sm-2 control-label text-nowrap ">User</label>
@@ -246,6 +245,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         </div>
                     </div>
                 </div>
+                }
 
                 <div className="row" >
                     {/* BikeRentId */}
@@ -253,7 +253,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                         <label className="col-sm-2 control-label text-nowrap ">Rent#</label>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-qrcode"></i></span>
-                            <input type="text" className="form-control" value={this.state.filter.BikeRentId} disabled={this.props.isReadOnly}
+                            <input type="text" className="form-control" value={StringHelper.notNullOrEmpty(this.state.filter.BikeRentId, "")} disabled={this.props.isReadOnly}
                                 onChange={e => this.change({ BikeRentId: e.target.value })} />
                         </div>
                     </div>

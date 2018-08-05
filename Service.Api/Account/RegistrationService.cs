@@ -48,14 +48,16 @@ namespace Toptal.BikeRentals.Service.Api.Account
                 Helper.ValidateModel(model, true);
 
                 // process
-                var user = new BusinessEntities.Users.User()
-                {
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Email = model.Email,
-                    UserName = model.Email,
-                    Password = model.Password
-                };
+                var user = new BusinessEntities.Users.User(
+                    null,
+                    model.FirstName,
+                    model.LastName,
+                    model.Email,
+                    model.Email,
+                    model.Password,
+                    BikeRentals.Security.Principals.RoleType.User,
+                    false
+                    );
 
                 UserManager.Add(user);
 

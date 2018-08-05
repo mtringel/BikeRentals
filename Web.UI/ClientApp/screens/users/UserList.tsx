@@ -36,7 +36,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        // set empty state for render()
+        // set empty state so the form renderes for the user promptly without data
         this.setState(new UserListState(), () => {
             this.props.onInit(options => {
                 var storeState = this.props.store.getState().users;
@@ -148,7 +148,7 @@ export class UserList extends ScreenBase<UserListProps & UserListActions, UserLi
                                             }
                                         </td>
                                     </tr>
-                                ,this)}
+                                    , this)}
                             </tbody>
                         </table>
                     </div>

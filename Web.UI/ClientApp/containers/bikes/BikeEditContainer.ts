@@ -59,7 +59,7 @@ const mapDispatchToProps: (dispatch: StoreDispatch) => BikeEditActions = dispatc
                 dispatch(BikesActions.getById(allowCachedData, bikeId, onSuccess));
         },
 
-        onCancel: (bike, isNewBike) => dispatch(ClientContextActions.redirect(routeUrls.bikes.list())),
+        onCancel: (bike, isNewBike) => redirectBack(),
 
         onSave: (bike, isNewBike) => {
             if (isNewBike)

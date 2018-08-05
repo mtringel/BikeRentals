@@ -132,7 +132,7 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
                 <label htmlFor="locationName" className="col-sm-3 control-label">Location name</label>
                 <div className="col-sm-6 input-group">
                     <span className="input-group-addon"><i className="glyphicon glyphicon-map-marker"></i></span>
-                    <input type="text" id="locationName" name="locationName" className="form-control" value={this.state.bike.CurrentLocationName} maxLength={100} disabled={this.props.isReadOnly}
+                    <input type="text" id="locationName" name="locationName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.bike.CurrentLocationName, "")} maxLength={100} disabled={this.props.isReadOnly}
                         placeholder="Please fill mandatory field"
                         onChange={e => this.change({ CurrentLocationName: e.target.value })}
                     />

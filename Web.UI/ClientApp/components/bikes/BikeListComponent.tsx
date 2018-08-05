@@ -63,7 +63,6 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
     private initialize(props: Readonly<ThisProps>) {
         var rootState = props.store.getState();
 
-        // set empty state for render()
         var initial: ThisState = {
             data: props.data,
             orderBy: props.orderBy,
@@ -124,7 +123,7 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
         return <div className="table table-responsive">
             <table className="table table-striped">
                 <thead>
-                    <tr>
+                    <tr key="Header">
                         {RenderHelper.renderSortableHeaders([
                             { title: "Rating", fieldName: "RateAverage" },
                             this.props.authContext.canManage ? { title: "Current status", fieldName: "BikeState" } : null,
@@ -147,19 +146,19 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
                 <tbody>
                     {this.state.data.List.map(item =>
                         <tr key={item.BikeId} >
-                            <td><Badge>{StringHelper.formatNumber(item.RateAverage, 0, 1)}</Badge></td>
+                            <td key="Rate"><Badge>{StringHelper.formatNumber(item.RateAverage, 0, 1)}</Badge></td>
                             {this.props.authContext.canManage &&
                                 <td><span style={{ background: "#" + BikeStateHelper.allColors[item.BikeState] }}>&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;{BikeStateHelper.allNames[item.BikeState]}</td>
                             }
-                            <td><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.BikeId.toString()} width="100" height="60" /></td>
-                            <td>{item.BikeModel.BikeModelName}</td>
-                            <td><span style={{ background: "#" + item.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Color.ColorName}</td>
-                            <td className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, " lbs")}</td>
-                            <td>{item.CurrentLocationName}</td>
-                            <td>{item.DistanceMiles === null ? "" : item.DistanceMiles >= 0.2 ? StringHelper.formatNumber(item.DistanceMiles, 0, 1, " mi") : StringHelper.formatNumber(item.DistanceMiles * 5280, 0, 0, " ft")}</td>
-                            <td>{StringHelper.formatDate(new Date(item.AvailableFromUtc), this.state.shortDateTimeFormat) + (item.BikeState === BikeState.Available ? " (now)" : " (forecasted)")}</td>
-                            <td>#{item.BikeId}</td>
-                            <td>
+                            <td key="Image"><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.BikeId.toString()} width="100" height="60" /></td>
+                            <td key="Model">{item.BikeModel.BikeModelName}</td>
+                            <td key="Color"><span style={{ background: "#" + item.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Color.ColorName}</td>
+                            <td key="Weight" className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, " lbs")}</td>
+                            <td key="LocName">{item.CurrentLocationName}</td>
+                            <td key="Distance">{item.DistanceMiles === null ? "" : item.DistanceMiles >= 0.2 ? StringHelper.formatNumber(item.DistanceMiles, 0, 1, " mi") : StringHelper.formatNumber(item.DistanceMiles * 5280, 0, 0, " ft")}</td>
+                            <td key="AvailFrom">{StringHelper.formatDate(new Date(item.AvailableFromUtc), this.state.shortDateTimeFormat) + (item.BikeState === BikeState.Available ? " (now)" : " (forecasted)")}</td>
+                            <td key="BikeId">#{item.BikeId}</td>
+                            <td key="Actions">
                                 {this.canRent(item) && <div style={{ marginBottom: "4px" }}><Button bsStyle="success" bsSize="small" onClick={e => this.onRent(item)} >
                                     <i className="glyphicon glyphicon-tag"></i> Rent
                                 </Button></div>

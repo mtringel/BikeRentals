@@ -8,6 +8,7 @@ import { IScreen } from '../../helpers/IScreen';
 import { Store } from '../../store/store';
 import { ScreenBase } from '../../helpers/screenBase';
 import { FormValidatorActions } from '../../store/actions/shared/formValidatorActions';
+import { StringHelper } from '../../helpers/stringHelper';
 
 export interface RegisterProps {
     readonly store: Store;
@@ -66,7 +67,7 @@ export class Register extends ScreenBase<ThisProps, ThisState>
                             <label htmlFor="firstName" className="col-sm-3 control-label">First name</label>
                             <div className="col-sm-6 input-group">
                                 <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
-                                <input type="text" id="firstName" name="firstName" ref={el => this.firstName = el} className="form-control" value={this.state.data.FirstName} required={true} maxLength={50}
+                                <input type="text" id="firstName" name="firstName" ref={el => this.firstName = el} className="form-control" value={StringHelper.notNullOrEmpty(this.state.data.FirstName, "")} required={true} maxLength={50}
                                     placeholder="Please enter first name" onChange={e => this.setState({ data: { ...this.state.data, FirstName: e.target.value } })} />
                             </div>
                         </div>
@@ -76,7 +77,7 @@ export class Register extends ScreenBase<ThisProps, ThisState>
                             <label htmlFor="lastName" className="col-sm-3 control-label">Last name</label>
                             <div className="col-sm-6 input-group">
                                 <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
-                                <input type="text" id="lastName" name="lastName" className="form-control" value={this.state.data.LastName} required={true} maxLength={50}
+                                <input type="text" id="lastName" name="lastName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.data.LastName, "")} required={true} maxLength={50}
                                     placeholder="Please enter last name" onChange={e => this.setState({ data: { ...this.state.data, LastName: e.target.value } })} />
                             </div>
                         </div>

@@ -72,7 +72,7 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        // set empty state for render()
+        // set empty state so the form renderes for the user promptly without data
         this.setState(new BikeRentListState(), () => {
             this.props.onInit(options => {
                 var rootState = this.props.store.getState();
@@ -100,7 +100,7 @@ export class BikeRentList extends ScreenBase<ThisProps, ThisState>
                     allColors: options.colors,
                     allBikeModels: options.bikeModels,
                     defaultPaging: defaultPaging,
-                    paging: options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikes.listPaging, defaultPaging) : defaultPaging
+                    paging: options.keepNavigation ? TypeHelper.notNullOrEmpty(rootState.bikeRents.listPaging, defaultPaging) : defaultPaging
                 },
                     // invoke asynchronous load after successful authorization
                     () => this.loadData(options.initialLoadCached)

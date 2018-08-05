@@ -53,11 +53,10 @@ export class BikeEdit extends ScreenBase<ThisProps, ThisState>
     public componentWillMount() {
         if (super.componentWillMount) super.componentWillMount();
 
-        // set empty state for render()
         var bikeId = StringHelper.parseNumber((this.props as any).match.params.bikeId, true);
         var isNew = (bikeId <= 0);
 
-        // set empty state for render()
+        // set empty state so the form renderes for the user promptly without data
         this.setState(new BikeEditState(), () => {
             this.props.onInit(bikeId, isNew, options => {
 

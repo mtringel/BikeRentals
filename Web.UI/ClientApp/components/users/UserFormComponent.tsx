@@ -9,6 +9,7 @@ import { UserAuthContext } from '../../models/users/userAuthContext';
 import { ComponentBase } from '../../helpers/componentBase';
 import { MathHelper } from '../../helpers/mathHelper';
 import { TypeHelper } from '../../helpers/typeHelper';
+import { StringHelper } from '../../helpers/stringHelper';
 
 export interface UserFormComponentProps  {
     readonly user: User;
@@ -72,7 +73,7 @@ export class UserFormComponent extends ComponentBase<UserFormComponentProps & Us
                 <label htmlFor="firstName" className="col-sm-3 control-label">First Name</label>
                 <div className="col-sm-6 input-group">
                     <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
-                    <input type="text" id="firstName" name="firstName" className="form-control" value={this.state.user.FirstName} required={true} maxLength={50} disabled={this.props.isReadOnly}
+                    <input type="text" id="firstName" name="firstName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.user.FirstName, "")} required={true} maxLength={50} disabled={this.props.isReadOnly}
                         placeholder="Please fill mandatory field" onChange={e => this.change({ FirstName: e.target.value })} />
                 </div>
             </div>
@@ -82,7 +83,7 @@ export class UserFormComponent extends ComponentBase<UserFormComponentProps & Us
                 <label htmlFor="lastName" className="col-sm-3 control-label">Last Name</label>
                 <div className="col-sm-6 input-group">
                     <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
-                    <input type="text" id="lastName" name="lastName" className="form-control" value={this.state.user.LastName} required={true} maxLength={50} disabled={this.props.isReadOnly}
+                    <input type="text" id="lastName" name="lastName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.user.LastName, "")} required={true} maxLength={50} disabled={this.props.isReadOnly}
                         placeholder="Please fill mandatory field" onChange={e => this.change({ LastName: e.target.value })} />
                 </div>
             </div>
