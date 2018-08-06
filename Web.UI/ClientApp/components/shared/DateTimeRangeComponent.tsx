@@ -22,6 +22,7 @@ export interface DateTimeRangeComponentProps {
     readonly minDate: Date | null;
     readonly maxDate: Date | null;
     readonly isReadOnly: boolean;
+    readonly required: boolean;
     readonly defaultEndDate: Date | null;
     readonly defaultStartDate: Date | null;
     readonly glyphIcon: string;
@@ -119,6 +120,7 @@ export class DateTimeRangeComponent extends ComponentBase<ThisProps, ThisState> 
                         minDate={this.props.minDate}
                         maxDate={this.props.maxDate}
                         isReadOnly={this.props.isReadOnly}
+                        required={this.props.required}
                         format={this.state.format}
                         defaultValue={this.props.defaultStartDate}
                         value={this.state.startDate}
@@ -138,6 +140,7 @@ export class DateTimeRangeComponent extends ComponentBase<ThisProps, ThisState> 
                         minDate={this.props.minDate}
                         maxDate={this.props.maxDate}
                         isReadOnly={this.props.isReadOnly}
+                        required={this.props.required}
                         format={this.state.format}
                         defaultValue={this.props.defaultEndDate}
                         value={this.state.endDate}

@@ -27,6 +27,7 @@ export interface BikeFormComponentProps  {
     readonly colors: Color[];
     readonly authContext: BikeAuthContext;
     readonly isReadOnly: boolean;
+    readonly addNew: boolean; // selects should contain empty value ("Please, select...")
 }
 
 class BikeFormComponentState {
@@ -92,6 +93,7 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
                         getItem={t => BikeStateHelper.allStates[parseInt(t.value)]}
                         getOption={t => { return { value: TypeHelper.toString(t), text: BikeStateHelper.allNames[t] }; }}
                         items={BikeStateHelper.allStates}
+                        emptyOption={this.props.addNew ? "Please, select..." : ""}
                         onChange={t => this.change({ BikeState: t })}
                     />
                 </div>
@@ -104,9 +106,10 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
                     <span className="input-group-addon"><i className="glyphicon glyphicon-cog"></i></span>
                     <BikeModelSelect id="model" name="model" className="form-control" required={true} isReadOnly={this.props.isReadOnly} value={this.state.bike.BikeModel}
                         placeholder="Please fill mandatory field"
-                        getItem={t => { return { ...new BikeModel(), BikeModelId: StringHelper.parseNumber(t.value, true), BikeModelName: t.text }; }}
+                        getItem={t => { return { ...new BikeModel(), BikeModelId: StringHelper.parseNumber(t.value), BikeModelName: t.text }; }}
                         getOption={t => { return { value: TypeHelper.toString(t.BikeModelId), text: t.BikeModelName + " (" + StringHelper.formatNumber(t.WeightLbs, 0, 1, " lbs") + ")" }; }}
                         items={this.props.bikeModels}
+                        emptyOption={this.props.addNew ? "Please, select..." : ""}
                         onChange={t => this.change({ BikeModel: t })}
                     />
                 </div>
@@ -122,6 +125,7 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
                         getItem={t => { return { ...new Color(), ColorId: t.value, ColorName: t.text }; }}
                         getOption={t => { return { value: t.ColorId, text: t.ColorName }; }}
                         items={this.props.colors}
+                        emptyOption={this.props.addNew ? "Please, select..." : ""}
                         onChange={t => this.change({ Color: t })}
                     />
                 </div>
@@ -133,6 +137,7 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
                 <div className="col-sm-6 input-group">
                     <span className="input-group-addon"><i className="glyphicon glyphicon-map-marker"></i></span>
                     <input type="text" id="locationName" name="locationName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.bike.CurrentLocationName, "")} maxLength={100} disabled={this.props.isReadOnly}
+                        required={true}
                         placeholder="Please fill mandatory field"
                         onChange={e => this.change({ CurrentLocationName: e.target.value })}
                     />
@@ -145,6 +150,7 @@ export class BikeFormComponent extends ComponentBase<BikeFormComponentProps & Bi
                 <div className="col-sm-9 input-group">
                     <LocationComponent
                         isReadOnly={this.props.isReadOnly}
+                        required={true}
                         value={this.state.bike.CurrentLocation}
                         onChange={loc => this.change({ CurrentLocation: loc })}
                     />

@@ -17,6 +17,7 @@ export interface NumericRangeComponentProps {
     readonly min: number | null;
     readonly max: number | null;
     readonly isReadOnly: boolean;
+    readonly required: boolean;
     readonly defaultEnd: number | null;
     readonly defaultStart: number | null;
     readonly step: number | null; // default: 1
@@ -115,6 +116,7 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
                         step={TypeHelper.notNullOrEmpty(this.props.step, 1)}
                         precision={TypeHelper.notNullOrEmpty(this.props.precision, 0)}
                         onChange={t => this.onChange(t, this.state.end)}
+                        required={this.props.required}
                         format={t => t + StringHelper.notNullOrEmpty(this.props.inputSuffix, "")}
                         parse={t => StringHelper.removeSuffix(t, this.props.inputSuffix, true)}
                     />
@@ -133,6 +135,7 @@ export class NumericRangeComponent extends ComponentBase<ThisProps, ThisState> {
                         step={TypeHelper.notNullOrEmpty(this.props.step, 1)}
                         precision={TypeHelper.notNullOrEmpty(this.props.precision, 0)}
                         onChange={t => this.onChange(this.state.start, t)}
+                        required={this.props.required}
                         format={t => t + StringHelper.notNullOrEmpty(this.props.inputSuffix, "")}
                         parse={t => StringHelper.removeSuffix(t, this.props.inputSuffix, true)}
                     />

@@ -13,13 +13,12 @@ namespace Toptal.BikeRentals.Service.Models.Rents
         /// <summary>
         /// Generate it by current time + UserId (something like yyyymmddhhnnid)
         /// </summary>
-        [Required]
         [Key]
         [StringLength(10)]
         public string BikeRentId { get; set; }
 
         [Required]
-        public BikeRentState BikeRentState { get; set; }
+        public BikeRentState? BikeRentState { get; set; }
 
         [Required]
         public BikeRef Bike { get; set; }
@@ -28,16 +27,16 @@ namespace Toptal.BikeRentals.Service.Models.Rents
         public UserRef User { get; set; }
 
         [Required]
-        public DateTime StartDateUtc { get; set; }
+        public DateTime? StartDateUtc { get; set; }
 
         /// <summary>
         /// Until planned (not returned or lost), this is only planned end date.
         /// </summary>
         [Required]
-        public DateTime EndDateUtc { get; set; }
+        public DateTime? EndDateUtc { get; set; }
 
         [Required]
-        public Location PickUpLocation { get; set; }
+        public Location? PickUpLocation { get; set; }
 
         [Required]
         [StringLength(100)]

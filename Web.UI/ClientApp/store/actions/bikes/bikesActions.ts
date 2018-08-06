@@ -33,7 +33,9 @@ const serviceUrl = {
         encodeURI(bikeId.toString()) +
         (TypeHelper.isNullOrEmpty(currentLocation) ? "" : ("?currentLocation=" + encodeURI(JSON.stringify(currentLocation))))
     ,
-    post: () => "api/bikes",
+    post: (currentLocation: Location | null) => "api/bikes" +
+        (TypeHelper.isNullOrEmpty(currentLocation) ? "" : ("?currentLocation=" + encodeURI(JSON.stringify(currentLocation))))
+    ,
     put: (bikeId: number) => "api/bikes/" + encodeURI(bikeId.toString()),
     delete: (bikeId: number) => "api/bikes/" + encodeURI(bikeId.toString())
 };
@@ -157,15 +159,15 @@ export class BikesActions {
         };
     }
 
-    public static post(bike: Bike, addLastAntiforgeryToken: boolean, onSuccess: () => void): StoreActionThunk{
+    public static post(bike: Bike, addLastAntiforgeryToken: boolean, currentLocation: Location | null, onSuccess: () => void): StoreActionThunk{
         
         return (dispatch, getState) => {
-            dispatch(WebApiServiceActions.post(
-                serviceUrl.post(),
+            dispatch(WebApiServiceActions.post<Bike>(
+                serviceUrl.post(currentLocation),
                 bike,
                 addLastAntiforgeryToken,
-                () => {
-                    dispatch(BikesActions.postSuccess(bike));
+                bikeWithId => {
+                    dispatch(BikesActions.postSuccess(bikeWithId));
                     onSuccess();
                 }
             ));

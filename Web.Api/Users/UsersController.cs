@@ -107,7 +107,7 @@ namespace Toptal.BikeRentals.Web.Api.Users
         {
             try
             {
-                Helper.Expect(user, id, t => t.UserId);
+                Helper.Expect(user, t => t.UserId, id);
                 CallContext.AntiforgeryTokenValidate(true);
                 return Helper.OK(() => UserService.Put(user));
             }

@@ -63,13 +63,13 @@ const mapDispatchToProps: (dispatch: StoreDispatch) => BikeEditActions = dispatc
 
         onSave: (bike, isNewBike) => {
             if (isNewBike)
-                dispatch(BikesActions.post(bike, true, () => redirectBack()));
+                dispatch(BikesActions.post(bike, true, storeProvider().getState().clientContext.currentLocation, () => redirectBack()));
             else
                 dispatch(BikesActions.put(bike, true, () => redirectBack()));
         },
 
         onDelete: (bike, isNewBike) => {
-            dispatch(BikesActions.delete(bike.BikeId, true, () => dispatch(AuthServiceActions.logoff(() => redirectBack()))));
+            dispatch(BikesActions.delete(bike.BikeId, true, () => redirectBack()));
         }
     };
 };

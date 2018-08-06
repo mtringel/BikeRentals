@@ -150,7 +150,7 @@ export class DateHelper {
             return TypeHelper.notNullOrEmpty(valueOnError, null);
         else
             try {
-                var ms = StringHelper.parseNumber(s, true, null);
+                var ms = StringHelper.parseNumber(s, null);
                 return ms === null ? TypeHelper.notNullOrEmpty(valueOnError, null) : new Date(ms);
             }
             catch (err) {

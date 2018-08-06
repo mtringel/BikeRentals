@@ -44,14 +44,14 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
         public double CurrentLocationLat
         {
             get { return CurrentLocation.Lat; }
-            set { CurrentLocation = new Location(value, CurrentLocationLng); }
+            set { CurrentLocation = new Location(value, CurrentLocationLng, false); }
         }
 
         [Required]
         public double CurrentLocationLng
         {
             get { return CurrentLocation.Lng; }
-            set { CurrentLocation = new Location(CurrentLocationLat, value); }
+            set { CurrentLocation = new Location(CurrentLocationLat, value, false); }
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
 
         public Bike()
         {
-            CreatedUtc = DateTime.Now;
+            CreatedUtc = DateTime.UtcNow;
         }
 
         public Bike(

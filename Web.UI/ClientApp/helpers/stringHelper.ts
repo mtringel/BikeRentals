@@ -177,23 +177,21 @@ export class StringHelper {
         return ArrayHelper.any(array, t => StringHelper.equals(t, value, ignoreCase));
     }
 
-
     public static parseNumber(
         str: string,
-        allowEmpty: boolean,
-        returnOnError?: number | undefined | null,
+        returnOnEmptyOrError?: number | undefined | null,
         roundToDigits?: number | undefined | null,
         min?: number | undefined | null,
         max?: number | undefined | null
     ): number | null {
 
         if (StringHelper.isNullOrEmpty(str))
-            return allowEmpty ? null : returnOnError !== undefined ? returnOnError : NaN;
+            return TypeHelper.notNullOrEmpty(returnOnEmptyOrError, null);
 
         var value = parseFloat(str);
 
         if (isNaN(value))
-            return returnOnError !== undefined ? returnOnError : NaN;
+            return TypeHelper.notNullOrEmpty(returnOnEmptyOrError, null);
         else {
             if (!TypeHelper.isNullOrEmpty(roundToDigits))
                 value = MathHelper.roundNumber(value, roundToDigits);

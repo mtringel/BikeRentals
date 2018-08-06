@@ -82,14 +82,10 @@ export class ReduxFormDataCache<TData, TItem, TKey> {
         var newKey = this.props.getKey(newItem);
         var newKeyStr = JSON.stringify(newKey);
 
-        if (!TypeHelper.isNullOrEmpty(this.state[newKeyStr])) {
-            return this.putSuccess(newItem);
-        } else {
-            return new ReduxFormDataCache<TData, TItem, TKey>(
-                this.props,
-                ArrayHelper.addOrUpdateDict(this.state, newKeyStr, t => this.props.setItem(t, newItem))
-            );
-        }
+        return new ReduxFormDataCache<TData, TItem, TKey>(
+            this.props,
+            ArrayHelper.addOrUpdateDict(this.state, newKeyStr, t => this.props.setItem(t, newItem))
+        );
     }
 
     /// <summary>
@@ -102,7 +98,7 @@ export class ReduxFormDataCache<TData, TItem, TKey> {
 
         return new ReduxFormDataCache<TData, TItem, TKey>(
             this.props,
-            ArrayHelper.updateDict(this.state, newKeyStr, t => this.props.setItem(t, newItem))
+            ArrayHelper.addOrUpdateDict(this.state, newKeyStr, t => this.props.setItem(t, newItem))
         );
     }
 

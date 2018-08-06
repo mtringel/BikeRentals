@@ -52,7 +52,7 @@ namespace Toptal.BikeRentals.DataAccess.Rents
                     // Late
                     if (filter.State.Value == BikeRentState.Reserved && filter.Late.HasValue)
                     {
-                        var now = DateTime.Now;
+                        var now = DateTime.UtcNow;
 
                         if (filter.Late.Value)
                             query = query.Where(t => t.BikeRentState == BikeRentState.Reserved && t.EndDateUtc < now);

@@ -106,6 +106,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                     getItem={t => BikeStateHelper.allStates[parseInt(t.value)]}
                                     getOption={t => { return { value: TypeHelper.toString(t), text: BikeStateHelper.allNames[t] }; }}
                                     items={BikeStateHelper.allStates}
+                                    emptyOption=""
                                     onChange={t => this.change({ State: t })}
                                 />
                             </div>
@@ -128,6 +129,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                     placeholder="Fill to filter"
                                     glyphIcon="calendar"
                                     format="DD/MM hh:mm"
+                                    required={false}
                                     onChange={(start, end) => this.change({ AvailableUtc: { From: start, To: end } })}
                                     isReadOnly={this.props.isReadOnly}
                                 />
@@ -147,6 +149,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 name="models"
                                 className=""
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="BikeModelId"
@@ -168,6 +171,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 name="colors"
                                 className=""
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="ColorId"
@@ -196,6 +200,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 step={0.1}
                                 precision={1}
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 glyphIcon="dashboard"
                                 suffix="lbs"
                                 inputSuffix=""
@@ -218,6 +223,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                                 step={1}
                                 precision={0}
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 glyphIcon="star"
                                 suffix=""
                                 inputSuffix="*"
@@ -235,6 +241,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-record"></i></span>
                             <NumericInput className="form-control text-right" step={0.1} precision={1} value={this.state.filter.MaxDistanceMiles} min={0} max={9999} disabled={this.props.isReadOnly} snap
+                                required={false}
                                 onChange={(value: number) => this.change({ MaxDistanceMiles: value })}
                                 format={t => t + " mi"}
                                 parse={t => StringHelper.removeSuffix(t, "mi", true)}
@@ -248,6 +255,7 @@ export class BikeListFilterComponent extends ComponentBase<ThisProps, ThisState>
                         <div className="col-sm-4 input-group">
                             <span className="input-group-addon"><i className="glyphicon glyphicon-barcode"></i></span>
                             <NumericInput className="form-control" value={this.state.filter.BikeId} min={0} max={999999999} disabled={this.props.isReadOnly} snap
+                                required={false}
                                 onChange={(value: number) => this.change({ BikeId: value })} />
                         </div>
                     </div>

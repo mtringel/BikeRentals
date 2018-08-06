@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using Toptal.BikeRentals.Security.Principals;
 using Toptal.BikeRentals.Service.Models.Helpers;
 
@@ -34,6 +33,16 @@ namespace Toptal.BikeRentals.Service.Models.Users
         {
         }
 
+        public UserRef(AppUser user)
+        {
+            if (user != null)
+            {
+                this.FirstName = user.FirstName;
+                this.LastName = user.LastName;
+                this.UserId = user.UserId;
+            }
+        }
+    
         public UserRef(BusinessEntities.Users.User user)
         {
             if (user != null)

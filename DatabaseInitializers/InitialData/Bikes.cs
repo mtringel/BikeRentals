@@ -17,7 +17,7 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
         /// <summary>
         /// I'm here. Put some bikes around.
         /// </summary>
-        private static readonly Location Hungary_Pest_Erd = new Location(47.383333d, 18.916667d);
+        private static readonly Location Hungary_Pest_Erd = new Location(47.383333d, 18.916667d, true);
 
         internal Bikes(
             ICallContext callContext,
@@ -74,16 +74,16 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
                     ThreadSafeRandom.NextItem(colors),
                     // put around Érd?
                     ThreadSafeRandom.Next(10) == 0 ?
-                        new Location(Hungary_Pest_Erd.Lat + ThreadSafeRandom.NextDouble(-1d, 1d), Hungary_Pest_Erd.Lng + ThreadSafeRandom.NextDouble(-1d, 1d)) :
-                        new Location(ThreadSafeRandom.NextDouble(-90d, 90d), ThreadSafeRandom.NextDouble(-180d, 180d))
+                        new Location(Hungary_Pest_Erd.Lat + ThreadSafeRandom.NextDouble(-1d, 1d), Hungary_Pest_Erd.Lng + ThreadSafeRandom.NextDouble(-1d, 1d), true) :
+                        new Location(ThreadSafeRandom.NextDouble(-90d, 90d), ThreadSafeRandom.NextDouble(-180d, 180d), true)
                         ,
                     ThreadSafeRandom.NextItem(new[]{
                         "San Francisco","New York","Paris","Budapest","Berlin","Tokyo","Washington","Dallas","Houston","London","Madrid","Rome","Lisbon","Vien","Beijing",
                         "Melbourne","Sydney","Rio","Amsterdam","Gant","Brussels","Moscow","Delhi","Genova","Ottawa","Mexico City","Los Angeles","Las Vegas"
                     }),
-                    DateTime.Now.AddMinutes(available ? ThreadSafeRandom.Next(-30 * 24 * 60, 0) : ThreadSafeRandom.Next(1, 5 * 24 * 60)),
+                    DateTime.UtcNow.AddMinutes(available ? ThreadSafeRandom.Next(-30 * 24 * 60, 0) : ThreadSafeRandom.Next(1, 5 * 24 * 60)),
                     (float)ThreadSafeRandom.NextDouble(0d, 5d),
-                    DateTime.Now,
+                    DateTime.UtcNow,
                     user,
                     false
                 ));

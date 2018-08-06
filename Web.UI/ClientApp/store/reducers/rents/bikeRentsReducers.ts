@@ -38,7 +38,7 @@ export const BikeRentsReducers: (state: BikeRentsState, action: StoreAction<Bike
             case StoreActionType.BikeRents_ClearState:
                 return new BikeRentsState();
 
-            case StoreActionType.Bikes_PostSuccess: {
+            case StoreActionType.BikeRents_PostSuccess: {
                 let payload = action.payload as BikeRentsActionsPayload_PostPutDelete;
 
                 return {

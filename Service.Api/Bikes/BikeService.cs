@@ -13,6 +13,8 @@ using Toptal.BikeRentals.BusinessLogic.Master;
 using Toptal.BikeRentals.BusinessEntities.Helpers;
 using Toptal.BikeRentals.BusinessEntities.Master;
 using Toptal.BikeRentals.Exceptions.Validation;
+using Toptal.BikeRentals.Service.Models.Users;
+using System;
 // don't refer to BusinessEntities namespaces here (to avoid confusion with Service.Models)
 
 namespace Toptal.BikeRentals.Service.Api.Bikes
@@ -105,7 +107,7 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
         /// <summary>
         /// Create new entity
         /// </summary>
-        public void Post(Models.Bikes.Bike bike)
+        public Models.Bikes.Bike Post(Models.Bikes.Bike bike, Location? currentLocation)
         {
             using (var scope = Scope("Post"))
             {
@@ -113,15 +115,22 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 AuthProvider.Authorize(Permission.Bike_Management); // throws UnauthorizedException or we have CurrentUser after this
 
                 // prepare
+                bike.Created = DateTime.UtcNow;
+                bike.CreatedBy = new UserRef(AuthProvider.CurrentUser);
+                bike.AvailableFromUtc = DateTime.UtcNow;
                 Helper.Expect(bike);
 
                 // validate
                 Helper.ValidateModel(bike, true);
 
                 // process
-                BikeManager.Add(bike.ToEntity());
+                var entity = bike.ToEntity();
+                BikeManager.Add(entity);
 
-                scope.Complete(() => $"User has been created with Id={bike.BikeId}.");
+                return scope.Complete(
+                    () => new Models.Bikes.Bike(BikeManager.GetById(entity.BikeId), currentLocation),
+                    t => $"Bike has been created with Id={bike.BikeId}."
+                    );
             }
         }
 
@@ -148,7 +157,7 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 // process
                 BikeManager.Update(bike.ToEntity());
 
-                scope.Complete(() => $"User has been updated with Id={bike.BikeId}.");
+                scope.Complete(() => $"Bike has been updated with Id={bike.BikeId}.");
             }
         }
 
@@ -172,7 +181,7 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 // process
                 BikeManager.Delete(bikeId);
 
-                scope.Complete(() => $"User has been deleted with Id={bikeId}.");
+                scope.Complete(() => $"Bike has been deleted with Id={bikeId}.");
             }
         }
 

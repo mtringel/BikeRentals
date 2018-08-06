@@ -25,7 +25,11 @@ export class TypeHelper {
             return value.toString();
     }
 
+    /// <summary>
+    /// Compare the two values. Use only for comparing scalar values, strings or arrays. For objects, use shallowEquals.
+    /// </summary>
     public static compare<T>(objA: T, objB: T, resultIfNonComparable: number, caseInsensitiveStringComparison?: boolean | undefined | null): number {
+        // null/undefined ?
         if (TypeHelper.isNullOrEmpty(objA)) {
             if (TypeHelper.isNullOrEmpty(objB))
                 return 0;
@@ -34,49 +38,75 @@ export class TypeHelper {
         }
         else if (TypeHelper.isNullOrEmpty(objB))
             return 1;
+
+        // string?
+        else if (typeof objA === "string" && typeof objB === "string" && caseInsensitiveStringComparison === true) {
+            var strA = (objA as String).toLowerCase();
+            var strB = (objB as String).toLowerCase();
+
+            if (strA < strB)
+                return -1;
+            else if (strA > strB)
+                return 1;
+            else
+                return 0;
+        }
+
+        // array?
+        else if (objA instanceof Array && objB instanceof Array) {
+            return ArrayHelper.compare(objA as any[], objB as any[], resultIfNonComparable, caseInsensitiveStringComparison);
+        }
+
+        // other (scalar)
         else {
-            caseInsensitiveStringComparison = (caseInsensitiveStringComparison === true);
-
-            if (caseInsensitiveStringComparison && typeof objA === "string" && typeof objB === "string") {
-                var strA = (objA as String).toLowerCase();
-                var strB = (objB as String).toLowerCase();
-
-                if (strA < strB)
-                    return -1;
-                else if (strA > strB)
-                    return 1;
-                else
-                    return 0;
-            }
-            else if (objA instanceof Array && objB instanceof Array) {
-                return ArrayHelper.compare(objA as any[], objB as any[], resultIfNonComparable, caseInsensitiveStringComparison);
-            }
-            else {
-                if (objA < objB)
-                    return -1;
-                else if (objA > objB)
-                    return 1;
-                else if (objA === objB)
-                    return 0;
-                else
-                    return resultIfNonComparable;
-            }
+            if (objA < objB)
+                return -1;
+            else if (objA > objB)
+                return 1;
+            else if (objA === objB)
+                return 0;
+            else
+                return resultIfNonComparable;
         }
     }
 
-    public static shallowEquals<T>(obj1: T, obj2: T): boolean {
-        var keys = [];
+    /// <summary>
+    /// Compare the two objects by their members. Use only for comparing objects!
+    /// </summary>
+    public static shallowEquals<T>(objA: T, objB: T, caseInsensitiveStringComparison?: boolean | undefined | null): boolean {
+        // null/undefined?
+        if (TypeHelper.isNullOrEmpty(objA))
+            return TypeHelper.isNullOrEmpty(objB);
+        else if (TypeHelper.isNullOrEmpty(objB))
+            return false;
 
-        for (var key in obj1)
-            keys.push(key);
+        // string?
+        else if (typeof objA === "string" && typeof objB === "string" && caseInsensitiveStringComparison === true)
+            return (objA as String).toLowerCase() === (objB as String).toLowerCase();
 
-        var i = 0;
+        // array?
+        else if (objA instanceof Array && objB instanceof Array)
+            return ArrayHelper.compare(objA as any as any[], objB as any as any[], -1, caseInsensitiveStringComparison) === 0;
 
-        for (var key in obj2)
-            if (key !== keys[i++] || TypeHelper.compare(obj1[key], obj2[key], -1) !== 0)
-                return false;
+        // other (object)
+        else {
+            var keys = [];
 
-        return true;
+            for (var key in objA)
+                keys.push(key);
+
+            if (keys.length === 0)
+                return TypeHelper.compare(objA, objB, -1, caseInsensitiveStringComparison) === 0;
+            else {
+                var i = 0;
+
+                for (var key in objB)
+                    if (key !== keys[i++] || TypeHelper.compare(objA[key], objB[key], -1, caseInsensitiveStringComparison) !== 0)
+                        return false;
+
+                return true;
+            }
+        }
     }
 
 

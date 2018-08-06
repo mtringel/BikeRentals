@@ -20,6 +20,7 @@ export interface MultiSelectComponentProps<TItem, TKey> {
     readonly values: TKey[];
     readonly placeholder: string;
     readonly items: TItem[];
+    readonly required: boolean;
     readonly valueKey: string;
     readonly labelKey: string;
 }
@@ -90,6 +91,7 @@ export class MultiSelectComponent<TItem, TKey> extends ComponentBase<ThisProps<T
             valueKey={this.props.valueKey}
             labelKey={this.props.labelKey}
             multi={this.props.allowMultiple}
+            required={this.props.required}
             options={this.state.items}
             onChange={t => this.onChange(t)}
         />

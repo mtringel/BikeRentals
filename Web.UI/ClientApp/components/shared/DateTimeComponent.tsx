@@ -20,6 +20,7 @@ export interface DateTimeComponentProps {
     readonly minDate: Date | null;
     readonly maxDate: Date | null;
     readonly isReadOnly: boolean;
+    readonly required: boolean;
     readonly defaultValue: Date | null;
     readonly placeholder: string;
     readonly format: string;
@@ -102,7 +103,7 @@ export class DateTimeComponent extends ComponentBase<ThisProps, ThisState> {
                     defaultText={this.props.placeholder}
                     minDate={TypeHelper.isNullOrEmpty(this.props.minDate) ? undefined : moment(this.props.minDate)}
                     maxDate={TypeHelper.isNullOrEmpty(this.props.maxDate) ? undefined : moment(this.props.maxDate)}
-                    inputProps={{ className: this.props.className, disable: this.props.isReadOnly }}
+                    inputProps={{ className: this.props.className, disable: this.props.isReadOnly, required: this.props.required }}
                     inputFormat={this.state.format}
                     onChange={t => this.onChange(DateHelper.parseDateMilliseconds(t))}
                 />
@@ -112,7 +113,7 @@ export class DateTimeComponent extends ComponentBase<ThisProps, ThisState> {
                     dateTime={moment(this.state.value)}
                     minDate={TypeHelper.isNullOrEmpty(this.props.minDate) ? undefined : moment(this.props.minDate)}
                     maxDate={TypeHelper.isNullOrEmpty(this.props.maxDate) ? undefined : moment(this.props.maxDate)}
-                    inputProps={{ className: this.props.className, disable: this.props.isReadOnly }}
+                    inputProps={{ className: this.props.className, disable: this.props.isReadOnly, required: this.props.required }}
                     inputFormat={this.state.format}
                     onChange={t => this.onChange(DateHelper.parseDateMilliseconds(t))}
                 />

@@ -22,6 +22,7 @@ export interface DateComponentProps {
     readonly minDate: Date | null;
     readonly maxDate: Date | null;
     readonly isReadOnly: boolean;
+    readonly required: boolean;
     readonly className: string | null;
     readonly format: string | null;
 }
@@ -100,6 +101,7 @@ export class DateComponent extends ComponentBase<ThisProps, ThisState> {
             className={this.props.className}
             value={DateHelper.toISOString(this.state.value)}
             disabled={this.props.isReadOnly}
+            required={this.props.required}
             format={this.state.format}
             onChange={t => this.onChange(DateHelper.parseISOString(t, true))}
         />;

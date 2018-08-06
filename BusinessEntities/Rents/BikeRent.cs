@@ -56,7 +56,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         public double PickUpLocationLat
         {
             get { return PickUpLocation.Lat; }
-            set { PickUpLocation = new Location(value, PickUpLocationLng); }
+            set { PickUpLocation = new Location(value, PickUpLocationLng, false); }
         }
 
         [Required]
@@ -64,7 +64,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         public double PickUpLocationLng
         {
             get { return PickUpLocation.Lng; }
-            set { PickUpLocation = new Location(PickUpLocationLat, value); }
+            set { PickUpLocation = new Location(PickUpLocationLat, value, false); }
         }
 
         [NotMapped]
@@ -77,14 +77,14 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
         public double? ReturnLocationLat
         {
             get { return ReturnLocation?.Lat; }
-            set { ReturnLocation = value.HasValue && ReturnLocationLng.HasValue ? new Location(value.Value, ReturnLocationLng.Value) : (Location?)null; }
+            set { ReturnLocation = value.HasValue && ReturnLocationLng.HasValue ? new Location(value.Value, ReturnLocationLng.Value, false) : (Location?)null; }
         }
 
         [JsonIgnore]
         public double? ReturnLocationLng
         {
             get { return ReturnLocation?.Lng; }
-            set { ReturnLocation = value.HasValue && ReturnLocationLat.HasValue ? new Location(ReturnLocationLat.Value, value.Value) : (Location?)null; }
+            set { ReturnLocation = value.HasValue && ReturnLocationLat.HasValue ? new Location(ReturnLocationLat.Value, value.Value, false) : (Location?)null; }
         }
 
         [Required]
@@ -95,7 +95,7 @@ namespace Toptal.BikeRentals.BusinessEntities.Rents
 
         public BikeRent()
         {
-            this.CreatedUtc = DateTime.Now;
+            this.CreatedUtc = DateTime.UtcNow;
         }
 
         public override object[] Keys()

@@ -8,10 +8,8 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
 {
     public class BikeRef : Model
     {
-        [Required]
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BikeId { get; set; }
+        public int? BikeId { get; set; }
 
         /// <summary>
         /// Fetched automatically

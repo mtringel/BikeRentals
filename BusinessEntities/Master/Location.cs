@@ -1,10 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.ComponentModel.DataAnnotations;
 using Toptal.BikeRentals.BusinessEntities.Helpers;
 
 namespace Toptal.BikeRentals.BusinessEntities.Master
 {
-    public struct Location
+    public struct Location : IDataObject
     {
         public const int DegMultiplier = 60 * 60 * 1000;
         public const int SecMultiplier = 60 * 1000;
@@ -29,13 +30,16 @@ namespace Toptal.BikeRentals.BusinessEntities.Master
 
         /// <summary>
         /// Latitude, whele degree.
+        /// From +90(N) to -90(S).
         /// </summary>
+        [Range(-90d, 90d, ErrorMessage = "Latitude must be between -90 and +90 degrees.")]
         public double Lat { get; set; }
 
         /// <summary>
         /// Longitude, degree.
         /// From +180(W) to -180(E).
         /// </summary>
+        [Range(-180d, 180d, ErrorMessage = "Longitude must be between -180 and +180 degrees.")]
         public double Lng { get; set; }
 
         [JsonIgnore]
@@ -97,20 +101,26 @@ namespace Toptal.BikeRentals.BusinessEntities.Master
             get { return FormatDegSecParSec(Lng, 'E', 'W'); }
         }
 
-        public Location(double lat, double lng)
+        public Location(double lat, double lng, bool validate)
         {
-            if (lat < -90d || lat > 90d || lng < -180d || lng > 180d)
+            if (validate && (lat < -90d || lat > 90d || lng < -180d || lng > 180d))
                 throw new ArgumentException($"Invalid position Lat={lat}, Lng={lng}.");
 
             this.Lat = lat;
             this.Lng = lng;
         }
 
-        public Location(string str)
+        public Location(string str, bool validate)
         {
             var k = str.Split(' ');
-            this.Lat = ParseDegSecParSec(k[0]).Value;
-            this.Lng = ParseDegSecParSec(k[1]).Value;
+            var lat = ParseDegSecParSec(k[0]).Value;
+            var lng = ParseDegSecParSec(k[1]).Value;
+
+            if (validate && (lat < -90d || lat > 90d || lng < -180d || lng > 180d))
+                throw new ArgumentException($"Invalid position Lat={lat}, Lng={lng}.");
+
+            this.Lat = lat;
+            this.Lng = lng;
         }
 
         public override string ToString()

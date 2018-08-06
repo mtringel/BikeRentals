@@ -235,6 +235,17 @@ export class ArrayHelper {
         return !ArrayHelper.isNullOrEmpty(array) ? array.concat([item]) : [item];
     }
 
+    public static insert<T>(array: T[], index: number, item: T): T[] {
+        if (ArrayHelper.isNullOrEmpty(array))
+            return [item];
+        else if (index >= array.length)
+            return array.concat([item]);
+        else if (index <= 0)
+            return [item].concat(array);
+        else
+            return array.slice(0, index - 1).concat([item]).concat(array.slice(index, array.length - 1));
+    }
+
     public static remove<T>(array: T[], predicate: (item: T) => boolean): T[] {
         return !ArrayHelper.isNullOrEmpty(array) ? array.filter(t => !predicate(t)) : [];
     }

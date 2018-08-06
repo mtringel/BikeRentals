@@ -33,7 +33,7 @@ namespace Toptal.BikeRentals.Service.Api.Helpers
 
         public AppConfig AppConfig { get; private set; }
 
-        #endregion        
+        #endregion
 
         #region Validation
 
@@ -41,24 +41,33 @@ namespace Toptal.BikeRentals.Service.Api.Helpers
         /// Controller.TryValidateModel does not work in Unit tests
         /// https://github.com/aspnet/Mvc/issues/3586
         /// </summary>
-        public void ValidateModel(object model, ModelStateDictionary modelState)
+        private void _ValidateModel(IDataObject model, ModelStateDictionary modelState)
         {
             var validationContext = new ValidationContext(model, null, null);
             var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-
             Validator.TryValidateObject(model, validationContext, validationResults, true);
 
             foreach (var validationResult in validationResults)
-            {
                 modelState.AddModelError(validationResult.MemberNames.FirstOrDefault() ?? string.Empty, validationResult.ErrorMessage);
-            }
         }
 
         /// <summary>
         /// Controller.TryValidateModel does not work in Unit tests
         /// https://github.com/aspnet/Mvc/issues/3586
         /// </summary>
-        public ModelStateDictionary ValidateModel(object model, bool throwValidationError)
+        public void ValidateModel(IDataObject model, ModelStateDictionary modelState)
+        {
+            if (model is IEditableObject editableObject)
+                editableObject.Validate(obj => _ValidateModel(obj, modelState));
+            else
+                _ValidateModel(model, modelState);
+        }
+
+        /// <summary>
+        /// Controller.TryValidateModel does not work in Unit tests
+        /// https://github.com/aspnet/Mvc/issues/3586
+        /// </summary>
+        public ModelStateDictionary ValidateModel(IDataObject model, bool throwValidationError)
         {
             var state = new ModelStateDictionary();
             ValidateModel(model, state);

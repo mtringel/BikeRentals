@@ -23,6 +23,7 @@ export interface AutoCompleteComponentProps{
     readonly allowNew: boolean;
     readonly items: AutoCompleteItem[];
     readonly minFilterChars: number;
+    readonly required: boolean;
 }
 
 export interface AutoCompleteComponentActions {
@@ -100,6 +101,7 @@ export class AutoCompleteComponent extends ComponentBase<ThisProps, ThisState> {
             allowNew={this.props.allowNew}
             minLength={this.props.minFilterChars}
             onChange={t => this.onChange(t)}
+            required={this.props.required}
             onSearch={t => this.onSearch(t)}
         />;
     }

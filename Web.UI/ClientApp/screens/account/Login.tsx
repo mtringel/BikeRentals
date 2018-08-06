@@ -78,7 +78,7 @@ export class Login extends ScreenBase<ThisProps, ThisState> {
                 <div className="panel-heading">Login Form</div>
                 <div className="panel-body">
 
-                    <form className="form-horizontal" role="form" id="form" name="form" ref={form => this.form = form} onSubmit={e => { e.preventDefault(); this.submit(); }}>
+                    <form className="form-horizontal" role="form" id="form" name="form" ref={t => this.form = t} onSubmit={e => { e.preventDefault(); this.submit(); }}>
 
                         {/* Email */}
                         <div className="form-group">

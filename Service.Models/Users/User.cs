@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Toptal.BikeRentals.BusinessEntities.Helpers;
 using Toptal.BikeRentals.Security.Principals;
 using Toptal.BikeRentals.Service.Models.Helpers;
 
@@ -11,7 +13,7 @@ namespace Toptal.BikeRentals.Service.Models.Users
     /// Contains all information for user management forms.
     /// MVC validation attributes are used here with JsonIgnore for not serialized members.
     /// </summary>
-    public sealed class User : UserRef
+    public sealed class User : UserRef, IEditableObject
     {
         [Required]
         [StringLength(50)]
@@ -67,7 +69,6 @@ namespace Toptal.BikeRentals.Service.Models.Users
             if (user != null)
             {
                 this.UserName = user.UserName;
-                // this.Password = entity.Password; - not loaded, only saved
                 this.Email = user.Email;
                 this.Role = user.Role;
             }
@@ -79,5 +80,10 @@ namespace Toptal.BikeRentals.Service.Models.Users
         }
 
         #endregion
+
+        public void Validate(Action<IDataObject> validate)
+        {
+            validate(this);
+        }
     }
 }

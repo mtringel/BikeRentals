@@ -150,7 +150,7 @@ export class ReduxListDataCache<TData, TItem, TKey, TFilter> {
     /// We can add the item to all matching sets.
     /// Does not assume that sets are already loaded.
     /// </summary>
-    public postSuccess(newItem: TItem, lastFilter?: TFilter | undefined | null): ReduxListDataCache<TData, TItem, TKey, TFilter> {
+    public postSuccess(newItem: TItem, addToFilter?: TFilter | undefined | null): ReduxListDataCache<TData, TItem, TKey, TFilter> {
 
         if (!TypeHelper.isNullOrEmpty(this.props.getMatch)) {
             // add to matching sets
@@ -168,23 +168,23 @@ export class ReduxListDataCache<TData, TItem, TKey, TFilter> {
                     }
                 ));
         } else {
-            if (TypeHelper.isNullOrEmpty(lastFilter))
-                lastFilter = this.EmptyFilter;
+            if (TypeHelper.isNullOrEmpty(addToFilter))
+                addToFilter = this.EmptyFilter;
 
-            var lastFilterKey = JSON.stringify(lastFilter);
+            var filterKey = JSON.stringify(addToFilter);
 
-            if (!TypeHelper.isNullOrEmpty(this.state[lastFilterKey])) {
+            if (!TypeHelper.isNullOrEmpty(this.state[filterKey])) {
                 // add to last set
                 return new ReduxListDataCache<TData, TItem, TKey, TFilter>(
                     this.props,
                     ArrayHelper.updateDictByPredicate(
                         this.state,
-                        (key, item) => key === lastFilterKey,
+                        (key, item) => key === filterKey,
                         // entities are immutable, clone the list
                         (key, item) => {
                             return {
                                 filter: item.filter,
-                                data: this.props.setItems(item.data, ArrayHelper.add(this.props.getItems(item.data), newItem))
+                                data: this.props.setItems(item.data, ArrayHelper.insert(this.props.getItems(item.data), 0, newItem))
                             }
                         }
                     ));
@@ -194,11 +194,11 @@ export class ReduxListDataCache<TData, TItem, TKey, TFilter> {
                 return new ReduxListDataCache<TData, TItem, TKey, TFilter>(
                     this.props,
                     ArrayHelper.addToDict(
-                        {},
-                        lastFilterKey,
+                        this.state,
+                        filterKey,
                         // entities are immutable, clone the list
                         {
-                            filter: lastFilter,
+                            filter: addToFilter,
                             data: this.props.setItems(this.props.newData(), [newItem])
                         }
                     ));
@@ -236,7 +236,7 @@ export class ReduxListDataCache<TData, TItem, TKey, TFilter> {
         if (TypeHelper.isNullOrAllItemsAreEmpty(this.props.getKey(item)))
             return this; // new, don't add
         else
-            return this.postSuccess(item);
+            return this.putSuccess(item); // update, if loaded already, this is a newer version
     }
 
     /// <summary>

@@ -111,6 +111,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 getItem={t => BikeRentStateHelper.allStates[parseInt(t.value)]}
                                 getOption={t => { return { value: TypeHelper.toString(t), text: BikeRentStateHelper.allNames[t] }; }}
                                 items={BikeRentStateHelper.allStates}
+                                emptyOption=""
                                 onChange={t => this.change({ State: t })}
                             />
                         </div>
@@ -122,7 +123,8 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                             <label className="col-sm-2 control-label text-nowrap">Late</label>
                             <div className="col-sm-10 input-group">
                                 <span className="input-group-addon"><i className="glyphicon glyphicon-time"></i></span>
-                                <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
+                            <select type="text" className="form-control" readOnly={this.props.isReadOnly} disabled={this.props.isReadOnly}
+                                required={false}
                                     value={TypeHelper.toString(this.state.filter.Late)}
                                     placeholder="Fill to filter"
                                     onChange={e => this.change({ Late: StringHelper.parseBool(e.target.value) })}
@@ -152,6 +154,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 placeholder="Fill to filter"
                                 glyphIcon="calendar"
                                 format="DD/MM hh:mm"
+                                required={false}
                                 onChange={(start, end) => this.change({ StartDateUtc: { From: start, To: end } })}
                                 isReadOnly={this.props.isReadOnly}
                             />
@@ -173,6 +176,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 placeholder="Fill to filter"
                                 glyphIcon="calendar"
                                 format="DD/MM hh:mm"
+                                required={false}
                                 onChange={(start, end) => this.change({ EndDateUtc: { From: start, To: end } })}
                                 isReadOnly={this.props.isReadOnly}
                             />
@@ -192,6 +196,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 name="models"
                                 className=""
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="BikeModelId"
@@ -213,6 +218,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 name="colors"
                                 className=""
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 allowMultiple={true}
                                 placeholder="Fill to filter"
                                 valueKey="ColorId"
@@ -238,6 +244,7 @@ export class BikeRentListFilterComponent extends ComponentBase<ThisProps, ThisSt
                                 autoCompleteType={AutoCompleteType.User}
                                 allowNew={true}
                                 isReadOnly={this.props.isReadOnly}
+                                required={false}
                                 items={this.state.users}
                                 minFilterChars={1}
                                 onChange={t => this.change({ Users: ArrayHelper.select(t, t2 => t2.Key) }, { users: t })}

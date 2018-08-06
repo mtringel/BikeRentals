@@ -7,6 +7,8 @@ import * as React from 'react';
 import { ComponentBase } from '../../helpers/componentBase';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { MathHelper } from '../../helpers/mathHelper';
+import { StringHelper } from '../../helpers/stringHelper';
+import { ArrayHelper } from '../../helpers/arrayHelper';
 
 export interface SelectComponentOption {
     value: string;
@@ -24,6 +26,7 @@ export interface SelectComponentProps<TItem> {
     readonly items: TItem[];
     readonly getOption: (item: TItem) => SelectComponentOption;
     readonly getItem: (option: SelectComponentOption) => TItem;
+    readonly emptyOption: string;
 }
 
 export interface SelectComponentActions<TItem> {
@@ -74,9 +77,25 @@ export class SelectComponent<TItem> extends ComponentBase<ThisProps<TItem>, This
         this.setState(initial);
     }
 
-    private onChange(value: TItem) {
+    private onChange(value: TItem | null) {
         if (!this.props.isReadOnly)
             this.setState({ value: value }, () => this.props.onChange(value));
+    }
+
+    private findByValue(options: HTMLOptionsCollection, value: string | undefined | null): TItem {
+        if (TypeHelper.isNullOrEmpty(options) || options.length === 0)
+            return null;
+        else if (StringHelper.isNullOrEmpty(value))
+            return this.props.getItem(options[0]);
+        else {
+            var length = options.length;
+
+            for (var i = 0; i < length; i++)
+                if (options[i].value === value)
+                    return this.props.getItem(options[i]);
+
+            return null;
+        }
     }
 
     public render(): JSX.Element | null | false {
@@ -88,18 +107,16 @@ export class SelectComponent<TItem> extends ComponentBase<ThisProps<TItem>, This
             className={this.props.className}
             required={this.props.required}
             disabled={this.props.isReadOnly}
-            value={TypeHelper.toString(this.state.value)}
+            value={currentOption.value}
             placeholder={this.props.placeholder}
-            onChange={e => {
-                var item = e.target.options[MathHelper.clamp(parseInt(e.target.value), 0, e.target.options.length - 1)];
-                this.onChange(this.props.getItem(item));
-            }}
+            onChange={e => this.onChange(this.findByValue(e.target.options, e.target.value))}
         >
             {this.props.isReadOnly &&
                 <option key={currentOption.value} value={currentOption.value}>{currentOption.text}</option>
             }
+            {!this.props.isReadOnly && !StringHelper.isNullOrEmpty(this.props.emptyOption) && <option key="" value="">{this.props.emptyOption}</option>}
             {!this.props.isReadOnly && this.state.items.map(item => {
-                var option = this.props.getOption(item); 
+                var option = this.props.getOption(item);
                 return <option key={option.value} value={option.value}>{option.text}</option>;
             })}
         </select>;

@@ -82,13 +82,12 @@ namespace Toptal.BikeRentals.Web.Api.Bikes
         /// Create new entity
         /// </summary>
         [HttpPost]
-        public WebApiResult Post([FromRoute]int? id, [FromBody]Bike bike)
+        public WebApiResult Post([FromBody]Bike bike, [FromQuery]string currentLocation)
         {
             try
             {
-                Helper.Expect(bike, id, t => t.BikeId);
                 CallContext.AntiforgeryTokenValidate(true);
-                return Helper.OK(() => BikeService.Post(bike));
+                return Helper.OK(() => BikeService.Post(bike, string.IsNullOrEmpty(currentLocation) ? null : JsonConvert.DeserializeObject<Location?>(currentLocation)));
             }
             catch (Exception ex)
             {
@@ -104,10 +103,11 @@ namespace Toptal.BikeRentals.Web.Api.Bikes
         /// Update single entity
         /// </summary>
         [HttpPut("{id}")]
-        public WebApiResult Put([FromBody]Bike bike)
+        public WebApiResult Put([FromRoute]int? id, [FromBody]Bike bike)
         {
             try
             {
+                Helper.Expect(bike, t => t.BikeId, id);
                 CallContext.AntiforgeryTokenValidate(true);
                 return Helper.OK(() => BikeService.Put(bike));
             }

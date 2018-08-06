@@ -8,7 +8,7 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
     public class BikeListItem : BikeRef
     {
         [Required]
-        public BikeState BikeState { get; set; }
+        public BikeState? BikeState { get; set; }
 
         [Required]
         public new BikeModel BikeModel { get { return (BikeModel)base.BikeModel; } set { base.BikeModel = value; } }
@@ -20,17 +20,11 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
         [StringLength(100)]
         public string CurrentLocationName { get; set; }
         
-        /// <summary>
-        /// Can be available and this is a past date.
-        /// Can be unavailable and this is a forecasted future date.
-        /// </summary>
-        [Required]
-        public DateTime AvailableFromUtc { get; set; }
+        public DateTime? AvailableFromUtc { get; set; }
 
         public double? DistanceMiles { get; private set; }
 
-        [Required]
-        public float RateAverage { get; set; }
+        public float? RateAverage { get; set; }
 
         public BikeListItem(BusinessEntities.Bikes.Bike bike, Location? currentLocation)
             : base(bike)

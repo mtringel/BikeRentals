@@ -96,12 +96,17 @@ namespace Toptal.BikeRentals.Web.Api.Helpers
 
         internal WebApiResult OK(Func<object> func)
         {
-            return new WebApiResult(HttpStatusCode.OK, func());
+            return new WebApiResult(HttpStatusCode.OK, func != null ? func() : null);
         }
 
         internal WebApiResult OK(Action action)
         {
-            return OK(() => { action(); return null; });
+            return OK(() => { action?.Invoke(); return null; });
+        }
+
+        internal WebApiResult OK()
+        {
+            return new WebApiResult(HttpStatusCode.OK, null);
         }
 
         #endregion
@@ -150,7 +155,7 @@ namespace Toptal.BikeRentals.Web.Api.Helpers
 
         #region Input Validation
 
-        public void Expect<T>(T entity, object id, Func<T, object> getKey) where T : BusinessEntities.Helpers.IDataObject
+        public void Expect<T>(T entity, Func<T, object> getKey, object id) where T : BusinessEntities.Helpers.IDataObject
         {
             if (entity == null)
                 throw new Exceptions.Validation.InputDataMissingException(CallContext.ResourceUri, typeof(T));

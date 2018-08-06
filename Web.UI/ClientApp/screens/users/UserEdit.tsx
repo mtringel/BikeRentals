@@ -127,7 +127,7 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
                 <div className="panel-heading">User Form</div>
                 <div className="panel-body">
 
-                    <form className="form-horizontal" role="form" id="form" name="form" ref={form => this.form = form} onSubmit={e => { e.preventDefault(); this.onSubmit(); }}>
+                    <form className="form-horizontal" role="form" id="form" name="form" ref={t => this.form = t} onSubmit={e => { e.preventDefault(); this.onSubmit(); }}>
 
                         <UserFormComponent
                             user={this.state.data.User}

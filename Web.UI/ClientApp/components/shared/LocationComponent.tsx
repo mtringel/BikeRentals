@@ -17,6 +17,7 @@ export interface LocationComponentOption {
 
 export interface LocationComponentProps {
     readonly isReadOnly: boolean;
+    readonly required: boolean;
     readonly value: Location | null | undefined;
 }
 
@@ -72,15 +73,16 @@ export class LocationComponent<TItem> extends ComponentBase<ThisProps, ThisState
     }
 
     public render(): JSX.Element | null | false {
-        return <div className="text-nowrap form-inline" >
+        return <div className="text-nowrap form-horizontal" >
             {/* Lat */}
-            <span className="col-sm-3 form-group">
+            <span className="col-sm-5 form-group no-margin-top-bottom">
                 <span className="col-sm-12 input-group">
                     <span className="input-group-addon"><i className="glyphicon glyphicon-option-vertical"></i></span>
                     <NumericInput
                         className="form-control text-right"
                         value={TypeHelper.isNullOrEmpty(this.state.value) ? null : this.state.value.Lat}
                         readOnly={this.props.isReadOnly}
+                        required={this.props.required}
                         precision={6}
                         onChange={t => this.onChange({ Lat: t, Lng: TypeHelper.isNullOrEmpty(this.state.value) ? 0 : this.state.value.Lng })}
                     />
@@ -90,13 +92,14 @@ export class LocationComponent<TItem> extends ComponentBase<ThisProps, ThisState
                 <label className="col-sm-1 control-label">lat</label>
             </span>
             {/* Lng */}
-            <span className="col-sm-3 form-group">
+            <span className="col-sm-4 form-group no-margin-top-bottom">
                 <span className="col-sm-12 input-group">
                     <span className="input-group-addon"><i className="glyphicon glyphicon-option-horizontal"></i></span>
                     <NumericInput
                         className="form-control text-right"
                         value={TypeHelper.isNullOrEmpty(this.state.value) ? null : this.state.value.Lng}
                         readOnly={this.props.isReadOnly}
+                        required={this.props.required}
                         precision={6}
                         onChange={t => this.onChange({ Lat: TypeHelper.isNullOrEmpty(this.state.value) ? 0 : this.state.value.Lat, Lng: t })}
                     /></span>
