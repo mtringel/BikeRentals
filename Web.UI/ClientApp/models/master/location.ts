@@ -24,14 +24,18 @@ export class Location extends Model {
 
     public static lngSuffix(loc: Location): string { return loc.Lat >= 0 ? 'E' : 'W'; }
 
-    public static degSecParSecFormatted(value: number, posSuffix: string, negSuffix: string): string {
-        var x = Math.abs(Math.round(value * Location.DegMultiplier));
-        // format: {0}°{1:00}'{2:00}.{3:000}"{4}
-        return StringHelper.formatNumber(x / Location.DegMultiplier, 0, 0, "°") +
-            StringHelper.formatNumber((x / Location.SecMultiplier) % 60, 2, 0, "'") +
-            StringHelper.formatNumber((x / Location.ParSecMultiplier) % 60, 2, 0, ".") +
-            StringHelper.formatNumber(x % Location.ParSecMultiplier, 3, 0, "\"") +
-            (value >= 0 ? posSuffix : negSuffix);
+    public static degSecParSecFormatted(deg: number, posSuffix: string, negSuffix: string): string {
+        if (deg >= -180 && deg <= 180) {
+            var x = Math.abs(Math.round(deg * Location.DegMultiplier));
+            // format: {0}°{1:00}'{2:00}.{3:000}"{4}
+            return StringHelper.formatNumber(x / Location.DegMultiplier, 0, 0, "°") +
+                StringHelper.formatNumber((x / Location.SecMultiplier) % 60, 2, 0, "'") +
+                StringHelper.formatNumber((x / Location.ParSecMultiplier) % 60, 2, 0, ".") +
+                StringHelper.formatNumber(x % Location.ParSecMultiplier, 3, 0, "\"") +
+                (deg >= 0 ? posSuffix : negSuffix);
+        }
+        else
+            return StringHelper.formatNumber(deg, 0, 6, "°") + (deg >= 0 ? posSuffix : negSuffix);
     }
 
     public static latFormatted(loc: Location): string { return Location.degSecParSecFormatted(loc.Lat, 'N', 'S'); }

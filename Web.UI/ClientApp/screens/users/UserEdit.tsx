@@ -65,7 +65,7 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
                 },
                     // invoke asynchronous load after successful authorization        
                     () => {
-                        if (options.authContext.canManage)
+                        if (this.state.isProfile || options.authContext.canManage)
                             this.loadData(options.initialLoadCached)
                     }
                 );

@@ -49,14 +49,19 @@ namespace Toptal.BikeRentals.BusinessEntities.Master
         public char LngSuffix { get { return Lng >= 0 ? 'E' : 'W'; } }
 
         public static string FormatDegSecParSec(double deg, char posSuffix, char negSuffix) {
-            var x = Math.Abs((int)Math.Round(deg * DegMultiplier));
-            return string.Format("{0}°{1:00}'{2:00}.{3:000}\"{4}",
-                x / DegMultiplier,
-                (x / SecMultiplier) % 60,
-                (x / ParSeccMultiplier) % 60,
-                x % ParSeccMultiplier,
-                deg >= 0 ? posSuffix : negSuffix
-                );
+            if (deg >= -180 && deg <= 180)
+            {
+                var x = Math.Abs((int)Math.Round(deg * DegMultiplier));
+                return string.Format("{0}°{1:00}'{2:00}.{3:000}\"{4}",
+                    x / DegMultiplier,
+                    (x / SecMultiplier) % 60,
+                    (x / ParSeccMultiplier) % 60,
+                    x % ParSeccMultiplier,
+                    deg >= 0 ? posSuffix : negSuffix
+                    );
+            }
+            else
+                return string.Format("{0:N6}°{1}", deg, deg >= 0 ? posSuffix : negSuffix);
         }
 
         public static double? ParseDegSecParSec(string formatted)
