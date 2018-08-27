@@ -16,6 +16,7 @@ namespace Toptal.BikeRentals.Configuration
             Logging = new Logging(configuration);
             AzureAdOptions = new AzureAdOptions(configuration);
             ApplicationInsights = new ApplicationInsights(configuration);
+            Content = new Content(configuration);
         }
 
         public ConnectionStrings ConnectionStrings { get; private set; }
@@ -35,6 +36,8 @@ namespace Toptal.BikeRentals.Configuration
         public AzureAdOptions AzureAdOptions{ get; private set; }
 
         public ApplicationInsights ApplicationInsights { get; private set; }
+
+        public Content Content { get; private set; }
     }
 
 

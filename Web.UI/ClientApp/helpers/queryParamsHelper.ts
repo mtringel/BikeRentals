@@ -34,10 +34,8 @@ export class QueryParamsHelper {
 
         if (i >= 0) {
             var params = url.substr(i + 1).split('&');
-            var length = params.length;
 
-            for (var ndx = 0; ndx < length; ndx++) {
-                var val = params[ndx];
+            for (var val of params) {
                 var j = val.indexOf('=');
 
                 if (j >= 0) {

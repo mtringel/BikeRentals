@@ -10,6 +10,7 @@ import { ComponentBase } from '../../helpers/componentBase';
 export interface UserDeleteModalComponentProps {
     readonly user: User;
     readonly authContext: UserAuthContext;
+    readonly isInitialized: boolean;
 }
 
 export interface UserDeleteModalComponentActions {
@@ -64,6 +65,7 @@ export class UserDeleteModalComponent extends ComponentBase<UserDeleteModalCompo
                                 user={this.props.user}
                                 authContext={this.props.authContext}
                                 requirePassword={false}
+                                isInitialized={this.props.isInitialized}
                                 showPassword={false}
                                 isReadOnly={true}
                                 onChange={(changed, data) => { }}

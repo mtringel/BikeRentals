@@ -135,6 +135,7 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
                             requirePassword={this.state.isNewUser}
                             showPassword={true}
                             isReadOnly={!this.state.isInitialized}
+                            isInitialized={this.state.isInitialized}
                             onChange={(changed, data) => this.change(changed)}
                         />
 
@@ -177,6 +178,7 @@ export class UserEdit extends ScreenBase<ThisProps, ThisState>
                             ref={el => this.userDeleteModal = el}
                             authContext={this.state.authContext}
                             user={this.state.data.User}
+                            isInitialized={this.state.isInitialized}
                             onCancel={(props, modal) => modal.hide()}
                             onConfirm={(props, modal) => { modal.hide(); this.onDelete(); }}
                         />

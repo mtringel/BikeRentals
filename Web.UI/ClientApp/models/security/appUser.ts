@@ -48,14 +48,13 @@ export class AppUser extends Model {
 
             var permissions = permission as Permission[];
             var userPermissions = user.Permissions;
-            var length = permissions.length;
 
             if (allPermissions !== true) {
                 // ANY
                 res = false;
 
-                for (var i = 0; i < length; i++)
-                    if (userPermissions.indexOf(permissions[i]) >= 0) {
+                for (var perm of userPermissions)
+                    if (userPermissions.indexOf(perm) >= 0) {
                         res = true;
                         break;
                     }
@@ -64,8 +63,8 @@ export class AppUser extends Model {
                 // ALL
                 res = true;
 
-                for (var i = 0; i < length; i++)
-                    if (userPermissions.indexOf(permissions[i]) < 0) {
+                for (var perm of userPermissions)
+                    if (userPermissions.indexOf(perm) < 0) {
                         res = false;
                         break;
                     }

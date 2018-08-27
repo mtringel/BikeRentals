@@ -1,15 +1,17 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Toptal.BikeRentals.BusinessEntities.Helpers;
 using Toptal.BikeRentals.BusinessEntities.Master;
-using Toptal.BikeRentals.Service.Models.Helpers;
 using Toptal.BikeRentals.Service.Models.Users;
 
 namespace Toptal.BikeRentals.Service.Models.Bikes
 {
     public sealed class Bike : BikeListItem, IEditableObject
     {
+        public string ImageToUploadContentBase64 { get; set; }
+
+        public string ImageToUploadFileName { get; set; }
+
         [Required]
         public DateTime? Created { get; set; }
 
@@ -52,7 +54,9 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
                 RateAverage.GetValueOrDefault(),
                 Created.Value,
                 CreatedBy.ToEntityPartial(),
-                false
+                null,
+                ImageSeq,
+                true
                 );
         }
 

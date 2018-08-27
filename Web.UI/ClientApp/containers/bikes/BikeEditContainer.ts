@@ -18,6 +18,7 @@ import { ColorsActions } from '../../store/actions/master/colorsActions';
 import { BikeModelsActions } from '../../store/actions/bikes/bikeModelsActions';
 import { Bike } from '../../models/bikes/bike';
 import { StoreActions } from '../../store/actions/storeActions';
+import { TypeHelper } from '../../helpers/typeHelper';
 
 const mapStateToProps: (state: RootState) => BikeEditProps = state => {    
     var store = storeProvider();    
@@ -64,8 +65,12 @@ const mapDispatchToProps: (dispatch: StoreDispatch) => BikeEditActions = dispatc
         onSave: (bike, isNewBike) => {
             if (isNewBike)
                 dispatch(BikesActions.post(bike, true, storeProvider().getState().clientContext.currentLocation, () => redirectBack()));
-            else
+            else {
+                if (!StringHelper.isNullOrEmpty(bike.ImageToUploadFileName))
+                    bike = { ...bike, ImageSeq: TypeHelper.notNullOrEmpty(bike.ImageSeq, 0) + 1 };
+
                 dispatch(BikesActions.put(bike, true, () => redirectBack()));
+            }
         },
 
         onDelete: (bike, isNewBike) => {

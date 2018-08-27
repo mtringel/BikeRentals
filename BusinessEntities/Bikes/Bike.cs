@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Toptal.BikeRentals.BusinessEntities.Contents;
 using Toptal.BikeRentals.BusinessEntities.Helpers;
 using Toptal.BikeRentals.BusinessEntities.Master;
 using Toptal.BikeRentals.BusinessEntities.Rents;
@@ -78,12 +79,23 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
         /// </summary>
         public ICollection<BikeRent> Rents { get; set; }
 
-        [NotMapped]
         /// <summary>
         /// Entity is created from UI data, not loaded from db. Usually, only the key fields are set, the rest are set to default.
         /// Used when constructing referred entities, like BikeRent.Bike.
         /// </summary>
+        [NotMapped]
         public bool IsPartial { get; set; }
+
+        /// <summary>
+        /// Jpg, jpeg or png
+        /// </summary>
+        public ContentFileFormat? ImageFormat { get; set; }
+
+        /// <summary>
+        /// Current seq number of image. Used to workaround browser caching.
+        /// Image filename: BikeImage_{BikeId}_{ImageSeq}[_thumb].{ImageFormat}
+        /// </summary>
+        public int? ImageSeq { get; set; }
 
         public Bike()
         {
@@ -101,6 +113,8 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             float rateAverage,
             DateTime created,
             User createdBy,
+            ContentFileFormat? imageFormat,
+            int? imageSeq,
             bool isPartial
             )
         {
@@ -115,6 +129,8 @@ namespace Toptal.BikeRentals.BusinessEntities.Bikes
             this.CreatedUtc = created;
             this.CreatedBy = createdBy;
             this.IsActive = true;
+            this.ImageFormat = imageFormat;
+            this.ImageSeq = imageSeq;
             this.IsPartial = isPartial;
         }
 

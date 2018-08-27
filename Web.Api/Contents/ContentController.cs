@@ -29,12 +29,12 @@ namespace Toptal.BikeRentals.Web.Api.Contents
         }
 
         [HttpGet]
-        public async Task<ActionResult> Get(ContentType contentType, string key)
+        public async Task<ActionResult> Get(ContentType contentType, string key, int seq)
         {
             try
             {
-                var content = await ContentService.Get(contentType, key);
-                return File(content.Bytes, content.HttpContentType);
+                var content = await ContentService.Get(contentType, key, seq);
+                return File(content.Data, content.HttpContentType);
             }
             catch (Exception ex)
             {

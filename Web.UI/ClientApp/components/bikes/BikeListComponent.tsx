@@ -8,6 +8,7 @@ import { BikeAuthContext } from '../../models/bikes/bikeAuthContext';
 import { Location } from '../../models/master/location';
 import { ComponentBase } from '../../helpers/componentBase';
 import Badge from 'react-bootstrap/lib/Badge';
+import Image from 'react-bootstrap/lib/Image';
 import { StringHelper } from '../../helpers/stringHelper';
 import { TypeHelper } from '../../helpers/typeHelper';
 import { ArrayHelper } from '../../helpers/arrayHelper';
@@ -150,7 +151,7 @@ export class BikeListComponent extends ComponentBase<ThisProps, ThisState>
                             {this.props.authContext.canManage &&
                                 <td><span style={{ background: "#" + BikeStateHelper.allColors[item.BikeState] }}>&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;{BikeStateHelper.allNames[item.BikeState]}</td>
                             }
-                            <td key="Image"><img src={"/Api/Content?contentType=BikeImageThumb&Key=" + item.BikeId.toString()} width="100" height="60" /></td>
+                            <td key="Image"><Image src={"/Api/Content?contentType=BikeImageThumb&key=" + item.BikeId.toString() + "&seq=" + TypeHelper.toString(item.ImageSeq)} width="100" height="60" rounded /></td>
                             <td key="Model">{item.BikeModel.BikeModelName}</td>
                             <td key="Color"><span style={{ background: "#" + item.Color.ColorId }}>&nbsp;</span>&nbsp;{item.Color.ColorName}</td>
                             <td key="Weight" className="text-right">{StringHelper.formatNumber(item.BikeModel.WeightLbs, 0, 1, " lbs")}</td>

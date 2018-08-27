@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>Toptal.BikeRentals.Service.Api</AssemblyName>
     <RootNamespace>Toptal.BikeRentals.Service.Api</RootNamespace>
   </PropertyGroup>
@@ -16,6 +16,15 @@
     <ProjectReference Include="..\Resources\Resources.csproj" />
     <ProjectReference Include="..\Security\Security.csproj" />
     <ProjectReference Include="..\Service.Models\Service.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="SixLabors.Core">
+      <HintPath>..\3rdParty\SixLabors.ImageSharp\SixLabors.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SixLabors.ImageSharp">
+      <HintPath>..\3rdParty\SixLabors.ImageSharp\SixLabors.ImageSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

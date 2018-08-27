@@ -26,6 +26,8 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
 
         public float? RateAverage { get; set; }
 
+        public int? ImageSeq { get; set; }
+
         public BikeListItem(BusinessEntities.Bikes.Bike bike, Location? currentLocation)
             : base(bike)
         {
@@ -37,6 +39,7 @@ namespace Toptal.BikeRentals.Service.Models.Bikes
                 this.AvailableFromUtc = bike.AvailableFromUtc;
                 this.RateAverage = bike.RateAverage;
                 this.CurrentLocationName = bike.CurrentLocationName;
+                this.ImageSeq = bike.ImageSeq;
 
                 if (currentLocation.HasValue)
                     this.DistanceMiles = Location.DistanceMiles(bike.CurrentLocation, currentLocation.Value);

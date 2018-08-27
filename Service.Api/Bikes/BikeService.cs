@@ -15,6 +15,10 @@ using Toptal.BikeRentals.BusinessEntities.Master;
 using Toptal.BikeRentals.Exceptions.Validation;
 using Toptal.BikeRentals.Service.Models.Users;
 using System;
+using System.Text;
+using Toptal.BikeRentals.BusinessLogic.Contents;
+using Toptal.BikeRentals.BusinessEntities.Contents;
+using System.IO;
 // don't refer to BusinessEntities namespaces here (to avoid confusion with Service.Models)
 
 namespace Toptal.BikeRentals.Service.Api.Bikes
@@ -25,6 +29,8 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
 
         private BikeManager BikeManager;
 
+        private ContentManager ContentManager;
+
         #endregion
 
         public BikeService(
@@ -33,11 +39,13 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
             AppConfig appConfig,
             ITelemetryLogger logger,
             ITransactionManager transactionManager,
-            BikeManager bikeManager
+            BikeManager bikeManager,
+            ContentManager contentManager
             )
             : base(callContext, authProvider, appConfig, logger, transactionManager)
         {
             this.BikeManager = bikeManager;
+            this.ContentManager = contentManager;
         }
 
         #region Get (collection)
@@ -124,11 +132,30 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 Helper.ValidateModel(bike, true);
 
                 // process
+                var saveImage = !string.IsNullOrEmpty(bike.ImageToUploadContentBase64) && !string.IsNullOrEmpty(bike.ImageToUploadFileName);
                 var entity = bike.ToEntity();
+
+                if (saveImage)
+                {
+                    // increment seq
+                    entity.ImageSeq = 1;
+                    entity.ImageFormat = ContentManager.GetFormat(BikeManager.GetImageContentRef(entity, false)).FileFormat.GetValueOrDefault(); // image will be validated when saving
+                }
+
                 BikeManager.Add(entity);
 
                 return scope.Complete(
-                    () => new Models.Bikes.Bike(BikeManager.GetById(entity.BikeId), currentLocation),
+                    () =>
+                    {
+                        // after commit
+                        if (saveImage)
+                        {                           
+                            // save new image
+                            BikeManager.SaveImage(entity, ContentManager.DecodeBase64Image(bike.ImageToUploadContentBase64));
+                        }
+
+                        return new Models.Bikes.Bike(BikeManager.GetById(entity.BikeId), currentLocation);
+                    },
                     t => $"Bike has been created with Id={bike.BikeId}."
                     );
             }
@@ -155,9 +182,35 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 Helper.ValidateModel(bike, true);
 
                 // process
-                BikeManager.Update(bike.ToEntity());
+                var saveImage = !string.IsNullOrEmpty(bike.ImageToUploadContentBase64) && !string.IsNullOrEmpty(bike.ImageToUploadFileName);
+                var entity = bike.ToEntity();
+                BusinessEntities.Bikes.Bike prevEntity = null;
+                
+                if (saveImage) {
+                    prevEntity = BikeManager.GetById(entity.BikeId);
 
-                scope.Complete(() => $"Bike has been updated with Id={bike.BikeId}.");
+                    // increment seq
+                    entity.ImageSeq = prevEntity.ImageSeq.GetValueOrDefault() + 1;
+                    entity.ImageFormat = ContentManager.GetFormat(BikeManager.GetImageContentRef(entity, false)).FileFormat.GetValueOrDefault(); // image will be validated when saving
+                }
+
+                BikeManager.Update(entity);
+
+                scope.Complete(
+                    () =>
+                    {
+                        // after commit
+                        if (saveImage)
+                        {
+                            // delete previous image
+                            if (prevEntity.ImageSeq.HasValue && prevEntity.ImageFormat.HasValue)
+                                BikeManager.DeleteImage(prevEntity);
+
+                            // save new image
+                            BikeManager.SaveImage(entity, ContentManager.DecodeBase64Image(bike.ImageToUploadContentBase64));
+                        }
+                    },
+                    () => $"Bike has been updated with Id={bike.BikeId}.");
             }
         }
 
@@ -179,9 +232,12 @@ namespace Toptal.BikeRentals.Service.Api.Bikes
                 Helper.Expect(typeof(Models.Bikes.Bike), bikeId);
 
                 // process
+                var prevEntity = BikeManager.GetById(bikeId);
                 BikeManager.Delete(bikeId);
 
-                scope.Complete(() => $"Bike has been deleted with Id={bikeId}.");
+                scope.Complete(
+                    () => BikeManager.DeleteImage(prevEntity),
+                    () => $"Bike has been deleted with Id={bikeId}.");
             }
         }
 

@@ -41,7 +41,7 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
                 AuthProvider.AddUser("Test", $"User {i}", $"testuser{i}@gmail.com", $"testuser{i}@gmail.com", dbc.TestUsersPassword, RoleType.User);
 
             for (int i = 0; i < dbc.TestManagersCount; i++)
-                AuthProvider.AddUser("Test", $"Manager {i}", $"testmanager{i}@gmail.com", $"testmanager{i}@gmail.com", dbc.TestUsersPassword, RoleType.User);
+                AuthProvider.AddUser("Test", $"Manager {i}", $"testmanager{i}@gmail.com", $"testmanager{i}@gmail.com", dbc.TestUsersPassword, RoleType.Manager);
         }
     }
 }

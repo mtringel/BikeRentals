@@ -17,6 +17,7 @@ export interface UserFormComponentProps  {
     readonly requirePassword: boolean;
     readonly showPassword: boolean;
     readonly isReadOnly: boolean;
+    readonly isInitialized: boolean;
 }
 
 class UserFormComponentState {
@@ -68,87 +69,90 @@ export class UserFormComponent extends ComponentBase<UserFormComponentProps & Us
 
     public render(): JSX.Element | null | false {
         return <div>
-            {/* First name */}
-            <div className="form-group">
-                <label htmlFor="firstName" className="col-sm-3 control-label">First Name</label>
-                <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
-                    <input type="text" id="firstName" name="firstName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.user.FirstName, "")} required={true} maxLength={50} disabled={this.props.isReadOnly}
-                        placeholder="Please fill mandatory field" onChange={e => this.change({ FirstName: e.target.value })} />
-                </div>
-            </div>
-
-            {/* Last name */}
-            <div className="form-group">
-                <label htmlFor="lastName" className="col-sm-3 control-label">Last Name</label>
-                <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
-                    <input type="text" id="lastName" name="lastName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.user.LastName, "")} required={true} maxLength={50} disabled={this.props.isReadOnly}
-                        placeholder="Please fill mandatory field" onChange={e => this.change({ LastName: e.target.value })} />
-                </div>
-            </div>
-
-            {/* Email */}
-            <div className="form-group">
-                <label htmlFor="email" className="col-sm-3 control-label">Email</label>
-                <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-user"></i></span>
-                    <input type="email" id="email" name="email" className="form-control" value={this.state.user.Email} required={true} maxLength={50} disabled={this.props.isReadOnly}
-                        placeholder="Please fill mandatory field" onChange={e => this.change({ Email: e.target.value })} />
-                </div>
-            </div>
-
-            {/* Password */}
-            {this.props.showPassword &&
-                <div className="form-group" >
-                    <label htmlFor="password" className="col-sm-3 control-label">Reset password</label>
+            {this.props.isInitialized && <div>
+                {/* First name */}
+                <div className="form-group">
+                    <label htmlFor="firstName" className="col-sm-3 control-label">First Name</label>
                     <div className="col-sm-6 input-group">
-                        <span className="input-group-addon"><i className="glyphicon glyphicon-lock"></i></span>
-                        <input type="password" id="password" name="password" className="form-control" value={this.state.user.Password} maxLength={50} disabled={this.props.isReadOnly}
-                            required={this.props.requirePassword}
-                            placeholder={this.props.requirePassword ? "Please fill mandatory field" : "Please fill to reset password"}
-                            onChange={e => this.change({ Password: e.target.value })}
-                        />
+                        <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
+                        <input type="text" id="firstName" name="firstName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.user.FirstName, "")} required={true} maxLength={50} disabled={this.props.isReadOnly}
+                            placeholder="Please fill mandatory field" onChange={e => this.change({ FirstName: e.target.value })} />
                     </div>
                 </div>
-            }
 
-            {/* Password confirmation */}
-            {this.props.showPassword &&
-                <div className="form-group" >
-                    <label htmlFor="confirmPassword" className="col-sm-3 control-label">Confirm password</label>
+                {/* Last name */}
+                <div className="form-group">
+                    <label htmlFor="lastName" className="col-sm-3 control-label">Last Name</label>
                     <div className="col-sm-6 input-group">
-                        <span className="input-group-addon"><i className="glyphicon glyphicon-lock"></i></span>
-                        <input type="password" id="confirmPassword" name="confirmPassword" className="form-control" value={this.state.user.ConfirmPassword} maxLength={50} disabled={this.props.isReadOnly}
-                            required={this.props.requirePassword}
-                            placeholder={this.props.requirePassword ? "Please fill mandatory field" : "Please fill to reset password"}
-                            onChange={e => this.change({ ConfirmPassword: e.target.value })}
-                        />
+                        <span className="input-group-addon"><i className="glyphicon glyphicon-info-sign"></i></span>
+                        <input type="text" id="lastName" name="lastName" className="form-control" value={StringHelper.notNullOrEmpty(this.state.user.LastName, "")} required={true} maxLength={50} disabled={this.props.isReadOnly}
+                            placeholder="Please fill mandatory field" onChange={e => this.change({ LastName: e.target.value })} />
                     </div>
                 </div>
-            }
 
-            {/* Role */}
-            <div className="form-group" >
-                <label htmlFor="role" className="col-sm-3 control-label">Role</label>
-                <div className="col-sm-6 input-group">
-                    <span className="input-group-addon"><i className="glyphicon glyphicon-tower"></i></span>
-                    <select id="role" name="role" className="form-control" value={this.state.user.Role} required={true}
-                        disabled={!this.props.authContext.canSetRole || this.props.isReadOnly}
-                        placeholder="Please fill mandatory field"
-                        onChange={e => {
-                            var index = MathHelper.clamp(parseInt(e.target.value), 0, e.target.options.length - 1);
-                            this.change({
-                                Role: index as RoleType,
-                                RoleTitle: e.target.options[index].text
-                            });
-                        }}
-                    >
-                        {this.props.isReadOnly && <option value={this.state.user.Role}>{this.state.user.RoleTitle}</option>}
-                        {!this.props.isReadOnly && RoleTypeHelper.allRoles.filter(t => t != RoleType.Disabled).map(item => RoleTypeHelper.getOption(item))}
-                    </select>
+                {/* Email */}
+                <div className="form-group">
+                    <label htmlFor="email" className="col-sm-3 control-label">Email</label>
+                    <div className="col-sm-6 input-group">
+                        <span className="input-group-addon"><i className="glyphicon glyphicon-user"></i></span>
+                        <input type="email" id="email" name="email" className="form-control" value={this.state.user.Email} required={true} maxLength={50} disabled={this.props.isReadOnly}
+                            placeholder="Please fill mandatory field" onChange={e => this.change({ Email: e.target.value })} />
+                    </div>
+                </div>
+
+                {/* Password */}
+                {this.props.showPassword &&
+                    <div className="form-group" >
+                        <label htmlFor="password" className="col-sm-3 control-label">Reset password</label>
+                        <div className="col-sm-6 input-group">
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-lock"></i></span>
+                            <input type="password" id="password" name="password" className="form-control" value={this.state.user.Password} maxLength={50} disabled={this.props.isReadOnly}
+                                required={this.props.requirePassword}
+                                placeholder={this.props.requirePassword ? "Please fill mandatory field" : "Please fill to reset password"}
+                                onChange={e => this.change({ Password: e.target.value })}
+                            />
+                        </div>
+                    </div>
+                }
+
+                {/* Password confirmation */}
+                {this.props.showPassword &&
+                    <div className="form-group" >
+                        <label htmlFor="confirmPassword" className="col-sm-3 control-label">Confirm password</label>
+                        <div className="col-sm-6 input-group">
+                            <span className="input-group-addon"><i className="glyphicon glyphicon-lock"></i></span>
+                            <input type="password" id="confirmPassword" name="confirmPassword" className="form-control" value={this.state.user.ConfirmPassword} maxLength={50} disabled={this.props.isReadOnly}
+                                required={this.props.requirePassword}
+                                placeholder={this.props.requirePassword ? "Please fill mandatory field" : "Please fill to reset password"}
+                                onChange={e => this.change({ ConfirmPassword: e.target.value })}
+                            />
+                        </div>
+                    </div>
+                }
+
+                {/* Role */}
+                <div className="form-group" >
+                    <label htmlFor="role" className="col-sm-3 control-label">Role</label>
+                    <div className="col-sm-6 input-group">
+                        <span className="input-group-addon"><i className="glyphicon glyphicon-tower"></i></span>
+                        <select id="role" name="role" className="form-control" value={this.state.user.Role} required={true}
+                            disabled={!this.props.authContext.canSetRole || this.props.isReadOnly}
+                            placeholder="Please fill mandatory field"
+                            onChange={e => {
+                                var index = MathHelper.clamp(parseInt(e.target.value), 0, e.target.options.length - 1);
+                                this.change({
+                                    Role: index as RoleType,
+                                    RoleTitle: e.target.options[index].text
+                                });
+                            }}
+                        >
+                            {this.props.isReadOnly && <option value={this.state.user.Role}>{this.state.user.RoleTitle}</option>}
+                            {!this.props.isReadOnly && RoleTypeHelper.allRoles.filter(t => t != RoleType.Disabled).map(item => RoleTypeHelper.getOption(item))}
+                        </select>
+                    </div>
                 </div>
             </div>
+            }
         </div>;
     }
 }

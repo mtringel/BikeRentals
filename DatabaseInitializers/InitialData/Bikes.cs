@@ -85,6 +85,8 @@ namespace Toptal.BikeRentals.DatabaseInitializers.InitialData
                     (float)ThreadSafeRandom.NextDouble(0d, 5d),
                     DateTime.UtcNow,
                     user,
+                    null,
+                    null,
                     false
                 ));
             }

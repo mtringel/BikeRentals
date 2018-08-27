@@ -24,4 +24,6 @@ export class BikeListItem extends BikeRef {
     public readonly RateAverage: number;
 
     public readonly DistanceMiles: number | null | undefined;
+
+    public readonly ImageSeq: number | null | undefined;
 }

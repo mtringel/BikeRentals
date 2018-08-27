@@ -66,11 +66,9 @@ export class ArrayHelper {
             return;
 
         var order = descending === true ? -1 : 1;
-        var length = propertyNames.length;
 
         array.sort((item1, item2) => {
-            for (var i = 0; i < length; i++) {
-                var name = propertyNames[i];
+            for (var name of propertyNames) {
                 var res = TypeHelper.compare(item1[name], item2[name], 0, true);
 
                 if (res != 0)
@@ -160,10 +158,12 @@ export class ArrayHelper {
     public static indexByPredicate<T>(array: T[], predicate: (item: T) => boolean): number {
 
         if (!ArrayHelper.isNullOrEmpty(array)) {
-            var length = array.length;
+            var i = 0;
 
-            for (var i = 0; i < length; i++)
-                if (predicate(array[i])) return i;
+            for (var item of array) {
+                if (predicate(item)) return i;
+                i++;
+            }
         }
 
         return -1;
@@ -400,11 +400,11 @@ export class ArrayHelper {
         if (ArrayHelper.isNullOrEmpty(array))
             return [];
         else {
-            var length = array.length;
-            var res = new Array(length);
+            var res = new Array(array.length);
+            var i = 0;
 
-            for (var i = 0; i < length; i++)
-                res[i] = select(array[i]);
+            for (var item of array)
+                res[i++] = select(item);
 
             return res;
         }
@@ -439,15 +439,11 @@ export class ArrayHelper {
         if (ArrayHelper.isNullOrEmpty(array))
             return null;
 
-        var length = array.length;
         var min = array[0];
 
-        for (var i = 1; i < length; i++) {
-            var value = array[i];
-
+        for (var value of array)
             if (TypeHelper.compare(value, min, 0, caseInsensitiveStringComparison) < 0)
                 min = value;
-        }
 
         return min;
     }
@@ -456,11 +452,10 @@ export class ArrayHelper {
         if (ArrayHelper.isNullOrEmpty(array))
             return null;
 
-        var length = array.length;
         var min = select(array[0]);
 
-        for (var i = 1; i < length; i++) {
-            var value = select(array[i]);
+        for (var item of array) {
+            var value = select(item);
 
             if (TypeHelper.compare(value, min, 0, caseInsensitiveStringComparison) < 0)
                 min = value;
@@ -473,15 +468,11 @@ export class ArrayHelper {
         if (ArrayHelper.isNullOrEmpty(array))
             return null;
 
-        var length = array.length;
         var max = array[0];
 
-        for (var i = 1; i < length; i++) {
-            var value = array[i];
-
+        for (var value of array)
             if (TypeHelper.compare(value, max, 0, caseInsensitiveStringComparison) > 0)
                 max = value;
-        }
 
         return max;
     }
@@ -493,8 +484,8 @@ export class ArrayHelper {
         var length = array.length;
         var max = select(array[0]);
 
-        for (var i = 1; i < length; i++) {
-            var value = select(array[i]);
+        for (var item of array) {
+            var value = select(item);
 
             if (TypeHelper.compare(value, max, 0, caseInsensitiveStringComparison) > 0)
                 max = value;

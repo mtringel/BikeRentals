@@ -162,9 +162,11 @@ export class BikeEdit extends ScreenBase<ThisProps, ThisState>
                     <form className="form-horizontal" role="form" id="form" name="form" ref={t => this.form = t} onSubmit={e => { e.preventDefault(); this.onSubmit(); }}>
 
                         <BikeFormComponent
+                            store={this.props.store}
                             bike={this.state.data.Bike}
                             authContext={this.state.authContext}
                             isReadOnly={!this.state.isInitialized}
+                            isInitialized={this.state.isInitialized}
                             bikeModels={this.state.bikeModels}
                             colors={this.state.colors}
                             addNew={this.state.isNewBike}

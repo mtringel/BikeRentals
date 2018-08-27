@@ -167,6 +167,11 @@ namespace Toptal.BikeRentals.DataAccess.Bikes
 
         public void Update(Bike bike)
         {
+            var prev = AppDbContext.Bikes.Find(bike.BikeId);
+
+            if (prev != null)
+                AppDbContext.Entry(prev).State = EntityState.Detached;
+
             AppDbContext.Entry(bike).State = EntityState.Modified;
             AppDbContext.Bikes.Update(bike);
             AppDbContext.SaveChanges();

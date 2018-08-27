@@ -27,6 +27,15 @@ namespace Toptal.BikeRentals.Service.Api.Helpers
         /// Completes transactions (commit)
         /// We have to deal with it, that IDENTITY column is set after Complete()
         /// </summary>
+        public void Complete(Func<string> completedMessage)
+        {
+            Complete(new[] { completedMessage });
+        }
+
+        /// <summary>
+        /// Completes transactions (commit)
+        /// We have to deal with it, that IDENTITY column is set after Complete()
+        /// </summary>
         public void Complete(IEnumerable<Func<string>> completedMessages)
         {
             if (IsCompleted)
@@ -46,29 +55,22 @@ namespace Toptal.BikeRentals.Service.Api.Helpers
         {
             if (!completedMessages.Any())
                 return Complete(result, t => "Process has been completed.");
-            
-            // don't call result() here, changes have not been saved
-            T resultObj = default(T);
-
-            Complete(completedMessages.Select((t, tind) =>
+            else
             {
+                // don't call result() here, changes have not been saved
+                T resultObj = default(T);
+
+                Complete(completedMessages.Select((t, tind) =>
+                {
                 // call result() here, but only once
                 if (tind == 0)
-                    resultObj = result();
+                        resultObj = result();
 
-                return new Func<string>(() => t(resultObj));
-            }));
+                    return new Func<string>(() => t(resultObj));
+                }));
 
-            return resultObj;
-        }
-
-        /// <summary>
-        /// Completes transactions (commit)
-        /// We have to deal with it, that IDENTITY column is set after Complete()
-        /// </summary>
-        public void Complete(Func<string> completedMessage)
-        {
-            Complete(new[] { completedMessage });
+                return resultObj;
+            }
         }
 
         /// <summary>
@@ -78,6 +80,34 @@ namespace Toptal.BikeRentals.Service.Api.Helpers
         public T Complete<T>(Func<T> result, Func<T, string> completedMessage)
         {
             return Complete(result, new[] { completedMessage });
+        }
+
+        /// <summary>
+        /// Completes transactions (commit)
+        /// We have to deal with it, that IDENTITY column is set after Complete()
+        /// </summary>
+        public void Complete(Action afterCommit, IEnumerable<Func<string>> completedMessages)
+        {
+            if (!completedMessages.Any())
+                Complete(afterCommit, () => "Process has been completed.");
+            else
+                Complete(completedMessages.Select((t, tind) =>
+                {
+                // call result() here, but only once
+                if (tind == 0)
+                        afterCommit();
+
+                    return new Func<string>(t);
+                }));
+        }
+
+        /// <summary>
+        /// Completes transactions (commit)
+        /// We have to deal with it, that IDENTITY column is set after Complete()
+        /// </summary>
+        public void Complete(Action afterCommit, Func<string> completedMessage)
+        {
+            Complete(afterCommit, new[] { completedMessage });
         }
 
         /// <summary>

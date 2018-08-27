@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Toptal.BikeRentals.BusinessEntities.Contents;
 using Toptal.BikeRentals.BusinessLogic.Bikes;
@@ -36,10 +34,12 @@ namespace Toptal.BikeRentals.Service.Api.Contents
             this.BikeManager = bikeManager;
         }
 
-        public async Task<Content> Get(ContentType contentType, string key)
+        public async Task<Content<byte[]>> Get(ContentType contentType, string key, int seq)
         {
             using (var scope = Scope("Get"))
             {
+                IContent content = null;
+
                 switch (contentType)
                 {
                     case ContentType.BikeImage:
@@ -48,18 +48,26 @@ namespace Toptal.BikeRentals.Service.Api.Contents
                             AuthProvider.Authorize(Permission.Bike_ViewAll, Permission.Bike_Management);
 
                             // TODO put down images using BikeId, so the Bike entity won't be needed here (hack: we use model name for the moment)
-                            var bike = BikeManager.GetById(int.Parse(key));
-                            var uri = $"{bike.BikeModel.BikeModelName}.jpg";
+                            var bike = BikeManager.GetById(int.Parse(key));                            
 
-                            return await scope.Complete(
-                                () => ContentManager.GetContent(new ContentRef(contentType, uri)),
-                                t => $"Bike image loaded successfully (type: {contentType}, uri: {uri})."
-                                );
+                            // uploaded image to bike
+                            if (bike.ImageFormat.HasValue && bike.ImageSeq.HasValue)
+                                content = await ContentManager.GetContent(BikeManager.GetImageContentRef(bike, contentType == ContentType.BikeImageThumb), false);
+
+                            if (content == null)
+                                // fall back to model image
+                                content = await ContentManager.GetContent(new ContentRef(contentType, $"{bike.BikeModel.BikeModelName}.jpg"), true);
                         }
+                        break;
 
                     default:
                         throw new NotSupportedException($"Content type is not supported: {contentType}.");
                 }
+
+                return scope.Complete(
+                    () => ContentManager.Serialize(content),
+                    t => $"Bike image loaded successfully (type: {contentType}, uri: {t.ContentRef.Uri})."
+                    );
             }
         }
     }

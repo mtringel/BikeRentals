@@ -2,30 +2,22 @@
 
 namespace Toptal.BikeRentals.BusinessEntities.Contents
 {
-    public sealed class Content : Entity
+   
+    public sealed class Content<T> : IContent
     {
-        public ContentType ContentType { get; set; }
+        public ContentRef ContentRef { get; private set; }
 
-        /// <summary>
-        /// Image file name or other resource uri.
-        /// </summary>
-        public string Uri { get; set; }
+        public T Data { get; private set; }
 
-        public byte[] Bytes { get; set; }
+        object IContent.Data { get { return this.Data; } }
 
-        public string HttpContentType { get; set; }
+        public string HttpContentType { get; private set; }
 
-        public Content(ContentType contentType, string uri, string httpContentType, byte[] bytes)
+        public Content(ContentRef cref, string httpContentType, T data)
         {
-            this.ContentType = contentType;
-            this.Uri = uri;
+            this.ContentRef = cref;
             this.HttpContentType = httpContentType;
-            this.Bytes = bytes;
-        }
-
-        public override object[] Keys()
-        {
-            return new object[] { ContentType, Uri };
+            this.Data = data;
         }
     }
 }

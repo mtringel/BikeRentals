@@ -108,7 +108,7 @@ namespace Toptal.BikeRentals.Web.Api.Bikes
             try
             {
                 Helper.Expect(bike, t => t.BikeId, id);
-                CallContext.AntiforgeryTokenValidate(true);
+                CallContext.AntiforgeryTokenValidate(true);               
                 return Helper.OK(() => BikeService.Put(bike));
             }
             catch (Exception ex)
