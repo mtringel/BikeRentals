@@ -2,6 +2,7 @@
 import { RoleType } from "./roleType";
 import { Permission } from "./permission";
 import { TypeHelper } from "../../helpers/typeHelper";
+import { ArrayHelper } from "../../helpers/arrayHelper";
 
 /// <summary>
 /// Toptal.BikeRentals.Security.Principals.AppUser must be synchronized with 'permission' enum in Toptal.BikeRentals.Web.UI/ClientApp/app/shared/models/security/appUser.ts
@@ -51,23 +52,11 @@ export class AppUser extends Model {
 
             if (allPermissions !== true) {
                 // ANY
-                res = false;
-
-                for (var perm of userPermissions)
-                    if (userPermissions.indexOf(perm) >= 0) {
-                        res = true;
-                        break;
-                    }
+                res = ArrayHelper.any(permissions, t => userPermissions.indexOf(t) >= 0);
             }
             else {
                 // ALL
-                res = true;
-
-                for (var perm of userPermissions)
-                    if (userPermissions.indexOf(perm) < 0) {
-                        res = false;
-                        break;
-                    }
+                res = ArrayHelper.all(permissions, t => userPermissions.indexOf(t) >= 0);
             }
         }
         else
